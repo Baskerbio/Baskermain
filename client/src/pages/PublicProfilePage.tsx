@@ -1,0 +1,1076 @@
+import { useRoute } from 'wouter';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'wouter';
+import { atprotocol } from '../lib/atprotocol';
+import { ProfileHeader } from '../components/ProfileHeader';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Skeleton } from '../components/ui/skeleton';
+import { Alert, AlertDescription } from '../components/ui/alert';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Textarea } from '../components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog';
+import { Label } from '../components/ui/label';
+import { UserProfile } from '@shared/schema';
+import { ArrowLeft, Users, Cloud, Music, Heart, Image, Megaphone, Mail, X } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+
+export default function PublicProfilePage() {
+  const [, params] = useRoute('/:handle');
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [settings, setSettings] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { user: currentUser } = useAuth();
+
+  useEffect(() => {
+    if (!params?.handle) return;
+
+    const loadProfile = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Extract handle from URL (e.g., "username.bsky.social")
+        // Remove @ symbol if present (some URLs might have @username.bsky.social)
+        let handle = params.handle;
+        if (handle.startsWith('@')) {
+          handle = handle.substring(1);
+        }
+        
+        console.log('Resolving handle:', handle);
+        
+        let profileData;
+        let did;
+        
+        // If the user is viewing their own profile, use the authenticated user's data
+        if (currentUser && currentUser.handle === handle) {
+          profileData = currentUser;
+          did = currentUser.did;
+        } else {
+          // For other users, try to get public profile data
+          profileData = await atprotocol.getPublicProfile(handle);
+          did = profileData.did;
+        }
+        
+        // Create UserProfile object
+        const userProfile: UserProfile = {
+          did: did,
+          handle: handle,
+          displayName: profileData.displayName || '',
+          description: profileData.description || '',
+          avatar: profileData.avatar || '',
+          banner: profileData.banner || '',
+          followersCount: profileData.followersCount || 0,
+          followsCount: profileData.followsCount || 0,
+          postsCount: profileData.postsCount || 0,
+          createdAt: profileData.createdAt || new Date().toISOString(),
+        };
+        
+        setProfile(userProfile);
+        
+        // Load settings for this user
+        try {
+          console.log('Loading settings for DID:', did);
+          const settingsData = await atprotocol.getPublicSettings(did);
+          console.log('Loaded public settings:', settingsData);
+          setSettings(settingsData?.settings || null);
+        } catch (settingsErr: any) {
+          console.error('Failed to load settings:', settingsErr);
+          // Settings loading failure shouldn't break the profile page
+          setSettings(null);
+        }
+      } catch (err: any) {
+        console.error('Failed to load profile:', err);
+        setError(err.message || 'Failed to load profile');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProfile();
+  }, [params?.handle]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <header className="bg-card border-b border-border sticky top-0 z-50" data-testid="header">
+          <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Link href="/">
+                <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                  <ArrowLeft className="w-4 h-4" />
+                  Back
+                </Button>
+              </Link>
+              <span className="text-muted-foreground">|</span>
+              <img 
+                src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
+                alt="Basker"
+                className="w-6 h-6 rounded-full"
+              />
+              <h1 className="text-xl font-bold text-primary" data-testid="text-brand">Basker</h1>
+            </div>
+          </div>
+        </header>
+
+        <main className="max-w-2xl mx-auto px-4 py-8">
+          <div className="space-y-6">
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-64 w-full" />
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <header className="bg-card border-b border-border sticky top-0 z-50" data-testid="header">
+          <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Link href="/">
+                <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                  <ArrowLeft className="w-4 h-4" />
+                  Back
+                </Button>
+              </Link>
+              <span className="text-muted-foreground">|</span>
+              <img 
+                src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
+                alt="Basker"
+                className="w-6 h-6 rounded-full"
+              />
+              <h1 className="text-xl font-bold text-primary" data-testid="text-brand">Basker</h1>
+            </div>
+          </div>
+        </header>
+
+        <main className="max-w-2xl mx-auto px-4 py-8">
+          <Alert variant="destructive">
+            <AlertDescription>
+              {error}
+            </AlertDescription>
+          </Alert>
+        </main>
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <header className="bg-card border-b border-border sticky top-0 z-50" data-testid="header">
+          <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Link href="/">
+                <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                  <ArrowLeft className="w-4 h-4" />
+                  Back
+                </Button>
+              </Link>
+              <span className="text-muted-foreground">|</span>
+              <img 
+                src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
+                alt="Basker"
+                className="w-6 h-6 rounded-full"
+              />
+              <h1 className="text-xl font-bold text-primary" data-testid="text-brand">Basker</h1>
+            </div>
+          </div>
+        </header>
+
+        <main className="max-w-2xl mx-auto px-4 py-8">
+          <Alert>
+            <AlertDescription>
+              Profile not found
+            </AlertDescription>
+          </Alert>
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="bg-card border-b border-border sticky top-0 z-50" data-testid="header">
+        <div className="max-w-4xl mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link href="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity">
+              <img 
+                src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
+                alt="Basker"
+                className="w-5 h-5 sm:w-6 sm:h-6 rounded-full"
+              />
+              <h1 className="text-lg sm:text-xl font-bold text-primary" data-testid="text-brand">Basker</h1>
+            </Link>
+            <span className="text-muted-foreground hidden sm:block">|</span>
+            <span className="text-xs sm:text-sm text-muted-foreground" data-testid="text-user-handle">
+              @{profile.handle}
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link href="/">
+              <Button variant="secondary" size="sm" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
+                <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Back to Home</span>
+                <span className="sm:hidden">Back</span>
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-2xl mx-auto px-4 py-8">
+        {/* Profile Header */}
+        <ProfileHeader 
+          profile={profile}
+          isEditMode={false}
+          isOwnProfile={false}
+          targetDid={profile.did}
+        />
+        
+        {(() => {
+          // Use the loaded settings section order, or default if not available
+          const sectionOrder = settings?.sectionOrder || ['widgets', 'notes', 'links'];
+          console.log('🔍 Public profile section order:', sectionOrder);
+          return sectionOrder.map((section) => {
+            switch (section) {
+              case 'widgets':
+                return <PublicWidgets key="widgets" did={profile.did} />;
+              case 'notes':
+                return <PublicNotes key="notes" did={profile.did} />;
+              case 'links':
+                return <PublicLinksList key="links" did={profile.did} />;
+              default:
+                return null;
+            }
+          });
+        })()}
+
+        {/* Footer */}
+        <footer className="text-center py-8 border-t border-border mt-8" data-testid="footer">
+          <div className="flex items-center justify-center gap-2 text-muted-foreground mb-4">
+            <span className="text-sm">Powered by</span>
+            <img 
+              src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
+              alt="Basker"
+              className="w-4 h-4 rounded-full"
+            />
+            <span className="text-sm">basker</span>
+            <span className="text-sm text-muted-foreground">© 2025</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Create your own link-in-bio page with basker
+          </p>
+        </footer>
+      </main>
+    </div>
+  );
+}
+
+// Public versions of components that only show public content
+function PublicLinksList({ did }: { did: string }) {
+  const [links, setLinks] = useState<any[]>([]);
+  const [groups, setGroups] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [linksData, groupsData] = await Promise.all([
+          atprotocol.getPublicLinks(did),
+          atprotocol.getPublicGroups(did)
+        ]);
+        setLinks(linksData?.links || []);
+        setGroups(groupsData || []);
+      } catch (err) {
+        console.error('🔍 PublicProfile failed to load data:', err);
+        setLinks([]);
+        setGroups([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (did) { loadData(); }
+  }, [did]);
+
+  const getIconComponent = (iconClass: string) => {
+    const iconMap: Record<string, React.ReactNode> = {
+      // Social Media
+      'fab fa-github': <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>,
+      'fab fa-twitter': <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>,
+      'fab fa-youtube': <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>,
+      'fab fa-instagram': <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>,
+      'fab fa-linkedin': <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>,
+      'fab fa-discord': <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>,
+      
+      // General Icons
+      'fas fa-globe': <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>,
+      'fas fa-envelope': <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>,
+      'fas fa-link': <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>,
+      'fas fa-heart': <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>,
+      'fas fa-music': <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>,
+      'fas fa-camera': <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 0 1 8.5 12A3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5a3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97 0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.4-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1 0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66Z"/></svg>,
+    };
+
+    return iconMap[iconClass] || <ExternalLink className="w-5 h-5" />;
+  };
+
+  if (loading) return <Skeleton className="h-32 w-full" />;
+  if (links.length === 0) return null;
+
+  // Group links by group name
+  const groupedLinks = links.reduce((acc, link) => {
+    const groupName = link.group || 'Ungrouped';
+    if (!acc[groupName]) {
+      acc[groupName] = [];
+    }
+    acc[groupName].push(link);
+    return acc;
+  }, {} as Record<string, any[]>);
+
+  // Sort links within each group
+  Object.keys(groupedLinks).forEach(groupName => {
+    groupedLinks[groupName].sort((a, b) => a.order - b.order);
+  });
+
+  // Get unique group names from links and groups
+  const getUniqueGroups = () => {
+    const linkGroups = links.map(link => link.group).filter((group): group is string => Boolean(group));
+    const persistentGroups = groups.map(group => group.name);
+    const allGroups = [...linkGroups, ...persistentGroups];
+    const uniqueGroups = Array.from(new Set(allGroups));
+    return uniqueGroups;
+  };
+
+  return (
+    <div className="mb-8 fade-in">
+      <h3 className="text-lg font-semibold text-foreground mb-4">Links</h3>
+      <div className="space-y-4">
+        {/* Show ungrouped links first */}
+        {groupedLinks['Ungrouped'] && groupedLinks['Ungrouped'].length > 0 && (
+          <div className="space-y-3">
+            {groupedLinks['Ungrouped'].map((link) => (
+              <a 
+                key={link.id} 
+                href={link.url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="block"
+              >
+                <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      {getIconComponent(link.icon || 'fas fa-link')}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-foreground truncate">{link.title}</h4>
+                      {link.description && (
+                        <p className="text-sm text-muted-foreground truncate">{link.description}</p>
+                      )}
+                      <p className="text-[10px] sm:text-xs text-muted-foreground truncate max-w-[180px] sm:max-w-none">
+                        {link.url}
+                      </p>
+                    </div>
+                    <div className="text-primary">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              </a>
+            ))}
+          </div>
+        )}
+
+        {/* Show grouped links */}
+        {getUniqueGroups().map((groupName) => {
+          const groupLinks = groupedLinks[groupName] || [];
+          if (groupLinks.length === 0) return null;
+          
+          const groupData = groups.find(g => g.name === groupName);
+          const isGroupOpen = groupData ? groupData.isOpen : true;
+          
+          return (
+            <div key={groupName} className="space-y-2">
+              <h4 
+                className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors"
+                onClick={() => {
+                  // Toggle group visibility by updating the groups state
+                  setGroups(prevGroups => 
+                    prevGroups.map(g => 
+                      g.name === groupName 
+                        ? { ...g, isOpen: !g.isOpen }
+                        : g
+                    )
+                  );
+                }}
+              >
+                <span className="text-lg">{isGroupOpen ? '🔽' : '▶️'}</span>
+                📁 {groupName}
+                <span className="text-xs">({groupLinks.length})</span>
+              </h4>
+              
+              {isGroupOpen && (
+                <div className="space-y-3">
+                  {groupLinks.map((link) => (
+                    <a 
+                      key={link.id} 
+                      href={link.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="block"
+                    >
+                      <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                {getIconComponent(link.icon || 'fas fa-link')}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-foreground truncate">{link.title}</h4>
+                            {link.description && (
+                              <p className="text-sm text-muted-foreground truncate">{link.description}</p>
+                            )}
+                            <p className="text-[10px] sm:text-xs text-muted-foreground truncate max-w-[180px] sm:max-w-none">
+                              {link.url}
+                            </p>
+                          </div>
+                          <div className="text-primary">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function PublicNotes({ did }: { did: string }) {
+  const [notes, setNotes] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadNotes = async () => {
+      try {
+        console.log('Loading notes for DID:', did);
+        const data = await atprotocol.getPublicNotes(did);
+        setNotes(data?.notes || []);
+        console.log('Loaded notes:', data?.notes);
+      } catch (err) {
+        console.error('Failed to load notes:', err);
+        setNotes([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (did) { loadNotes(); }
+  }, [did]);
+
+  if (loading) return <Skeleton className="h-32 w-full" />;
+  if (notes.length === 0) return null;
+
+  return (
+    <div className="mb-8 fade-in">
+      <h3 className="text-lg font-semibold text-foreground mb-4">Notes</h3>
+      <div className="space-y-4">
+        {notes.map((note) => (
+          <Card key={note.id}>
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <span className="text-primary text-sm">📝</span>
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs text-muted-foreground">
+                      {note.isPublic ? 'Public' : 'Private'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <p className="text-foreground text-sm leading-relaxed mb-2">
+                {note.content}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {new Date(note.createdAt).toLocaleDateString()}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PublicWidgets({ did }: { did: string }) {
+  const [widgets, setWidgets] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadWidgets = async () => {
+      try {
+        console.log('Loading widgets for DID:', did);
+        const data = await atprotocol.getPublicWidgets(did);
+        setWidgets(data?.widgets || []);
+        console.log('Loaded widgets:', data?.widgets);
+      } catch (err) {
+        console.error('Failed to load widgets:', err);
+        setWidgets([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (did) { loadWidgets(); }
+  }, [did]);
+
+  const renderWidget = (widget: any) => {
+    if (!widget.enabled) return null;
+
+    const config = widget.config || {};
+    
+    switch (widget.type) {
+      case 'clock':
+        return <PublicClockWidget config={config} />;
+      case 'custom_code':
+        return <PublicCustomCodeWidget config={config} />;
+      case 'social_badge':
+        return <PublicSocialBadgeWidget config={config} />;
+      case 'weather':
+        return <PublicWeatherWidget config={config} />;
+      case 'quote':
+        return <PublicQuoteWidget config={config} />;
+      case 'counter':
+        return <PublicCounterWidget config={config} />;
+      case 'progress_bar':
+        return <PublicProgressBarWidget config={config} />;
+      case 'calendar':
+        return <PublicCalendarWidget config={config} />;
+      case 'music_player':
+        return <PublicMusicPlayerWidget config={config} />;
+      case 'donation':
+        return <PublicDonationWidget config={config} />;
+      case 'contact_form':
+        return <PublicContactFormWidget config={config} />;
+      case 'embed':
+        return <PublicEmbedWidget config={config} />;
+      case 'text_block':
+        return <PublicTextBlockWidget config={config} />;
+      case 'image_gallery':
+        return <PublicImageGalleryWidget config={config} />;
+      case 'stats':
+        return <PublicStatsWidget config={config} />;
+      case 'announcement':
+        return <PublicAnnouncementWidget config={config} />;
+      default:
+        return <div className="p-4 bg-muted rounded-lg">Unknown widget type: {widget.type}</div>;
+    }
+  };
+
+  if (loading) return <Skeleton className="h-32 w-full" />;
+  if (widgets.length === 0) return null;
+
+  const getSizeClass = (size: string) => {
+    switch (size) {
+      case 'small': return 'w-64'; // 256px
+      case 'medium': return 'w-80'; // 320px
+      case 'large': return 'w-96'; // 384px
+      case 'full': return 'w-full';
+      default: return 'w-full'; // Default to full width
+    }
+  };
+
+  return (
+    <div className="mb-8 fade-in">
+      <h3 className="text-lg font-semibold text-foreground mb-4">Widgets</h3>
+      <div className="space-y-6">
+        {widgets
+          .filter(w => w.enabled)
+          .sort((a, b) => a.order - b.order)
+          .reduce((acc: any[], widget, index) => {
+            // Group widgets for side-by-side layout
+            if (widget.width === 'half' && index > 0 && widgets[index - 1]?.width === 'half') {
+              // This widget should be paired with the previous one
+              return acc;
+            }
+            
+            if (widget.width === 'half' && index < widgets.length - 1 && widgets[index + 1]?.width === 'half') {
+              // This widget should be paired with the next one
+              acc.push(widget);
+              return acc;
+            }
+            
+            acc.push(widget);
+            return acc;
+          }, [])
+          .map((widget, index) => {
+            const nextWidget = widgets.find(w => w.order === widget.order + 1);
+            const isSideBySide = widget.width === 'half' && nextWidget?.width === 'half';
+            
+            return (
+              <div key={widget.id} className={`relative group ${isSideBySide ? 'flex flex-col md:flex-row gap-6' : ''}`}>
+                {/* First widget */}
+                <div className="relative group flex-1">
+                  <div className={`${getSizeClass(widget.size)} mx-auto h-full`}>
+                    <Card className="w-full h-full flex flex-col">
+                      <CardContent className="pt-8 flex-1">
+                        {renderWidget(widget)}
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+                
+                {/* Second widget (if side-by-side) */}
+                {isSideBySide && nextWidget && (
+                  <div className="relative group flex-1">
+                    <div className={`${getSizeClass(nextWidget.size)} mx-auto h-full`}>
+                      <Card className="w-full h-full flex flex-col">
+                        <CardContent className="pt-8 flex-1">
+                          {renderWidget(nextWidget)}
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+      </div>
+    </div>
+  );
+}
+
+// Public Widget Components (simplified versions for public viewing)
+function PublicClockWidget({ config }: { config: any }) {
+  const [time, setTime] = useState(new Date());
+
+  React.useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (date: Date) => {
+    if (config.format === '24h') {
+      return date.toLocaleTimeString('en-US', { hour12: false });
+    }
+    return date.toLocaleTimeString('en-US', { hour12: true });
+  };
+
+  return (
+    <div className="text-center">
+      <div className="text-3xl font-mono font-bold text-primary">
+        {formatTime(time)}
+      </div>
+      <div className="text-sm text-muted-foreground mt-1">
+        {time.toLocaleDateString()}
+      </div>
+    </div>
+  );
+}
+
+function PublicCustomCodeWidget({ config }: { config: any }) {
+  return (
+    <div className="space-y-2">
+      <div 
+        className="prose prose-sm max-w-none"
+        dangerouslySetInnerHTML={{ __html: config.html || '<p>Add your custom HTML code in the widget settings.</p>' }}
+      />
+      {config.css && (
+        <style dangerouslySetInnerHTML={{ __html: config.css }} />
+      )}
+      {config.js && (
+        <script dangerouslySetInnerHTML={{ __html: config.js }} />
+      )}
+    </div>
+  );
+}
+
+function PublicSocialBadgeWidget({ config }: { config: any }) {
+  return (
+    <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+      <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+        <Users className="w-4 h-4 text-primary-foreground" />
+      </div>
+      <div>
+        <div className="font-medium">@{config.username || 'username'}</div>
+        {config.showCount && (
+          <div className="text-sm text-muted-foreground">
+            {Math.floor(Math.random() * 10000)} followers
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function PublicWeatherWidget({ config }: { config: any }) {
+  return (
+    <div className="flex items-center gap-3">
+      <Cloud className="w-8 h-8 text-blue-500" />
+      <div>
+        <div className="font-medium">{config.location || 'Your Location'}</div>
+        <div className="text-sm text-muted-foreground">
+          22°C • Sunny
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PublicQuoteWidget({ config }: { config: any }) {
+  return (
+    <blockquote className="border-l-4 border-primary pl-4 italic">
+      <p className="text-lg mb-2">
+        "{config.text || 'Your inspiring quote here'}"
+      </p>
+      {config.author && (
+        <cite className="text-sm text-muted-foreground">— {config.author}</cite>
+      )}
+    </blockquote>
+  );
+}
+
+function PublicCounterWidget({ config }: { config: any }) {
+  return (
+    <div className="text-center">
+      <div className="text-3xl font-bold text-primary mb-1">
+        {config.count || 0}
+      </div>
+      <div className="text-sm text-muted-foreground">
+        {config.label || 'Count'}
+      </div>
+    </div>
+  );
+}
+
+function PublicProgressBarWidget({ config }: { config: any }) {
+  const percentage = Math.min(((config.current || 0) / (config.target || 100)) * 100, 100);
+  
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-between text-sm">
+        <span>{config.label || 'Progress'}</span>
+        <span>{config.current || 0}/{config.target || 100} {config.unit || ''}</span>
+      </div>
+      <div className="w-full bg-muted rounded-full h-2">
+        <div 
+          className="bg-primary h-2 rounded-full transition-all duration-300"
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function PublicCalendarWidget({ config }: { config: any }) {
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const today = new Date();
+  const currentMonth = today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const events = config?.events || [];
+  
+  // Get the actual number of days in the current month
+  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).getDay();
+  
+  // Create empty cells for days before the first day of the month
+  const emptyCells = Array.from({ length: firstDayOfMonth }, (_, i) => (
+    <div key={`empty-${i}`} className="p-1"></div>
+  ));
+  
+  // Filter events for the current month
+  const getEventsForDate = (day: number) => {
+    return events.filter((event: any) => {
+      try {
+        const eventDate = new Date(event.date);
+        return eventDate.getMonth() === today.getMonth() && 
+               eventDate.getFullYear() === today.getFullYear() && 
+               eventDate.getDate() === day;
+      } catch {
+        return false;
+      }
+    });
+  };
+  
+  // Create array for days of the month
+  const monthDays = Array.from({ length: daysInMonth }, (_, i) => {
+    const day = i + 1;
+    const dayEvents = getEventsForDate(day);
+    
+    return (
+      <div key={day} className="relative">
+        <div 
+          className={`text-center p-1 rounded relative z-10 ${
+            day === today.getDate() ? 'bg-primary text-primary-foreground' : ''
+          }`}
+        >
+          {day}
+        </div>
+        {dayEvents.length > 0 && (
+          <>
+            {/* Dot behind the number */}
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-0">
+              <div
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: dayEvents[0].color || '#3b82f6' }}
+              />
+            </div>
+            {/* Clickable layer on top */}
+            <div 
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 cursor-pointer"
+              title={`${dayEvents[0].title} - Click for details`}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedEvent(dayEvents[0]);
+              }}
+            >
+              <div className="w-4 h-4 rounded-full hover:bg-black/10 transition-colors" />
+            </div>
+          </>
+        )}
+      </div>
+    );
+  });
+  
+  return (
+    <>
+      <div className="space-y-2">
+        <div className="font-medium text-center">{currentMonth}</div>
+        <div className="grid grid-cols-7 gap-1 text-xs">
+          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(day => (
+            <div key={day} className="text-center text-muted-foreground p-1">
+              {day}
+            </div>
+          ))}
+          {emptyCells}
+          {monthDays}
+        </div>
+        {events.length > 0 && (
+          <div className="mt-3 space-y-1">
+            <div className="text-xs font-medium text-muted-foreground">Events:</div>
+            {events.slice(0, 3).map((event: any, index: number) => (
+              <div key={index} className="flex items-center gap-2 text-xs">
+                <div 
+                  className="w-2 h-2 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: event.color || '#3b82f6' }}
+                />
+                <span className="truncate">{event.title}</span>
+              </div>
+            ))}
+            {events.length > 3 && (
+              <div className="text-xs text-muted-foreground">+{events.length - 3} more events</div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Event Details Modal */}
+      <Dialog open={!!selectedEvent} onOpenChange={() => setSelectedEvent(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <div 
+                className="w-4 h-4 rounded-full" 
+                style={{ backgroundColor: selectedEvent?.color || '#3b82f6' }}
+              />
+              Event Details
+            </DialogTitle>
+          </DialogHeader>
+          {selectedEvent && (
+            <div className="space-y-4">
+              <div>
+                <Label className="text-sm font-medium text-muted-foreground">Event Title</Label>
+                <p className="text-lg font-semibold">{selectedEvent.title}</p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-muted-foreground">Date</Label>
+                <p className="text-base">{selectedEvent.date}</p>
+              </div>
+              <div className="flex justify-end pt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setSelectedEvent(null)}
+                  className="flex items-center gap-2"
+                >
+                  <X className="w-4 h-4" />
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
+function PublicMusicPlayerWidget({ config }: { config: any }) {
+  return (
+    <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+      <Music className="w-6 h-6 text-primary" />
+      <div className="flex-1">
+        <div className="font-medium">Now Playing</div>
+        <div className="text-sm text-muted-foreground">
+          {config.trackId ? 'Track Name' : 'Connect your music account'}
+        </div>
+      </div>
+      <Button size="sm" variant="outline">
+        Play
+      </Button>
+    </div>
+  );
+}
+
+function PublicDonationWidget({ config }: { config: any }) {
+  return (
+    <div className="text-center space-y-3">
+      <Heart className="w-8 h-8 text-red-500 mx-auto" />
+      <div>
+        <div className="font-medium">Support Me</div>
+        <div className="text-sm text-muted-foreground">
+          {config.message || 'Help support my work'}
+        </div>
+      </div>
+      <Button className="w-full">
+        Donate {config.amount && `$${config.amount}`}
+      </Button>
+    </div>
+  );
+}
+
+function PublicContactFormWidget({ config }: { config: any }) {
+  const userEmail = config?.email || 'your@email.com';
+  
+  const handleEmailClick = () => {
+    const subject = config?.subject || 'Hello';
+    const body = config?.message || 'Hi there!';
+    const mailtoLink = `mailto:${userEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.open(mailtoLink);
+  };
+
+  return (
+    <div className="space-y-4 text-center">
+      <div>
+        <h3 className="text-lg font-semibold mb-2">Contact Me</h3>
+        <p className="text-sm text-muted-foreground">Get in touch with me</p>
+      </div>
+      
+      <div className="space-y-3">
+        <div className="p-4 bg-muted rounded-lg">
+          <p className="text-sm text-muted-foreground mb-1">Email me at:</p>
+          <p className="text-base font-medium">{userEmail}</p>
+        </div>
+        
+        <Button 
+          onClick={handleEmailClick} 
+          className="w-full"
+          variant="outline"
+        >
+          <Mail className="w-4 h-4 mr-2" />
+          Open Email Client
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function PublicEmbedWidget({ config }: { config: any }) {
+  if (!config.url) {
+    return (
+      <div className="p-4 bg-muted rounded-lg text-center text-muted-foreground">
+        Add a URL in the widget settings
+      </div>
+    );
+  }
+  
+  return (
+    <div className="aspect-video">
+      <iframe
+        src={config.url}
+        width={config.width || 560}
+        height={config.height || 315}
+        frameBorder="0"
+        allowFullScreen
+        className="w-full h-full rounded-lg"
+      />
+    </div>
+  );
+}
+
+function PublicTextBlockWidget({ config }: { config: any }) {
+  return (
+    <div className="prose prose-sm max-w-none">
+      <div dangerouslySetInnerHTML={{ 
+        __html: config.content || '<p>Add your text content in the widget settings.</p>' 
+      }} />
+    </div>
+  );
+}
+
+function PublicImageGalleryWidget({ config }: { config: any }) {
+  return (
+    <div className="space-y-2">
+      <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
+        <Image className="w-8 h-8 text-muted-foreground" />
+        <span className="ml-2 text-muted-foreground">Add images in settings</span>
+      </div>
+    </div>
+  );
+}
+
+function PublicStatsWidget({ config }: { config: any }) {
+  return (
+    <div className="grid grid-cols-2 gap-4">
+      <div className="text-center">
+        <div className="text-2xl font-bold text-primary">1.2K</div>
+        <div className="text-sm text-muted-foreground">Views</div>
+      </div>
+      <div className="text-center">
+        <div className="text-2xl font-bold text-primary">45</div>
+        <div className="text-sm text-muted-foreground">Downloads</div>
+      </div>
+    </div>
+  );
+}
+
+function PublicAnnouncementWidget({ config }: { config: any }) {
+  const getTypeStyles = (type: string) => {
+    switch (type) {
+      case 'success': return 'bg-green-100 text-green-800 border-green-200';
+      case 'warning': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'error': return 'bg-red-100 text-red-800 border-red-200';
+      default: return 'bg-blue-100 text-blue-800 border-blue-200';
+    }
+  };
+
+  return (
+    <div className={`p-3 rounded-lg border ${getTypeStyles(config.type || 'info')}`}>
+      <div className="flex items-start gap-2">
+        <Megaphone className="w-5 h-5 mt-0.5" />
+        <div className="flex-1">
+          {config.message || 'Add your announcement message in the widget settings.'}
+        </div>
+      </div>
+    </div>
+  );
+}
+

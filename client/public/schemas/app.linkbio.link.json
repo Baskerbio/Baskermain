@@ -1,0 +1,22 @@
+{
+  "lexicon": 1,
+  "id": "app.linkbio.link",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "properties": {
+          "title": {"type": "string"},
+          "url": {"type": "string"},
+          "icon": {"type": "string"},
+          "order": {"type": "number"},
+          "createdAt": {"type": "string"},
+          "updatedAt": {"type": "string"}
+        },
+        "required": ["title", "url"]
+      }
+    }
+  }
+}

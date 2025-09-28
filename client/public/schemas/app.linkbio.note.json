@@ -1,0 +1,19 @@
+{
+  "lexicon": 1,
+  "id": "app.linkbio.note",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "properties": {
+          "content": {"type": "string"},
+          "createdAt": {"type": "string"},
+          "updatedAt": {"type": "string"}
+        },
+        "required": ["content"]
+      }
+    }
+  }
+}

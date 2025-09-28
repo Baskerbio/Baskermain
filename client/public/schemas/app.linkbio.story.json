@@ -1,0 +1,20 @@
+{
+  "lexicon": 1,
+  "id": "app.linkbio.story",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "properties": {
+          "content": {"type": "string"},
+          "expiresAt": {"type": "string"},
+          "createdAt": {"type": "string"},
+          "updatedAt": {"type": "string"}
+        },
+        "required": ["content", "expiresAt"]
+      }
+    }
+  }
+}

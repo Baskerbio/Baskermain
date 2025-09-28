@@ -1,0 +1,21 @@
+{
+  "lexicon": 1,
+  "id": "app.linkbio.settings",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "properties": {
+          "theme": {"type": "string"},
+          "layout": {"type": "string"},
+          "customCSS": {"type": "string"},
+          "customDomain": {"type": "string"},
+          "createdAt": {"type": "string"},
+          "updatedAt": {"type": "string"}
+        }
+      }
+    }
+  }
+}

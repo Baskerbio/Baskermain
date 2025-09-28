@@ -1,0 +1,228 @@
+1. Overall Concept
+
+The site is a link-in-bio platform where every user has a personal page. Users can:
+
+Add links
+
+Write short notes
+
+Customize widgets and themes
+
+Add profile icons
+
+Post stories
+
+Save settings
+
+The key principle: no backend server — all data is stored and managed via the AT Protocol (Bluesky). Bluesky acts as the database, auth system, and content server.
+
+2. Authentication
+
+Use Bluesky login for authentication.
+
+When a user logs in, the site asks Bluesky for their session token.
+
+The session token allows the site to:
+
+Fetch the user’s profile
+
+Store and retrieve their link-in-bio data
+
+Read/write to the AT Protocol (posts, records, preferences)
+
+Instructions to the AI agent:
+
+When a user visits the site, show a Bluesky login button.
+
+After login, store the session token securely in browser memory (never in permanent storage if sensitive).
+
+Use this token for all API calls to Bluesky.
+
+3. Data Storage (Using AT Protocol / Bluesky)
+
+Each user’s data is stored as AT Protocol records, which are like small structured JSON files on Bluesky.
+
+Records include:
+
+Links → list of objects, each with title, URL, icon
+
+Notes → short text snippets
+
+Widgets → settings for user’s profile widgets
+
+Themes → color schemes, font preferences
+
+Profile icons → custom icons chosen or uploaded
+
+Stories → temporary posts or content
+
+Settings → site preferences, layout options
+
+Instructions to AI agent:
+
+Every time a user updates links, notes, or themes, push a new record to Bluesky.
+
+When loading the page, fetch all relevant records from Bluesky and render them.
+
+4. Links Feature
+
+Users can add multiple links with:
+
+Title
+
+URL
+
+Optional icon or emoji
+
+Links are displayed in a vertical list or grid depending on theme.
+
+Can be reordered by drag-and-drop.
+
+Updates are saved as a links record on Bluesky.
+
+5. Notes System
+
+Users can create short notes or text blocks.
+
+Notes can be:
+
+Private (only visible on their profile)
+
+Public (optionally shareable on Bluesky feed)
+
+Notes stored in a notes record.
+
+Notes are editable and deletable directly from the frontend.
+
+6. Widgets
+
+Widgets are small interactive components on the profile:
+
+Examples: follower count, custom text, links preview, social media badges
+
+Each widget has:
+
+Type
+
+Size
+
+Position
+
+Enabled/disabled flag
+
+Widgets are stored in a widgets record on Bluesky.
+
+Users can customize and reorder them in settings.
+
+7. Themes
+
+Each user can select or create a theme:
+
+Background color or image
+
+Link/button color
+
+Font style and size
+
+Card or layout style
+
+Themes are saved as a theme record on Bluesky.
+
+Switching a theme applies it immediately on page load by fetching the theme record.
+
+8. User-Addable Profile Icons
+
+Users can choose or upload custom icons for links, widgets, or profile picture options.
+
+Each uploaded icon:
+
+Stored as a blob record on Bluesky or referenced via an AT Protocol record.
+
+Associated with the user’s DID for easy retrieval.
+
+AI agent should:
+
+Show the current icon
+
+Allow selection or upload
+
+Update the AT Protocol record when changed
+
+9. Stories
+
+Stories are temporary content blocks visible for 24 hours (like Instagram/Bluesky stories).
+
+Each story:
+
+Has text, image, or both
+
+Stored in a story record with timestamp
+
+Automatically expires after 24 hours
+
+Stories are fetched and displayed in a scrollable top section of the profile.
+
+10. Settings
+
+Users can configure:
+
+Default theme
+
+Profile layout
+
+Which widgets are enabled
+
+Privacy settings for links/notes/stories
+
+Settings are stored as a settings record.
+
+On page load, fetch the settings record and apply the configuration.
+
+11. Fetching & Updating Data
+
+For every feature, AI agent should:
+
+Fetch the latest record from AT Protocol using the user’s DID or handle.
+
+Merge or update records locally.
+
+Push changes back to Bluesky when user modifies anything.
+
+Data consistency relies on latest record per type, so only the newest update is used.
+
+12. Frontend Architecture
+
+Single-page frontend app (Svelte, React, or similar).
+
+Pages:
+
+Profile page (show links, notes, widgets, stories)
+
+Settings page (edit theme, layout, widgets, notes)
+
+Components fetch and render data directly from Bluesky via AT Protocol.
+
+All interactions are live — no backend needed.
+
+13. Security & Auth Notes
+
+Bluesky login is the only auth.
+
+All user data is tied to their DID.
+
+Frontend must sign requests if required by AT Protocol.
+
+Users can only edit their own records.
+
+14. Extra Considerations
+
+Caching: Keep local copies of records in memory for smooth performance.
+
+Conflict resolution: If multiple edits happen, always fetch the latest record and merge intelligently.
+
+Error handling: If fetching fails, show fallback content (default theme, placeholder avatar).
+
+Extensibility: Any future feature (like comments, link analytics) can also be implemented via AT Protocol records.
+
+✅ Summary
+Your platform is fully frontend, using Bluesky/AT Protocol as backend and auth. All data — links, notes, themes, widgets, stories, profile icons — is stored as records tied to the user DID. The site fetches and pushes records live, making it completely serverless.

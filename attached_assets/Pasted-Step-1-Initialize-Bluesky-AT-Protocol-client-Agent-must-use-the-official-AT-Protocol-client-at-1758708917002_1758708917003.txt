@@ -1,0 +1,91 @@
+Step 1: Initialize Bluesky / AT Protocol client
+
+Agent must use the official AT Protocol client (@atproto/api) in the frontend.
+
+Authenticate the user:
+
+Prompt the user to log in with Bluesky.
+
+Store the session token securely in memory.
+
+After login, the client can read and write records on behalf of the user.
+
+Step 2: Define the record type
+
+All user links must be stored as records in the user’s AT Protocol repo.
+
+Choose a record type like: app.linkbio.link
+
+Each record contains:
+
+id → unique identifier for the link
+
+title → display text
+
+url → link destination
+
+icon → optional emoji or image
+
+order → integer for sorting
+
+Only one record per user is acceptable if you store the entire list inside it; otherwise, multiple records are fine.
+
+Step 3: Creating / Updating links
+
+When the user adds, edits, or deletes a link:
+
+Update the local data structure immediately for UI responsiveness.
+
+Push the update to the AT Protocol repo:
+
+Use the AT Protocol create or update record API.
+
+Include the user DID, record type, and JSON data.
+
+Wait for confirmation that the record was saved (CID returned).
+
+Step 4: Fetching links on page load
+
+On profile page load:
+
+Use the authenticated AT Protocol client.
+
+Fetch all records of type app.linkbio.link for that user.
+
+Sort the links by order or creation time.
+
+Render the links in the UI.
+
+Step 5: Handling updates safely
+
+Before pushing changes:
+
+Fetch the latest record from AT Protocol.
+
+Merge local edits with the latest record to prevent overwriting.
+
+Push the updated record back to AT Protocol.
+
+Step 6: Persisting state
+
+Never rely only on local memory — local state is temporary.
+
+Optionally cache the fetched links in browser memory for speed, but always fetch from AT Protocol on page load to get the latest data.
+
+Step 7: Error handling
+
+If write fails (401, network error, etc.), alert the user and retry.
+
+If fetch fails, show a placeholder or empty state.
+
+Log errors for debugging.
+
+Step 8: UI integration
+
+Changes should appear instantly in the UI using local state.
+
+Saving to AT Protocol happens in the background.
+
+On refresh, links are fetched and re-rendered from AT Protocol.
+
+✅ Summary for the AI agent
