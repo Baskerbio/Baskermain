@@ -25,9 +25,16 @@ app.use(helmet({
         "https://api.bsky.app",
         "https://*.bsky.network",
         "https://*.host.bsky.network",
+        "https://*.bsky.app",
+        "https://*.atproto.com",
+        "https://bsky.network",
+        "https://atproto.com",
         "wss:",
         "wss://*.bsky.network",
-        "wss://*.host.bsky.network"
+        "wss://*.host.bsky.network",
+        "wss://*.bsky.app",
+        "wss://bsky.social",
+        "wss://bsky.app"
       ],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: [],
