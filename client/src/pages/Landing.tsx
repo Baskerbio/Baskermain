@@ -21,35 +21,35 @@ export default function Landing() {
     {
       title: "Links",
       description: "Share unlimited links with custom icons and descriptions",
-      image: "/assets/links example .png",
+      image: "/assets/links-example.png",
       icon: Link2,
       color: "from-blue-500 to-cyan-500"
     },
     {
       title: "Notes",
       description: "Add personal notes and thoughts to your profile",
-      image: "/assets/Notes example .png",
+      image: "/assets/notes-example.png",
       icon: StickyNote,
       color: "from-green-500 to-emerald-500"
     },
     {
       title: "Profile",
       description: "Customize your profile with themes and personal info",
-      image: "/assets/Profile example .png",
+      image: "/assets/profile-example.png",
       icon: Users,
       color: "from-purple-500 to-pink-500"
     },
     {
       title: "Themes",
       description: "Choose from beautiful themes or create your own",
-      image: "/assets/themes example .png",
+      image: "/assets/themes-example.png",
       icon: Palette,
       color: "from-orange-500 to-red-500"
     },
     {
       title: "Widgets",
       description: "Add interactive widgets to enhance your profile",
-      image: "/assets/widgets example .png",
+      image: "/assets/widgets-example.png",
       icon: Settings,
       color: "from-indigo-500 to-purple-500"
     }
