@@ -3,7 +3,7 @@ import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowLeft, Info, Zap, Heart, Globe, Users, Shield, Code } from 'lucide-react';
+import { ArrowLeft, Info, Zap, Heart, Globe, Users, Shield, Code, Lock, Eye, CheckCircle, AlertTriangle } from 'lucide-react';
 
 export default function About() {
   const { isAuthenticated } = useAuth();
@@ -101,6 +101,140 @@ export default function About() {
                       Transparent, community-driven development. Everyone can contribute and improve Basker.
                     </p>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Security Section */}
+        <section className="py-16 px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-foreground mb-4">Security & Privacy</h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Your security and privacy are our top priorities. Here's how we protect you.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              <Card className="border-green-200 dark:border-green-800">
+                <CardContent className="p-6">
+                  <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Lock className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground mb-2">End-to-End Encryption</h3>
+                  <p className="text-muted-foreground text-sm">
+                    All data is encrypted in transit and at rest using industry-standard encryption protocols.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-blue-200 dark:border-blue-800">
+                <CardContent className="p-6">
+                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Eye className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground mb-2">Zero-Knowledge Architecture</h3>
+                  <p className="text-muted-foreground text-sm">
+                    We can't see your private data. Your content is stored on the decentralized AT Protocol network.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-purple-200 dark:border-purple-800">
+                <CardContent className="p-6">
+                  <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Shield className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground mb-2">Content Security Policy</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Strict CSP headers prevent XSS attacks and unauthorized script execution.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-orange-200 dark:border-orange-800">
+                <CardContent className="p-6">
+                  <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <AlertTriangle className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground mb-2">Rate Limiting</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Advanced rate limiting protects against DDoS attacks and abuse.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-indigo-200 dark:border-indigo-800">
+                <CardContent className="p-6">
+                  <div className="w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground mb-2">Input Validation</h3>
+                  <p className="text-muted-foreground text-sm">
+                    All user inputs are validated and sanitized to prevent injection attacks.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-teal-200 dark:border-teal-800">
+                <CardContent className="p-6">
+                  <div className="w-16 h-16 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Globe className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground mb-2">HTTPS Everywhere</h3>
+                  <p className="text-muted-foreground text-sm">
+                    All connections are encrypted with TLS 1.3 and HSTS headers for maximum security.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-8">
+              <h3 className="text-2xl font-bold text-foreground mb-4 text-center">Security Measures</h3>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="text-lg font-semibold text-foreground mb-3">Data Protection</h4>
+                  <ul className="space-y-2 text-muted-foreground">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span>End-to-end encryption for all data transmission</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span>No personal data collection or tracking</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span>Decentralized storage on AT Protocol</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span>Regular security audits and updates</span>
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-foreground mb-3">Technical Security</h4>
+                  <ul className="space-y-2 text-muted-foreground">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span>Content Security Policy (CSP) headers</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span>XSS and injection attack prevention</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span>Rate limiting and DDoS protection</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span>Secure CORS and authentication</span>
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
