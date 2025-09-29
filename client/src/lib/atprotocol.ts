@@ -463,6 +463,166 @@ export class ATProtocolClient {
     }
   }
 
+  // Heat Map Analytics
+  async getHeatMapData(): Promise<any> {
+    if (!this.did) throw new Error('Not authenticated');
+
+    try {
+      const response = await this.agent.api.com.atproto.repo.getRecord({
+        repo: this.did,
+        collection: 'app.basker.heatmap',
+        rkey: 'self',
+      });
+      return response.data.value;
+    } catch (error: any) {
+      console.log('No heat map data found, returning empty');
+      return { heatMapData: [] };
+    }
+  }
+
+  async saveHeatMapData(heatMapData: any[]): Promise<void> {
+    if (!this.did) throw new Error('Not authenticated');
+
+    const record = {
+      heatMapData,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    try {
+      await this.agent.api.com.atproto.repo.putRecord({
+        repo: this.did,
+        collection: 'app.basker.heatmap',
+        rkey: 'self',
+        record,
+      });
+      console.log('Successfully saved heat map data to AT Protocol');
+    } catch (error: any) {
+      console.error('AT Protocol failed for saving heat map data:', error);
+      throw new Error(`Failed to save heat map data to AT Protocol: ${error.message}`);
+    }
+  }
+
+  // Poll Management
+  async getPolls(): Promise<any> {
+    if (!this.did) throw new Error('Not authenticated');
+
+    try {
+      const response = await this.agent.api.com.atproto.repo.getRecord({
+        repo: this.did,
+        collection: 'app.basker.polls',
+        rkey: 'self',
+      });
+      return response.data.value;
+    } catch (error: any) {
+      console.log('No polls found, returning empty');
+      return { polls: [] };
+    }
+  }
+
+  async savePolls(polls: any[]): Promise<void> {
+    if (!this.did) throw new Error('Not authenticated');
+
+    const record = {
+      polls,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    try {
+      await this.agent.api.com.atproto.repo.putRecord({
+        repo: this.did,
+        collection: 'app.basker.polls',
+        rkey: 'self',
+        record,
+      });
+      console.log('Successfully saved polls to AT Protocol');
+    } catch (error: any) {
+      console.error('AT Protocol failed for saving polls:', error);
+      throw new Error(`Failed to save polls to AT Protocol: ${error.message}`);
+    }
+  }
+
+  // Chat Messages
+  async getChatMessages(): Promise<any> {
+    if (!this.did) throw new Error('Not authenticated');
+
+    try {
+      const response = await this.agent.api.com.atproto.repo.getRecord({
+        repo: this.did,
+        collection: 'app.basker.chat',
+        rkey: 'self',
+      });
+      return response.data.value;
+    } catch (error: any) {
+      console.log('No chat messages found, returning empty');
+      return { messages: [] };
+    }
+  }
+
+  async saveChatMessages(messages: any[]): Promise<void> {
+    if (!this.did) throw new Error('Not authenticated');
+
+    const record = {
+      messages,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    try {
+      await this.agent.api.com.atproto.repo.putRecord({
+        repo: this.did,
+        collection: 'app.basker.chat',
+        rkey: 'self',
+        record,
+      });
+      console.log('Successfully saved chat messages to AT Protocol');
+    } catch (error: any) {
+      console.error('AT Protocol failed for saving chat messages:', error);
+      throw new Error(`Failed to save chat messages to AT Protocol: ${error.message}`);
+    }
+  }
+
+  // Blog Posts
+  async getBlogPosts(): Promise<any> {
+    if (!this.did) throw new Error('Not authenticated');
+
+    try {
+      const response = await this.agent.api.com.atproto.repo.getRecord({
+        repo: this.did,
+        collection: 'app.basker.blog',
+        rkey: 'self',
+      });
+      return response.data.value;
+    } catch (error: any) {
+      console.log('No blog posts found, returning empty');
+      return { posts: [] };
+    }
+  }
+
+  async saveBlogPosts(posts: any[]): Promise<void> {
+    if (!this.did) throw new Error('Not authenticated');
+
+    const record = {
+      posts,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    try {
+      await this.agent.api.com.atproto.repo.putRecord({
+        repo: this.did,
+        collection: 'app.basker.blog',
+        rkey: 'self',
+        record,
+      });
+      console.log('Successfully saved blog posts to AT Protocol');
+    } catch (error: any) {
+      console.error('AT Protocol failed for saving blog posts:', error);
+      throw new Error(`Failed to save blog posts to AT Protocol: ${error.message}`);
+    }
+  }
+
   async getSettings(): Promise<SettingsRecord | null> {
     if (!this.did) throw new Error('Not authenticated');
 
@@ -902,6 +1062,94 @@ export class ATProtocolClient {
   isAuthenticated() {
     // Authentication requires DID - we can fetch data even if agent session is not fully restored
     return !!this.did;
+  }
+
+  // Portfolio items
+  async getPortfolioItems(): Promise<any[]> {
+    if (!this.did) throw new Error('Not authenticated');
+
+    try {
+      const response = await this.agent.api.com.atproto.repo.listRecords({
+        repo: this.did,
+        collection: 'app.basker.portfolio',
+        limit: 100,
+      });
+
+      return response.data.records.map(record => ({
+        ...record.value,
+        id: record.uri.split('/').pop() || '',
+      }));
+    } catch (error) {
+      console.error('Error fetching portfolio items:', error);
+      return [];
+    }
+  }
+
+  async savePortfolioItems(items: any[]): Promise<void> {
+    if (!this.did) throw new Error('Not authenticated');
+
+    const record = {
+      items,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    try {
+      await this.agent.api.com.atproto.repo.putRecord({
+        repo: this.did,
+        collection: 'app.basker.portfolio',
+        rkey: 'self',
+        record,
+      });
+      console.log('Successfully saved portfolio items to AT Protocol');
+    } catch (error: any) {
+      console.error('AT Protocol failed for saving portfolio items:', error);
+      throw new Error(`Failed to save portfolio items to AT Protocol: ${error.message}`);
+    }
+  }
+
+  // Products
+  async getProducts(): Promise<any[]> {
+    if (!this.did) throw new Error('Not authenticated');
+
+    try {
+      const response = await this.agent.api.com.atproto.repo.listRecords({
+        repo: this.did,
+        collection: 'app.basker.products',
+        limit: 100,
+      });
+
+      return response.data.records.map(record => ({
+        ...record.value,
+        id: record.uri.split('/').pop() || '',
+      }));
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      return [];
+    }
+  }
+
+  async saveProducts(products: any[]): Promise<void> {
+    if (!this.did) throw new Error('Not authenticated');
+
+    const record = {
+      products,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    try {
+      await this.agent.api.com.atproto.repo.putRecord({
+        repo: this.did,
+        collection: 'app.basker.products',
+        rkey: 'self',
+        record,
+      });
+      console.log('Successfully saved products to AT Protocol');
+    } catch (error: any) {
+      console.error('AT Protocol failed for saving products:', error);
+      throw new Error(`Failed to save products to AT Protocol: ${error.message}`);
+    }
   }
 }
 

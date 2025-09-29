@@ -642,6 +642,128 @@ export function SettingsModal({ isOpen, onClose, onDragEnd }: SettingsModalProps
             </div>
           </div>
         </div>
+
+        {/* SEO Optimizer */}
+        <div>
+          <h3 className="text-lg font-medium text-foreground mb-4">SEO Optimizer</h3>
+          <div className="space-y-4">
+            <div>
+              <Label className="block text-sm font-medium text-foreground mb-2">
+                Page Title
+              </Label>
+              <Input
+                value={(formData as any).seoTitle || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, seoTitle: e.target.value } as any))}
+                placeholder="Your Name - Portfolio & Links"
+                className="w-full"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                The title that appears in search results (50-60 characters recommended)
+              </p>
+            </div>
+
+            <div>
+              <Label className="block text-sm font-medium text-foreground mb-2">
+                Meta Description
+              </Label>
+              <textarea
+                value={(formData as any).seoDescription || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, seoDescription: e.target.value } as any))}
+                placeholder="Discover my portfolio, latest projects, and connect with me through my curated links and content."
+                className="w-full h-20 px-3 py-2 border border-input bg-background rounded-md text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                maxLength={160}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                {(formData as any).seoDescription?.length || 0}/160 characters
+              </p>
+            </div>
+
+            <div>
+              <Label className="block text-sm font-medium text-foreground mb-2">
+                Keywords (comma-separated)
+              </Label>
+              <Input
+                value={(formData as any).seoKeywords?.join(', ') || ''}
+                onChange={(e) => setFormData(prev => ({ 
+                  ...prev, 
+                  seoKeywords: e.target.value.split(',').map(k => k.trim()).filter(Boolean) 
+                } as any))}
+                placeholder="portfolio, web developer, designer, links"
+                className="w-full"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Keywords that describe your content and help with search discovery
+              </p>
+            </div>
+
+            <div>
+              <Label className="block text-sm font-medium text-foreground mb-2">
+                Social Media Image URL
+              </Label>
+              <Input
+                value={(formData as any).seoImage || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, seoImage: e.target.value } as any))}
+                placeholder="https://example.com/your-social-image.jpg"
+                className="w-full"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Image that appears when your page is shared on social media (1200x630px recommended)
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label className="block text-sm font-medium text-foreground mb-2">
+                  Author Name
+                </Label>
+                <Input
+                  value={(formData as any).seoAuthor || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, seoAuthor: e.target.value } as any))}
+                  placeholder="Your Name"
+                  className="w-full"
+                />
+              </div>
+
+              <div>
+                <Label className="block text-sm font-medium text-foreground mb-2">
+                  Site Name
+                </Label>
+                <Input
+                  value={(formData as any).seoSiteName || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, seoSiteName: e.target.value } as any))}
+                  placeholder="BaskerBio"
+                  className="w-full"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label className="block text-sm font-medium text-foreground mb-2">
+                  Twitter Handle
+                </Label>
+                <Input
+                  value={(formData as any).seoTwitterHandle || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, seoTwitterHandle: e.target.value } as any))}
+                  placeholder="@yourusername"
+                  className="w-full"
+                />
+              </div>
+
+              <div>
+                <Label className="block text-sm font-medium text-foreground mb-2">
+                  Facebook App ID
+                </Label>
+                <Input
+                  value={(formData as any).seoFacebookAppId || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, seoFacebookAppId: e.target.value } as any))}
+                  placeholder="123456789012345"
+                  className="w-full"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
         
         <div className="flex gap-3 pt-6 border-t">
           <Button 

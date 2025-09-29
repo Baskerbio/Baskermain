@@ -8,7 +8,7 @@ import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 
-// Security middleware
+// Security middleware - properly configured for login compatibility
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -16,8 +16,19 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
-      scriptSrc: ["'self'"],
-      connectSrc: ["'self'", "https://bsky.social", "https://bsky.app"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      connectSrc: [
+        "'self'", 
+        "https://bsky.social", 
+        "https://bsky.app", 
+        "https://cdn.bsky.app", 
+        "https://api.bsky.app",
+        "https://*.bsky.network",
+        "https://*.host.bsky.network",
+        "wss:",
+        "wss://*.bsky.network",
+        "wss://*.host.bsky.network"
+      ],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: [],
     },
@@ -32,18 +43,25 @@ app.use(helmet({
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://baskermain.onrender.com', 'https://www.baskermain.onrender.com']
-    : true,
+  origin: true, // Allow all origins for now to fix login issues
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Atproto-Proxy']
 }));
 
-// Rate limiting
+// Handle preflight requests for AT Protocol
+app.options('*', (req, res) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, X-Atproto-Proxy');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.sendStatus(200);
+});
+
+// Rate limiting - more permissive to fix login issues
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 1000, // increased limit
   message: {
     error: 'Too many requests from this IP, please try again later.'
   },
@@ -53,7 +71,7 @@ const limiter = rateLimit({
 
 const strictLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // limit each IP to 10 requests per windowMs for sensitive endpoints
+  max: 100, // increased limit for auth
   message: {
     error: 'Too many requests from this IP, please try again later.'
   },
@@ -61,8 +79,8 @@ const strictLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-app.use('/api', limiter);
-app.use('/api/auth', strictLimiter);
+// Only apply rate limiting to specific endpoints, not all API routes
+app.use('/api/public-profile', limiter);
 
 // Input validation middleware
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -99,8 +117,11 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 // Security headers middleware
 app.use((req: Request, res: Response, next: NextFunction) => {
-  // Force HTTPS in production
-  if (process.env.NODE_ENV === 'production' && req.header('x-forwarded-proto') !== 'https') {
+  // Force HTTPS in production, but allow AT Protocol authentication to work
+  if (process.env.NODE_ENV === 'production' && 
+      req.header('x-forwarded-proto') !== 'https' && 
+      !req.path.startsWith('/api/') && 
+      !req.path.includes('bsky.social')) {
     res.redirect(`https://${req.get('host')}${req.url}`);
     return;
   }

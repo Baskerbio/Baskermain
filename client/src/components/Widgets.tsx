@@ -10,7 +10,13 @@ import { Switch } from '@/components/ui/switch';
 import { useWidgets, useSaveWidgets } from '../hooks/use-atprotocol';
 import { useToast } from '@/hooks/use-toast';
 import { Widget } from '@shared/schema';
-import { Plus, Settings, Trash2, Clock, Code, Users, Cloud, Quote, TrendingUp, Calendar, Music, Heart, Mail, Youtube, Type, Image, BarChart3, Megaphone, X, CheckSquare, Timer, QrCode, Share2, Star, DollarSign, Bell, FileText, Maximize2, Minimize2 } from 'lucide-react';
+import { PollWidget } from './widgets/PollWidget';
+import { LiveChatWidget } from './widgets/LiveChatWidget';
+import { BlogPostsWidget } from './widgets/BlogPostsWidget';
+import { HeatMapWidget } from './widgets/HeatMapWidget';
+import PortfolioGalleryWidget from './widgets/PortfolioGalleryWidget';
+import ProductShowcaseWidget from './widgets/ProductShowcaseWidget';
+import { Plus, Settings, Trash2, Clock, Code, Users, Cloud, Quote, TrendingUp, Calendar, Music, Heart, Mail, Youtube, Type, Image, BarChart3, Megaphone, X, CheckSquare, Timer, QrCode, Share2, Star, DollarSign, Bell, FileText, Maximize2, Minimize2, MessageCircle, ShoppingBag } from 'lucide-react';
 
 interface WidgetsProps {
   isEditMode: boolean;
@@ -41,6 +47,12 @@ const WIDGET_TYPES = [
   { value: 'pricing_table', label: 'Pricing Table', icon: DollarSign, description: 'Pricing comparison table' },
   { value: 'newsletter', label: 'Newsletter', icon: Bell, description: 'Newsletter signup form' },
   { value: 'recent_posts', label: 'Recent Posts', icon: FileText, description: 'Recent blog posts feed' },
+  { value: 'poll', label: 'Poll', icon: BarChart3, description: 'Interactive polls and surveys' },
+  { value: 'live_chat', label: 'Live Chat', icon: Users, description: 'Real-time chat widget' },
+  { value: 'blog_posts', label: 'Blog Posts', icon: FileText, description: 'Blog posts display' },
+  { value: 'heat_map', label: 'Heat Map', icon: TrendingUp, description: 'Click analytics and heat maps' },
+  { value: 'portfolio_gallery', label: 'Portfolio Gallery', icon: Image, description: 'Showcase your work with images' },
+  { value: 'product_showcase', label: 'Product Showcase', icon: ShoppingBag, description: 'Display and sell products (Coming Soon)' },
 ];
 
 export function Widgets({ isEditMode }: WidgetsProps) {
@@ -161,6 +173,60 @@ export function Widgets({ isEditMode }: WidgetsProps) {
         return { title: 'Newsletter', description: 'Subscribe to our newsletter', placeholder: 'Enter your email' };
       case 'recent_posts':
         return { posts: [], title: 'Recent Posts', showCount: 3 };
+      case 'poll':
+        return { 
+          id: `poll_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          question: 'What do you think?', 
+          options: [
+            { id: 'opt1', text: 'Option 1', votes: 0 },
+            { id: 'opt2', text: 'Option 2', votes: 0 }
+          ], 
+          allowMultiple: false, 
+          isActive: true, 
+          totalVotes: 0,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+      case 'live_chat':
+        return { 
+          title: 'Live Chat', 
+          isActive: true, 
+          maxMessages: 50, 
+          allowAnonymous: true 
+        };
+      case 'blog_posts':
+        return { 
+          title: 'Latest Posts', 
+          showCount: 3, 
+          showExcerpt: true, 
+          showTags: true, 
+          showDate: true, 
+          showViews: true 
+        };
+      case 'heat_map':
+        return { 
+          title: 'Analytics', 
+          showClicks: true, 
+          showViews: true, 
+          timeRange: '7d', 
+          showTopElements: true 
+        };
+      case 'portfolio_gallery':
+        return {
+          title: 'Portfolio',
+          showCategories: true,
+          showTags: true,
+          itemsPerRow: 3,
+          showFeatured: true,
+          enableLightbox: true
+        };
+      case 'product_showcase':
+        return {
+          title: 'Products',
+          showPrices: true,
+          showCategories: true,
+          itemsPerRow: 3
+        };
       default:
         return {};
     }
@@ -220,6 +286,18 @@ export function Widgets({ isEditMode }: WidgetsProps) {
         return <NewsletterWidget config={config} />;
       case 'recent_posts':
         return <RecentPostsWidget config={config} />;
+      case 'poll':
+        return <PollWidget config={config} isEditMode={isEditMode} />;
+      case 'live_chat':
+        return <LiveChatWidget config={config} isEditMode={isEditMode} />;
+      case 'blog_posts':
+        return <BlogPostsWidget config={config} isEditMode={isEditMode} />;
+      case 'heat_map':
+        return <HeatMapWidget config={config} isEditMode={isEditMode} />;
+      case 'portfolio_gallery':
+        return <PortfolioGalleryWidget config={config} onConfigChange={(newConfig) => handleUpdateWidget({ ...widget, config: newConfig })} />;
+      case 'product_showcase':
+        return <ProductShowcaseWidget config={config} onConfigChange={(newConfig) => handleUpdateWidget({ ...widget, config: newConfig })} />;
       default:
         return <div className="p-4 bg-muted rounded-lg">Unknown widget type: {widget.type}</div>;
     }
@@ -2477,6 +2555,489 @@ function WidgetEditor({
                   Add Post
                 </Button>
               </div>
+            </div>
+          </div>
+        );
+      
+      case 'poll':
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label>Poll Question</Label>
+              <Input
+                value={editedWidget.config?.question || 'What do you think?'}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, question: e.target.value }
+                  }))
+                }
+                placeholder="What do you think?"
+              />
+            </div>
+            <div>
+              <Label>Poll Options</Label>
+              <div className="space-y-2">
+                {(editedWidget.config?.options || []).map((option: any, index: number) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <Input
+                      value={option.text || ''}
+                      onChange={(e) => {
+                        const newOptions = [...(editedWidget.config?.options || [])];
+                        newOptions[index] = { ...newOptions[index], text: e.target.value };
+                        setEditedWidget(prev => ({
+                          ...prev,
+                          config: { ...prev.config, options: newOptions }
+                        }));
+                      }}
+                      placeholder={`Option ${index + 1}`}
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const newOptions = (editedWidget.config?.options || []).filter((_: any, i: number) => i !== index);
+                        setEditedWidget(prev => ({
+                          ...prev,
+                          config: { ...prev.config, options: newOptions }
+                        }));
+                      }}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const newOptions = [...(editedWidget.config?.options || []), {
+                      id: `opt_${Date.now()}`,
+                      text: `Option ${(editedWidget.config?.options || []).length + 1}`,
+                      votes: 0
+                    }];
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, options: newOptions }
+                    }));
+                  }}
+                >
+                  Add Option
+                </Button>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="allowMultiple"
+                checked={editedWidget.config?.allowMultiple || false}
+                onCheckedChange={(checked) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, allowMultiple: checked }
+                  }))
+                }
+              />
+              <Label htmlFor="allowMultiple">Allow multiple selections</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="isActive"
+                checked={editedWidget.config?.isActive !== false}
+                onCheckedChange={(checked) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, isActive: checked }
+                  }))
+                }
+              />
+              <Label htmlFor="isActive">Poll is active</Label>
+            </div>
+          </div>
+        );
+      
+      case 'live_chat':
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label>Chat Title</Label>
+              <Input
+                value={editedWidget.config?.title || 'Live Chat'}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, title: e.target.value }
+                  }))
+                }
+                placeholder="Live Chat"
+              />
+            </div>
+            <div>
+              <Label>Max Messages to Store</Label>
+              <Input
+                type="number"
+                min="10"
+                max="200"
+                value={editedWidget.config?.maxMessages || 50}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, maxMessages: parseInt(e.target.value) || 50 }
+                  }))
+                }
+                placeholder="50"
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="isActive"
+                checked={editedWidget.config?.isActive !== false}
+                onCheckedChange={(checked) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, isActive: checked }
+                  }))
+                }
+              />
+              <Label htmlFor="isActive">Chat is active</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="allowAnonymous"
+                checked={editedWidget.config?.allowAnonymous !== false}
+                onCheckedChange={(checked) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, allowAnonymous: checked }
+                  }))
+                }
+              />
+              <Label htmlFor="allowAnonymous">Allow anonymous visitors to chat</Label>
+            </div>
+          </div>
+        );
+      
+      case 'blog_posts':
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label>Section Title</Label>
+              <Input
+                value={editedWidget.config?.title || 'Latest Posts'}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, title: e.target.value }
+                  }))
+                }
+                placeholder="Latest Posts"
+              />
+            </div>
+            <div>
+              <Label>Number of Posts to Show</Label>
+              <Input
+                type="number"
+                min="1"
+                max="10"
+                value={editedWidget.config?.showCount || 3}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, showCount: parseInt(e.target.value) || 3 }
+                  }))
+                }
+                placeholder="3"
+              />
+            </div>
+            <div className="space-y-3">
+              <Label>Display Options</Label>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showExcerpt"
+                  checked={editedWidget.config?.showExcerpt !== false}
+                  onCheckedChange={(checked) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, showExcerpt: checked }
+                    }))
+                  }
+                />
+                <Label htmlFor="showExcerpt">Show excerpt</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showTags"
+                  checked={editedWidget.config?.showTags !== false}
+                  onCheckedChange={(checked) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, showTags: checked }
+                    }))
+                  }
+                />
+                <Label htmlFor="showTags">Show tags</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showDate"
+                  checked={editedWidget.config?.showDate !== false}
+                  onCheckedChange={(checked) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, showDate: checked }
+                    }))
+                  }
+                />
+                <Label htmlFor="showDate">Show date</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showViews"
+                  checked={editedWidget.config?.showViews !== false}
+                  onCheckedChange={(checked) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, showViews: checked }
+                    }))
+                  }
+                />
+                <Label htmlFor="showViews">Show view count</Label>
+              </div>
+            </div>
+          </div>
+        );
+      
+      case 'heat_map':
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label>Widget Title</Label>
+              <Input
+                value={editedWidget.config?.title || 'Analytics'}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, title: e.target.value }
+                  }))
+                }
+                placeholder="Analytics"
+              />
+            </div>
+            <div className="space-y-3">
+              <Label>Display Options</Label>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showClicks"
+                  checked={editedWidget.config?.showClicks !== false}
+                  onCheckedChange={(checked) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, showClicks: checked }
+                    }))
+                  }
+                />
+                <Label htmlFor="showClicks">Show click data</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showViews"
+                  checked={editedWidget.config?.showViews !== false}
+                  onCheckedChange={(checked) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, showViews: checked }
+                    }))
+                  }
+                />
+                <Label htmlFor="showViews">Show view data</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showTopElements"
+                  checked={editedWidget.config?.showTopElements !== false}
+                  onCheckedChange={(checked) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, showTopElements: checked }
+                    }))
+                  }
+                />
+                <Label htmlFor="showTopElements">Show top elements</Label>
+              </div>
+            </div>
+            <div>
+              <Label>Default Time Range</Label>
+              <Select
+                value={editedWidget.config?.timeRange || '7d'}
+                onValueChange={(value) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, timeRange: value }
+                  }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="24h">Last 24 hours</SelectItem>
+                  <SelectItem value="7d">Last 7 days</SelectItem>
+                  <SelectItem value="30d">Last 30 days</SelectItem>
+                  <SelectItem value="all">All time</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        );
+      
+      case 'portfolio_gallery':
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label>Widget Title</Label>
+              <Input
+                value={editedWidget.config?.title || 'Portfolio'}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, title: e.target.value }
+                  }))
+                }
+                placeholder="Portfolio"
+              />
+            </div>
+            <div className="space-y-3">
+              <Label>Display Options</Label>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showCategories"
+                  checked={editedWidget.config?.showCategories !== false}
+                  onCheckedChange={(checked) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, showCategories: checked }
+                    }))
+                  }
+                />
+                <Label htmlFor="showCategories">Show categories</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showTags"
+                  checked={editedWidget.config?.showTags !== false}
+                  onCheckedChange={(checked) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, showTags: checked }
+                    }))
+                  }
+                />
+                <Label htmlFor="showTags">Show tags</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showFeatured"
+                  checked={editedWidget.config?.showFeatured !== false}
+                  onCheckedChange={(checked) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, showFeatured: checked }
+                    }))
+                  }
+                />
+                <Label htmlFor="showFeatured">Show featured filter</Label>
+              </div>
+            </div>
+            <div>
+              <Label>Items Per Row</Label>
+              <Select
+                value={editedWidget.config?.itemsPerRow?.toString() || '3'}
+                onValueChange={(value) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, itemsPerRow: parseInt(value) }
+                  }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 item per row</SelectItem>
+                  <SelectItem value="2">2 items per row</SelectItem>
+                  <SelectItem value="3">3 items per row</SelectItem>
+                  <SelectItem value="4">4 items per row</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        );
+      
+      case 'product_showcase':
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label>Widget Title</Label>
+              <Input
+                value={editedWidget.config?.title || 'Products'}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, title: e.target.value }
+                  }))
+                }
+                placeholder="Products"
+              />
+            </div>
+            <div className="space-y-3">
+              <Label>Display Options</Label>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showPrices"
+                  checked={editedWidget.config?.showPrices !== false}
+                  onCheckedChange={(checked) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, showPrices: checked }
+                    }))
+                  }
+                />
+                <Label htmlFor="showPrices">Show prices</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showCategories"
+                  checked={editedWidget.config?.showCategories !== false}
+                  onCheckedChange={(checked) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, showCategories: checked }
+                    }))
+                  }
+                />
+                <Label htmlFor="showCategories">Show categories</Label>
+              </div>
+            </div>
+            <div>
+              <Label>Items Per Row</Label>
+              <Select
+                value={editedWidget.config?.itemsPerRow?.toString() || '3'}
+                onValueChange={(value) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, itemsPerRow: parseInt(value) }
+                  }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 item per row</SelectItem>
+                  <SelectItem value="2">2 items per row</SelectItem>
+                  <SelectItem value="3">3 items per row</SelectItem>
+                  <SelectItem value="4">4 items per row</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         );

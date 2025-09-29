@@ -582,6 +582,30 @@ function PublicWidgets({ did }: { did: string }) {
         return <PublicStatsWidget config={config} />;
       case 'announcement':
         return <PublicAnnouncementWidget config={config} />;
+      case 'todo_list':
+        return <PublicTodoListWidget config={config} />;
+      case 'countdown':
+        return <PublicCountdownWidget config={config} />;
+      case 'qr_code':
+        return <PublicQRCodeWidget config={config} />;
+      case 'social_links':
+        return <PublicSocialLinksWidget config={config} />;
+      case 'testimonial':
+        return <PublicTestimonialWidget config={config} />;
+      case 'pricing_table':
+        return <PublicPricingTableWidget config={config} />;
+      case 'newsletter':
+        return <PublicNewsletterWidget config={config} />;
+      case 'recent_posts':
+        return <PublicRecentPostsWidget config={config} />;
+      case 'poll':
+        return <PublicPollWidget config={config} />;
+      case 'live_chat':
+        return <PublicLiveChatWidget config={config} />;
+      case 'blog_posts':
+        return <PublicBlogPostsWidget config={config} />;
+      case 'heat_map':
+        return <PublicHeatMapWidget config={config} />;
       default:
         return <div className="p-4 bg-muted rounded-lg">Unknown widget type: {widget.type}</div>;
     }
@@ -1069,6 +1093,397 @@ function PublicAnnouncementWidget({ config }: { config: any }) {
         <div className="flex-1">
           {config.message || 'Add your announcement message in the widget settings.'}
         </div>
+      </div>
+    </div>
+  );
+}
+
+// New Public Widget Components
+function PublicTodoListWidget({ config }: { config: any }) {
+  return (
+    <div className="space-y-2">
+      <h3 className="font-semibold text-lg">{config.title || 'My Tasks'}</h3>
+      <div className="space-y-2">
+        {(config.items || []).map((item: any, index: number) => (
+          <div key={index} className="flex items-center gap-2">
+            <div className={`w-4 h-4 rounded border-2 ${
+              item.completed ? 'bg-primary border-primary' : 'border-muted-foreground'
+            }`}>
+              {item.completed && <X className="w-3 h-3 text-white" />}
+            </div>
+            <span className={item.completed ? 'line-through text-muted-foreground' : ''}>
+              {item.text || `Task ${index + 1}`}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PublicCountdownWidget({ config }: { config: any }) {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    if (!config.targetDate) return;
+
+    const target = new Date(config.targetDate).getTime();
+    const timer = setInterval(() => {
+      const now = new Date().getTime();
+      const difference = target - now;
+
+      if (difference > 0) {
+        setTimeLeft({
+          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((difference % (1000 * 60)) / 1000),
+        });
+      } else {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        clearInterval(timer);
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [config.targetDate]);
+
+  return (
+    <div className="text-center">
+      <h3 className="font-semibold text-lg mb-4">{config.title || 'Countdown'}</h3>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {config.showDays && (
+          <div className="bg-muted/50 rounded-lg p-3">
+            <div className="text-2xl font-bold">{timeLeft.days}</div>
+            <div className="text-sm text-muted-foreground">Days</div>
+          </div>
+        )}
+        {config.showHours && (
+          <div className="bg-muted/50 rounded-lg p-3">
+            <div className="text-2xl font-bold">{timeLeft.hours}</div>
+            <div className="text-sm text-muted-foreground">Hours</div>
+          </div>
+        )}
+        {config.showMinutes && (
+          <div className="bg-muted/50 rounded-lg p-3">
+            <div className="text-2xl font-bold">{timeLeft.minutes}</div>
+            <div className="text-sm text-muted-foreground">Minutes</div>
+          </div>
+        )}
+        <div className="bg-muted/50 rounded-lg p-3">
+          <div className="text-2xl font-bold">{timeLeft.seconds}</div>
+          <div className="text-sm text-muted-foreground">Seconds</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PublicQRCodeWidget({ config }: { config: any }) {
+  return (
+    <div className="text-center">
+      <h3 className="font-semibold text-lg mb-4">{config.title || 'QR Code'}</h3>
+      <div className="bg-muted/50 rounded-lg p-4">
+        <div className="text-sm text-muted-foreground">
+          QR Code for: {config.text || 'No text provided'}
+        </div>
+        <div className="text-xs text-muted-foreground mt-2">
+          Size: {config.size || 200}px
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PublicSocialLinksWidget({ config }: { config: any }) {
+  return (
+    <div className="space-y-4">
+      <h3 className="font-semibold text-lg">{config.title || 'Follow Me'}</h3>
+      <div className="grid grid-cols-2 gap-3">
+        {(config.links || []).map((link: any, index: number) => (
+          <a
+            key={index}
+            href={link.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
+          >
+            <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+              <Users className="w-4 h-4" />
+            </div>
+            <span className="text-sm font-medium">{link.platform || 'Social'}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PublicTestimonialWidget({ config }: { config: any }) {
+  return (
+    <div className="text-center space-y-4">
+      <div className="flex justify-center gap-1">
+        {[...Array(5)].map((_, i) => (
+          <Heart
+            key={i}
+            className={`w-4 h-4 ${
+              i < (config.rating || 5) ? 'text-yellow-400 fill-current' : 'text-muted-foreground'
+            }`}
+          />
+        ))}
+      </div>
+      <blockquote className="text-lg italic">
+        "{config.text || 'This is a great service!'}"
+      </blockquote>
+      <div>
+        <div className="font-semibold">{config.author || 'Customer'}</div>
+        <div className="text-sm text-muted-foreground">{config.role || 'Client'}</div>
+      </div>
+    </div>
+  );
+}
+
+function PublicPricingTableWidget({ config }: { config: any }) {
+  return (
+    <div className="space-y-4">
+      <h3 className="font-semibold text-lg text-center">{config.title || 'Pricing Plans'}</h3>
+      <div className="grid gap-4">
+        {(config.plans || []).map((plan: any, index: number) => (
+          <div key={index} className="border rounded-lg p-4">
+            <div className="text-center">
+              <h4 className="font-semibold text-lg">{plan.name || `Plan ${index + 1}`}</h4>
+              <div className="text-2xl font-bold text-primary">{plan.price || '$0'}</div>
+              <div className="text-sm text-muted-foreground">{plan.period || '/month'}</div>
+            </div>
+            <ul className="mt-4 space-y-2">
+              {(plan.features || []).map((feature: string, i: number) => (
+                <li key={i} className="flex items-center gap-2 text-sm">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  {feature}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PublicNewsletterWidget({ config }: { config: any }) {
+  return (
+    <div className="text-center space-y-4">
+      <h3 className="font-semibold text-lg">{config.title || 'Newsletter'}</h3>
+      <p className="text-sm text-muted-foreground">
+        {config.description || 'Subscribe to our newsletter'}
+      </p>
+      <div className="space-y-2">
+        <Input
+          placeholder={config.placeholder || 'Enter your email'}
+          className="w-full"
+          disabled
+        />
+        <Button className="w-full" disabled>
+          Subscribe
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function PublicRecentPostsWidget({ config }: { config: any }) {
+  return (
+    <div className="space-y-4">
+      <h3 className="font-semibold text-lg">{config.title || 'Recent Posts'}</h3>
+      <div className="space-y-3">
+        {(config.posts || []).slice(0, config.showCount || 3).map((post: any, index: number) => (
+          <div key={index} className="border-b border-border pb-3 last:border-b-0">
+            <h4 className="font-medium text-sm">{post.title || `Post ${index + 1}`}</h4>
+            <p className="text-xs text-muted-foreground mt-1">
+              {post.excerpt || 'No excerpt available'}
+            </p>
+            <div className="text-xs text-muted-foreground mt-2">
+              {post.date || 'No date'}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PublicPollWidget({ config }: { config: any }) {
+  const [hasVoted, setHasVoted] = useState(false);
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [isVoting, setIsVoting] = useState(false);
+  const [pollData, setPollData] = useState(config);
+
+  const handleVote = async (optionId: string) => {
+    if (hasVoted || isVoting) return;
+
+    setIsVoting(true);
+    try {
+      // Get current polls data
+      const currentPolls = await atprotocol.getPolls();
+      const polls = currentPolls?.polls || [];
+      
+      // Find the poll by ID
+      const pollIndex = polls.findIndex((poll: any) => poll.id === config.id);
+      
+      if (pollIndex !== -1) {
+        // Update the specific poll
+        const updatedPolls = [...polls];
+        const poll = updatedPolls[pollIndex];
+        
+        // Update the option votes
+        const updatedOptions = poll.options.map((option: any) => {
+          if (option.id === optionId) {
+            return { ...option, votes: option.votes + 1 };
+          }
+          return option;
+        });
+        
+        updatedPolls[pollIndex] = {
+          ...poll,
+          options: updatedOptions,
+          totalVotes: poll.totalVotes + 1,
+        };
+        
+        // Save updated polls
+        await atprotocol.savePolls(updatedPolls);
+        
+        // Update local state
+        setPollData(updatedPolls[pollIndex]);
+        setSelectedOption(optionId);
+        setHasVoted(true);
+      }
+    } catch (error) {
+      console.error('Failed to vote:', error);
+      // Still show the vote locally even if saving fails
+      setSelectedOption(optionId);
+      setHasVoted(true);
+    } finally {
+      setIsVoting(false);
+    }
+  };
+
+  if (!config.isActive) {
+    return (
+      <div className="text-center p-4">
+        <p className="text-muted-foreground">This poll is not active</p>
+      </div>
+    );
+  }
+
+  const currentConfig = pollData || config;
+
+  return (
+    <div className="space-y-4">
+      <h3 className="font-semibold text-lg">{currentConfig.question || 'What do you think?'}</h3>
+      <div className="space-y-2">
+        {(currentConfig.options || []).map((option: any) => (
+          <button
+            key={option.id}
+            onClick={() => handleVote(option.id)}
+            className={`w-full p-3 text-left rounded-lg border transition-colors ${
+              selectedOption === option.id
+                ? 'border-primary bg-primary/5'
+                : 'border-border hover:bg-muted/50'
+            }`}
+            disabled={hasVoted || isVoting}
+          >
+            <div className="flex items-center gap-2">
+              <div className={`w-4 h-4 rounded-full border-2 ${
+                selectedOption === option.id
+                  ? 'border-primary bg-primary'
+                  : 'border-muted-foreground'
+              }`} />
+              <span>{option.text || 'Option'}</span>
+              {hasVoted && (
+                <span className="ml-auto text-sm text-muted-foreground">
+                  {option.votes || 0} votes
+                </span>
+              )}
+            </div>
+          </button>
+        ))}
+      </div>
+      {isVoting && (
+        <div className="text-center text-sm text-muted-foreground">
+          Recording your vote...
+        </div>
+      )}
+      {hasVoted && !isVoting && (
+        <div className="text-center text-sm text-muted-foreground">
+          Thank you for voting!
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PublicLiveChatWidget({ config }: { config: any }) {
+  if (!config.isActive) {
+    return (
+      <div className="text-center p-4">
+        <p className="text-muted-foreground">Live chat is currently offline</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+        <h3 className="font-semibold">{config.title || 'Live Chat'}</h3>
+      </div>
+      <div className="text-center p-4 bg-muted/50 rounded-lg">
+        <p className="text-sm text-muted-foreground">
+          Chat is available! Click to start a conversation.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function PublicBlogPostsWidget({ config }: { config: any }) {
+  return (
+    <div className="space-y-4">
+      <h3 className="font-semibold text-lg">{config.title || 'Latest Posts'}</h3>
+      <div className="space-y-3">
+        {(config.posts || []).slice(0, config.showCount || 3).map((post: any, index: number) => (
+          <div key={index} className="border-b border-border pb-3 last:border-b-0">
+            <h4 className="font-medium text-sm hover:text-primary cursor-pointer">
+              {post.title || `Blog Post ${index + 1}`}
+            </h4>
+            {config.showExcerpt && post.excerpt && (
+              <p className="text-xs text-muted-foreground mt-1">
+                {post.excerpt}
+              </p>
+            )}
+            <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+              {config.showDate && (
+                <span>{post.date || 'No date'}</span>
+              )}
+              {config.showViews && (
+                <span>{post.views || 0} views</span>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PublicHeatMapWidget({ config }: { config: any }) {
+  return (
+    <div className="space-y-4">
+      <h3 className="font-semibold text-lg">{config.title || 'Analytics'}</h3>
+      <div className="text-center p-4 bg-muted/50 rounded-lg">
+        <p className="text-sm text-muted-foreground">
+          Analytics data is only visible to the profile owner
+        </p>
       </div>
     </div>
   );

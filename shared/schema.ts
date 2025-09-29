@@ -55,6 +55,87 @@ export const storySchema = z.object({
   createdAt: z.string(),
 });
 
+export const heatMapSchema = z.object({
+  id: z.string(),
+  elementId: z.string(),
+  elementType: z.enum(['link', 'widget', 'story', 'button']),
+  clicks: z.number().default(0),
+  views: z.number().default(0),
+  lastClicked: z.string().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const pollSchema = z.object({
+  id: z.string(),
+  question: z.string().min(1, "Question is required"),
+  options: z.array(z.object({
+    id: z.string(),
+    text: z.string().min(1, "Option text is required"),
+    votes: z.number().default(0),
+  })).min(2, "At least 2 options required"),
+  allowMultiple: z.boolean().default(false),
+  expiresAt: z.string().optional(),
+  isActive: z.boolean().default(true),
+  totalVotes: z.number().default(0),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const chatMessageSchema = z.object({
+  id: z.string(),
+  content: z.string().min(1, "Message is required"),
+  senderDid: z.string(),
+  senderHandle: z.string(),
+  senderAvatar: z.string().optional(),
+  isFromOwner: z.boolean().default(false),
+  createdAt: z.string(),
+});
+
+export const blogPostSchema = z.object({
+  id: z.string(),
+  title: z.string().min(1, "Title is required"),
+  content: z.string().min(1, "Content is required"),
+  excerpt: z.string().optional(),
+  slug: z.string(),
+  tags: z.array(z.string()).default([]),
+  isPublished: z.boolean().default(false),
+  publishedAt: z.string().optional(),
+  views: z.number().default(0),
+  featuredImage: z.string().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const portfolioItemSchema = z.object({
+  id: z.string(),
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  imageUrl: z.string().min(1, "Image URL is required"),
+  category: z.string().optional(),
+  tags: z.array(z.string()).default([]),
+  linkUrl: z.string().optional(),
+  featured: z.boolean().default(false),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const productSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1, "Product name is required"),
+  description: z.string().optional(),
+  price: z.number().min(0),
+  currency: z.string().default("USD"),
+  imageUrl: z.string().optional(),
+  category: z.string().optional(),
+  tags: z.array(z.string()).default([]),
+  linkUrl: z.string().optional(),
+  featured: z.boolean().default(false),
+  isAvailable: z.boolean().default(true),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
 // Group schema
 export const groupSchema = z.object({
   id: z.string(),
@@ -91,6 +172,15 @@ export const settingsSchema = z.object({
   isPublic: z.boolean().default(true),
   enableAnalytics: z.boolean().default(true),
   sectionOrder: z.array(z.enum(["widgets", "notes", "links"])).default(["widgets", "notes", "links"]),
+  // SEO Settings
+  seoTitle: z.string().optional(),
+  seoDescription: z.string().optional(),
+  seoKeywords: z.array(z.string()).default([]),
+  seoImage: z.string().optional(),
+  seoAuthor: z.string().optional(),
+  seoSiteName: z.string().optional(),
+  seoTwitterHandle: z.string().optional(),
+  seoFacebookAppId: z.string().optional(),
 });
 
 // Widget schema with many more types and better configuration
@@ -121,6 +211,12 @@ export const widgetSchema = z.object({
     "pricing_table",   // Pricing comparison table
     "newsletter",      // Newsletter signup
     "recent_posts",    // Recent blog posts
+    "poll",            // Interactive polls
+    "live_chat",       // Live chat widget
+    "blog_posts",      // Blog posts display
+    "heat_map",        // Click heat map analytics
+    "portfolio_gallery", // Portfolio image gallery
+    "product_showcase",  // Product showcase (coming soon)
   ]),
   title: z.string().optional(),
   enabled: z.boolean().default(true),
