@@ -491,6 +491,12 @@ export default function Landing() {
                         className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-800 ease-out ${
                           isTransitioning ? 'opacity-0' : 'opacity-100'
                         }`}
+                        onError={(e) => {
+                          console.error('Hero image failed to load:', features[currentFeature].image, e);
+                        }}
+                        onLoad={() => {
+                          console.log('Hero image loaded successfully:', features[currentFeature].image);
+                        }}
                       />
                       
                       {/* Next Image (for crossfade) */}
@@ -500,6 +506,12 @@ export default function Landing() {
                         className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-800 ease-out ${
                           isTransitioning ? 'opacity-100' : 'opacity-0'
                         }`}
+                        onError={(e) => {
+                          console.error('Next hero image failed to load:', features[nextFeature].image, e);
+                        }}
+                        onLoad={() => {
+                          console.log('Next hero image loaded successfully:', features[nextFeature].image);
+                        }}
                       />
                       
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
@@ -580,6 +592,13 @@ export default function Landing() {
                           src={feature.image} 
                           alt={feature.title}
                           className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                          onError={(e) => {
+                            console.error('Image failed to load:', feature.image, e);
+                            e.currentTarget.style.display = 'none';
+                          }}
+                          onLoad={() => {
+                            console.log('Image loaded successfully:', feature.image);
+                          }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <div className={`absolute top-4 left-4 w-10 h-10 rounded-xl bg-gradient-to-r ${feature.color} flex items-center justify-center shadow-lg`}>
