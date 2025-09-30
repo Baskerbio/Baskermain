@@ -20,6 +20,12 @@ export const linkSchema = z.object({
   group: z.string().optional(), // Group name for organizing links
   order: z.number().int().min(0),
   enabled: z.boolean().default(true),
+  // Customization options
+  backgroundColor: z.string().optional(),
+  textColor: z.string().optional(),
+  fontFamily: z.string().optional(),
+  containerShape: z.enum(['rounded', 'square', 'pill', 'circle']).default('rounded'),
+  autoTextColor: z.boolean().default(true), // Auto-detect text color based on background
   createdAt: z.string(),
   updatedAt: z.string(),
 });
@@ -136,6 +142,68 @@ export const productSchema = z.object({
   updatedAt: z.string(),
 });
 
+// Company schema
+export const companySchema = z.object({
+  id: z.string(),
+  name: z.string().min(1, "Company name is required"),
+  handle: z.string().optional(), // Bluesky handle if available
+  description: z.string().optional(),
+  website: z.string().url().optional(),
+  logo: z.string().optional(),
+  industry: z.string().optional(),
+  location: z.string().optional(),
+  size: z.enum(['startup', 'small', 'medium', 'large', 'enterprise']).optional(),
+  isVerified: z.boolean().default(false),
+  isBlueskyCompany: z.boolean().default(false), // True if found on Bluesky
+  blueskyDid: z.string().optional(), // DID if it's a Bluesky company
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+// Work History schema
+export const workHistorySchema = z.object({
+  id: z.string(),
+  companyId: z.string(), // Reference to company
+  position: z.string().min(1, "Position is required"),
+  description: z.string().optional(),
+  startDate: z.string(), // ISO date string
+  endDate: z.string().optional(), // ISO date string, null for current position
+  isCurrent: z.boolean().default(false),
+  location: z.string().optional(),
+  employmentType: z.enum(['full-time', 'part-time', 'contract', 'internship', 'freelance']).default('full-time'),
+  isVerified: z.boolean().default(false), // Verified by admin
+  verificationStatus: z.enum(['unverified', 'pending', 'verified', 'rejected']).default('unverified'),
+  verificationNotes: z.string().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+// Verification Request schema
+export const verificationRequestSchema = z.object({
+  id: z.string(),
+  userId: z.string(), // User's DID
+  workHistoryId: z.string(), // Reference to work history entry
+  companyId: z.string(), // Reference to company
+  evidence: z.string().optional(), // Description of evidence provided
+  documents: z.array(z.string()).default([]), // URLs to uploaded documents
+  status: z.enum(['pending', 'approved', 'rejected']).default('pending'),
+  adminNotes: z.string().optional(),
+  submittedAt: z.string(),
+  reviewedAt: z.string().optional(),
+  reviewedBy: z.string().optional(), // Admin DID who reviewed
+});
+
+// Admin User schema
+export const adminUserSchema = z.object({
+  did: z.string(),
+  handle: z.string(),
+  displayName: z.string().optional(),
+  permissions: z.array(z.enum(['verify_work', 'manage_companies', 'view_analytics', 'manage_users'])).default(['verify_work']),
+  isActive: z.boolean().default(true),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
 // Group schema
 export const groupSchema = z.object({
   id: z.string(),
@@ -172,6 +240,9 @@ export const settingsSchema = z.object({
   isPublic: z.boolean().default(true),
   enableAnalytics: z.boolean().default(true),
   sectionOrder: z.array(z.enum(["widgets", "notes", "links"])).default(["widgets", "notes", "links"]),
+  // Custom Profile Overrides
+  customBio: z.string().optional(),
+  customAvatar: z.string().optional(),
   // SEO Settings
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
@@ -217,6 +288,7 @@ export const widgetSchema = z.object({
     "heat_map",        // Click heat map analytics
     "portfolio_gallery", // Portfolio image gallery
     "product_showcase",  // Product showcase (coming soon)
+    "work_history",    // Work history and experience
   ]),
   title: z.string().optional(),
   enabled: z.boolean().default(true),
@@ -249,6 +321,22 @@ export const widgetsRecordSchema = z.object({
   widgets: z.array(widgetSchema),
 });
 
+export const companiesRecordSchema = z.object({
+  companies: z.array(companySchema),
+});
+
+export const workHistoryRecordSchema = z.object({
+  workHistory: z.array(workHistorySchema),
+});
+
+export const verificationRequestsRecordSchema = z.object({
+  verificationRequests: z.array(verificationRequestSchema),
+});
+
+export const adminUsersRecordSchema = z.object({
+  adminUsers: z.array(adminUserSchema),
+});
+
 // Insert schemas
 export const insertLinkSchema = linkSchema.omit({ id: true, createdAt: true, updatedAt: true });
 export const insertNoteSchema = noteSchema.omit({ id: true, createdAt: true, updatedAt: true });
@@ -270,8 +358,18 @@ export type NotesRecord = z.infer<typeof notesRecordSchema>;
 export type StoriesRecord = z.infer<typeof storiesRecordSchema>;
 export type SettingsRecord = z.infer<typeof settingsRecordSchema>;
 export type WidgetsRecord = z.infer<typeof widgetsRecordSchema>;
+export type CompaniesRecord = z.infer<typeof companiesRecordSchema>;
+export type WorkHistoryRecord = z.infer<typeof workHistoryRecordSchema>;
+export type VerificationRequestsRecord = z.infer<typeof verificationRequestsRecordSchema>;
+export type AdminUsersRecord = z.infer<typeof adminUsersRecordSchema>;
 
 export type InsertLink = z.infer<typeof insertLinkSchema>;
 export type InsertNote = z.infer<typeof insertNoteSchema>;
 export type InsertStory = z.infer<typeof insertStorySchema>;
 export type InsertWidget = z.infer<typeof insertWidgetSchema>;
+
+// Work History types
+export type Company = z.infer<typeof companySchema>;
+export type WorkHistory = z.infer<typeof workHistorySchema>;
+export type VerificationRequest = z.infer<typeof verificationRequestSchema>;
+export type AdminUser = z.infer<typeof adminUserSchema>;

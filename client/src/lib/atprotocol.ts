@@ -1,5 +1,5 @@
 import { BskyAgent, RichText } from '@atproto/api';
-import { Link, Note, Story, Group, Settings, Widget, LinksRecord, NotesRecord, StoriesRecord, SettingsRecord, WidgetsRecord } from '@shared/schema';
+import { Link, Note, Story, Group, Settings, Widget, LinksRecord, NotesRecord, StoriesRecord, SettingsRecord, WidgetsRecord, Company, WorkHistory, VerificationRequest, AdminUser, CompaniesRecord, WorkHistoryRecord, VerificationRequestsRecord, AdminUsersRecord } from '@shared/schema';
 import { BASKER_LEXICONS, validateRecord } from './lexicons';
 
 export class ATProtocolClient {
@@ -254,10 +254,17 @@ export class ATProtocolClient {
         id: record.uri.split('/').pop() || '',
         title: record.value.title,
         url: record.value.url,
+        description: record.value.description || '',
         icon: record.value.icon || '',
         group: record.value.group || '',
         order: record.value.order || 0,
         enabled: record.value.enabled !== false,
+        // Customization options
+        backgroundColor: record.value.backgroundColor || '',
+        textColor: record.value.textColor || '',
+        fontFamily: record.value.fontFamily || 'system',
+        containerShape: record.value.containerShape || 'rounded',
+        autoTextColor: record.value.autoTextColor !== undefined ? record.value.autoTextColor : true,
         createdAt: record.value.createdAt,
         updatedAt: record.value.updatedAt,
       }));
@@ -301,9 +308,17 @@ export class ATProtocolClient {
         const record = {
           title: link.title,
           url: link.url,
+          description: link.description || '',
           icon: link.icon || '',
           group: link.group || '',
           order: link.order || 0,
+          enabled: link.enabled !== undefined ? link.enabled : true,
+          // Customization options
+          backgroundColor: link.backgroundColor || '',
+          textColor: link.textColor || '',
+          fontFamily: link.fontFamily || 'system',
+          containerShape: link.containerShape || 'rounded',
+          autoTextColor: link.autoTextColor !== undefined ? link.autoTextColor : true,
           createdAt: link.createdAt || new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
@@ -798,10 +813,17 @@ export class ATProtocolClient {
         id: record.uri.split('/').pop() || '',
         title: record.value.title,
         url: record.value.url,
+        description: record.value.description || '',
         icon: record.value.icon || '',
         group: record.value.group || '',
         order: record.value.order || 0,
         enabled: record.value.enabled !== false,
+        // Customization options
+        backgroundColor: record.value.backgroundColor || '',
+        textColor: record.value.textColor || '',
+        fontFamily: record.value.fontFamily || 'system',
+        containerShape: record.value.containerShape || 'rounded',
+        autoTextColor: record.value.autoTextColor !== undefined ? record.value.autoTextColor : true,
         createdAt: record.value.createdAt,
         updatedAt: record.value.updatedAt,
       }));
@@ -1149,6 +1171,192 @@ export class ATProtocolClient {
     } catch (error: any) {
       console.error('AT Protocol failed for saving products:', error);
       throw new Error(`Failed to save products to AT Protocol: ${error.message}`);
+    }
+  }
+
+  // Work History Methods
+  async getCompanies(): Promise<Company[]> {
+    if (!this.did) throw new Error('Not authenticated');
+
+    try {
+      const response = await this.agent.api.com.atproto.repo.getRecord({
+        repo: this.did,
+        collection: 'app.basker.companies',
+        rkey: 'self',
+      });
+      
+      console.log('Successfully fetched companies from AT Protocol');
+      return response.data.value?.companies || [];
+    } catch (error: any) {
+      console.log('No companies found, returning empty array');
+      return [];
+    }
+  }
+
+  async saveCompanies(companies: Company[]): Promise<void> {
+    if (!this.did) throw new Error('Not authenticated');
+
+    const record = {
+      companies,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    try {
+      await this.agent.api.com.atproto.repo.putRecord({
+        repo: this.did,
+        collection: 'app.basker.companies',
+        rkey: 'self',
+        record,
+      });
+
+      console.log('Successfully saved companies to AT Protocol');
+    } catch (error: any) {
+      console.error('AT Protocol failed for saving companies:', error);
+      throw new Error(`Failed to save companies to AT Protocol: ${error.message}`);
+    }
+  }
+
+  async getWorkHistory(): Promise<WorkHistory[]> {
+    if (!this.did) throw new Error('Not authenticated');
+
+    try {
+      const response = await this.agent.api.com.atproto.repo.getRecord({
+        repo: this.did,
+        collection: 'app.basker.workhistory',
+        rkey: 'self',
+      });
+      
+      console.log('Successfully fetched work history from AT Protocol');
+      return response.data.value?.workHistory || [];
+    } catch (error: any) {
+      console.log('No work history found, returning empty array');
+      return [];
+    }
+  }
+
+  async saveWorkHistory(workHistory: WorkHistory[]): Promise<void> {
+    if (!this.did) throw new Error('Not authenticated');
+
+    const record = {
+      workHistory,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    try {
+      await this.agent.api.com.atproto.repo.putRecord({
+        repo: this.did,
+        collection: 'app.basker.workhistory',
+        rkey: 'self',
+        record,
+      });
+
+      console.log('Successfully saved work history to AT Protocol');
+    } catch (error: any) {
+      console.error('AT Protocol failed for saving work history:', error);
+      throw new Error(`Failed to save work history to AT Protocol: ${error.message}`);
+    }
+  }
+
+  // Public work history for viewing other users' profiles
+  async getPublicWorkHistory(targetDid: string): Promise<WorkHistory[]> {
+    try {
+      const response = await this.agent.api.com.atproto.repo.getRecord({
+        repo: targetDid,
+        collection: 'app.basker.workhistory',
+        rkey: 'self',
+      });
+      
+      console.log('Successfully fetched public work history from AT Protocol');
+      return response.data.value?.workHistory || [];
+    } catch (error: any) {
+      console.log('No public work history found, returning empty array');
+      return [];
+    }
+  }
+
+  // Company search on Bluesky
+  async searchCompanies(query: string): Promise<any[]> {
+    try {
+      const response = await this.agent.api.app.bsky.actor.searchActors({
+        q: query,
+        limit: 20,
+      });
+      
+      console.log('Successfully searched companies on Bluesky');
+      return response.data.actors || [];
+    } catch (error: any) {
+      console.error('Failed to search companies on Bluesky:', error);
+      return [];
+    }
+  }
+
+  // Verification request methods
+  async submitVerificationRequest(request: VerificationRequest): Promise<void> {
+    if (!this.did) throw new Error('Not authenticated');
+
+    const record = {
+      ...request,
+      userId: this.did,
+      submittedAt: new Date().toISOString(),
+    };
+    
+    try {
+      await this.agent.api.com.atproto.repo.createRecord({
+        repo: this.did,
+        collection: 'app.basker.verification',
+        record,
+      });
+
+      console.log('Successfully submitted verification request to AT Protocol');
+    } catch (error: any) {
+      console.error('AT Protocol failed for verification request:', error);
+      throw new Error(`Failed to submit verification request: ${error.message}`);
+    }
+  }
+
+  // Admin methods (only for verified admins)
+  async getVerificationRequests(): Promise<VerificationRequest[]> {
+    if (!this.did) throw new Error('Not authenticated');
+    // TODO: Add admin verification check
+
+    try {
+      const response = await this.agent.api.com.atproto.repo.listRecords({
+        repo: this.did,
+        collection: 'app.basker.verification',
+        limit: 100,
+      });
+      
+      console.log('Successfully fetched verification requests from AT Protocol');
+      return response.data.records.map((record: any) => record.value) || [];
+    } catch (error: any) {
+      console.log('No verification requests found, returning empty array');
+      return [];
+    }
+  }
+
+  async updateVerificationRequest(requestId: string, status: 'approved' | 'rejected', adminNotes?: string): Promise<void> {
+    if (!this.did) throw new Error('Not authenticated');
+    // TODO: Add admin verification check
+
+    try {
+      await this.agent.api.com.atproto.repo.putRecord({
+        repo: this.did,
+        collection: 'app.basker.verification',
+        rkey: requestId,
+        record: {
+          status,
+          adminNotes,
+          reviewedAt: new Date().toISOString(),
+          reviewedBy: this.did,
+        },
+      });
+
+      console.log('Successfully updated verification request');
+    } catch (error: any) {
+      console.error('AT Protocol failed for updating verification request:', error);
+      throw new Error(`Failed to update verification request: ${error.message}`);
     }
   }
 }

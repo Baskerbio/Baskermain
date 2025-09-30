@@ -225,11 +225,11 @@ export function Notes({ isEditMode }: NotesProps) {
                     </span>
                   </div>
                   {isEditMode && (
-                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-2">
                       <Button
                         size="sm"
-                        variant="ghost"
-                        className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
+                        variant="glass"
+                        className="h-6 w-6 p-0 hover:scale-105 transition-all duration-200"
                         onClick={() => startEdit(note)}
                         data-testid={`button-edit-note-${note.id}`}
                       >
@@ -237,8 +237,8 @@ export function Notes({ isEditMode }: NotesProps) {
                       </Button>
                       <Button
                         size="sm"
-                        variant="ghost"
-                        className="h-6 w-6 p-0 text-destructive hover:text-destructive/80"
+                        variant="glass"
+                        className="h-6 w-6 p-0 text-destructive hover:text-destructive/80 hover:scale-105 transition-all duration-200"
                         onClick={() => deleteNote(note.id)}
                         data-testid={`button-delete-note-${note.id}`}
                       >

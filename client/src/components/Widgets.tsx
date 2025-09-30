@@ -16,7 +16,8 @@ import { BlogPostsWidget } from './widgets/BlogPostsWidget';
 import { HeatMapWidget } from './widgets/HeatMapWidget';
 import PortfolioGalleryWidget from './widgets/PortfolioGalleryWidget';
 import ProductShowcaseWidget from './widgets/ProductShowcaseWidget';
-import { Plus, Settings, Trash2, Clock, Code, Users, Cloud, Quote, TrendingUp, Calendar, Music, Heart, Mail, Youtube, Type, Image, BarChart3, Megaphone, X, CheckSquare, Timer, QrCode, Share2, Star, DollarSign, Bell, FileText, Maximize2, Minimize2, MessageCircle, ShoppingBag } from 'lucide-react';
+import { WorkHistoryWidget } from './WorkHistoryWidget';
+import { Plus, Settings, Trash2, Clock, Code, Users, Cloud, Quote, TrendingUp, Calendar, Music, Heart, Mail, Youtube, Type, Image, BarChart3, Megaphone, X, CheckSquare, Timer, QrCode, Share2, Star, DollarSign, Bell, FileText, Maximize2, Minimize2, MessageCircle, ShoppingBag, Briefcase } from 'lucide-react';
 
 interface WidgetsProps {
   isEditMode: boolean;
@@ -53,6 +54,7 @@ const WIDGET_TYPES = [
   { value: 'heat_map', label: 'Heat Map', icon: TrendingUp, description: 'Click analytics and heat maps' },
   { value: 'portfolio_gallery', label: 'Portfolio Gallery', icon: Image, description: 'Showcase your work with images' },
   { value: 'product_showcase', label: 'Product Showcase', icon: ShoppingBag, description: 'Display and sell products (Coming Soon)' },
+  { value: 'work_history', label: 'Work History', icon: Briefcase, description: 'Professional work experience and employment history' },
 ];
 
 export function Widgets({ isEditMode }: WidgetsProps) {
@@ -227,6 +229,13 @@ export function Widgets({ isEditMode }: WidgetsProps) {
           showCategories: true,
           itemsPerRow: 3
         };
+      case 'work_history':
+        return {
+          title: 'Work History',
+          showVerificationStatus: true,
+          showCompanyLogos: true,
+          showEmploymentType: true
+        };
       default:
         return {};
     }
@@ -298,6 +307,8 @@ export function Widgets({ isEditMode }: WidgetsProps) {
         return <PortfolioGalleryWidget config={config} onConfigChange={(newConfig) => handleUpdateWidget({ ...widget, config: newConfig })} />;
       case 'product_showcase':
         return <ProductShowcaseWidget config={config} onConfigChange={(newConfig) => handleUpdateWidget({ ...widget, config: newConfig })} />;
+      case 'work_history':
+        return <WorkHistoryWidget />;
       default:
         return <div className="p-4 bg-muted rounded-lg">Unknown widget type: {widget.type}</div>;
     }
@@ -3038,6 +3049,67 @@ function WidgetEditor({
                   <SelectItem value="4">4 items per row</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+          </div>
+        );
+      
+      case 'work_history':
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label>Widget Title</Label>
+              <Input
+                value={editedWidget.config?.title || 'Work History'}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, title: e.target.value }
+                  }))
+                }
+                placeholder="Work History"
+              />
+            </div>
+            <div className="space-y-3">
+              <Label>Display Options</Label>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showVerificationStatus"
+                  checked={editedWidget.config?.showVerificationStatus !== false}
+                  onCheckedChange={(checked) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, showVerificationStatus: checked }
+                    }))
+                  }
+                />
+                <Label htmlFor="showVerificationStatus">Show verification status</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showCompanyLogos"
+                  checked={editedWidget.config?.showCompanyLogos !== false}
+                  onCheckedChange={(checked) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, showCompanyLogos: checked }
+                    }))
+                  }
+                />
+                <Label htmlFor="showCompanyLogos">Show company logos</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showEmploymentType"
+                  checked={editedWidget.config?.showEmploymentType !== false}
+                  onCheckedChange={(checked) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, showEmploymentType: checked }
+                    }))
+                  }
+                />
+                <Label htmlFor="showEmploymentType">Show employment type</Label>
+              </div>
             </div>
           </div>
         );

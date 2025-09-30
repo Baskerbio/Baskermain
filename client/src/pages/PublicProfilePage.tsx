@@ -2,6 +2,7 @@ import { useRoute } from 'wouter';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { atprotocol } from '../lib/atprotocol';
+import { getLinkStyling } from '../lib/link-utils';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Skeleton } from '../components/ui/skeleton';
@@ -14,6 +15,7 @@ import { Label } from '../components/ui/label';
 import { UserProfile } from '@shared/schema';
 import { ArrowLeft, Users, Cloud, Music, Heart, Image, Megaphone, Mail, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { WorkHistoryWidget } from '../components/WorkHistoryWidget';
 
 export default function PublicProfilePage() {
   const [, params] = useRoute('/:handle');
@@ -365,7 +367,14 @@ function PublicLinksList({ did }: { did: string }) {
                 rel="noopener noreferrer"
                 className="block"
               >
-                <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                <Card 
+                  className={`hover:shadow-md transition-shadow cursor-pointer ${getLinkStyling(link).shapeClasses}`}
+                  style={{
+                    backgroundColor: getLinkStyling(link).backgroundColor,
+                    color: getLinkStyling(link).color,
+                    fontFamily: getLinkStyling(link).fontFamily,
+                  }}
+                >
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
@@ -431,7 +440,14 @@ function PublicLinksList({ did }: { did: string }) {
                       rel="noopener noreferrer"
                       className="block"
                     >
-                      <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                      <Card 
+                        className={`hover:shadow-md transition-shadow cursor-pointer ${getLinkStyling(link).shapeClasses}`}
+                        style={{
+                          backgroundColor: getLinkStyling(link).backgroundColor,
+                          color: getLinkStyling(link).color,
+                          fontFamily: getLinkStyling(link).fontFamily,
+                        }}
+                      >
                       <CardContent className="p-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
@@ -606,6 +622,8 @@ function PublicWidgets({ did }: { did: string }) {
         return <PublicBlogPostsWidget config={config} />;
       case 'heat_map':
         return <PublicHeatMapWidget config={config} />;
+      case 'work_history':
+        return <WorkHistoryWidget isPublic={true} targetDid={did} />;
       default:
         return <div className="p-4 bg-muted rounded-lg">Unknown widget type: {widget.type}</div>;
     }

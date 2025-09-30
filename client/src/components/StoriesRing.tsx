@@ -11,7 +11,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { UserProfile } from '@shared/schema';
-import { useStories, useSaveStories } from '../hooks/use-atprotocol';
+import { useStories, useSaveStories, useSettings } from '../hooks/use-atprotocol';
 import { atprotocol } from '../lib/atprotocol';
 import { Story } from '@shared/schema';
 import { useToast } from '../hooks/use-toast';
@@ -40,14 +40,19 @@ interface StoriesRingProps {
   isEditMode?: boolean;
   isOwnProfile?: boolean;
   targetDid?: string; // For public profiles
+  settings?: any; // Pass settings from parent
 }
 
-export function StoriesRing({ profile, isEditMode = false, isOwnProfile = false, targetDid }: StoriesRingProps) {
+export function StoriesRing({ profile, isEditMode = false, isOwnProfile = false, targetDid, settings: propSettings }: StoriesRingProps) {
   const componentId = Math.random().toString(36).substr(2, 9);
   console.log('🔍 StoriesRing - Component rendered with ID:', componentId, 'props:', { isEditMode, isOwnProfile, targetDid, profileHandle: profile?.handle });
   
   const { data: ownStories = [] } = useStories();
   const { mutate: saveStories } = useSaveStories();
+  const { data: settings } = useSettings();
+  
+  // Use passed settings if available, otherwise use fetched settings
+  const effectiveSettings = propSettings || settings;
   const [publicStories, setPublicStories] = useState<Story[]>([]);
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
   const [loading, setLoading] = useState(false);
@@ -227,7 +232,7 @@ export function StoriesRing({ profile, isEditMode = false, isOwnProfile = false,
       <div className="relative inline-block mb-4">
         <Avatar className="w-24 h-24 border-4 border-primary">
           <AvatarImage 
-            src={profile.avatar} 
+            src={effectiveSettings?.customAvatar || profile.avatar} 
             alt={profile.displayName || profile.handle}
             data-testid="img-avatar"
           />
@@ -271,7 +276,7 @@ export function StoriesRing({ profile, isEditMode = false, isOwnProfile = false,
         {/* Avatar */}
         <Avatar className="w-24 h-24 border-4 border-primary absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
           <AvatarImage 
-            src={profile.avatar} 
+            src={effectiveSettings?.customAvatar || profile.avatar} 
             alt={profile.displayName || profile.handle}
             data-testid="img-avatar"
           />

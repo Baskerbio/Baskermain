@@ -1,12 +1,15 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { PublicStoriesRing } from './PublicStoriesRing';
 import { UserProfile } from '@shared/schema';
+import { usePublicSettings } from '../hooks/use-atprotocol';
 
 interface PublicProfileHeaderProps {
   profile: UserProfile;
 }
 
 export function PublicProfileHeader({ profile }: PublicProfileHeaderProps) {
+  const { data: settings } = usePublicSettings(profile.did);
+  
   if (!profile) return null;
 
   return (
@@ -15,6 +18,7 @@ export function PublicProfileHeader({ profile }: PublicProfileHeaderProps) {
         <PublicStoriesRing 
           profile={profile}
           targetDid={profile.did}
+          settings={settings}
         />
       </div>
       
@@ -26,9 +30,9 @@ export function PublicProfileHeader({ profile }: PublicProfileHeaderProps) {
         @{profile.handle}
       </p>
       
-      {profile.description && (
+      {(settings?.customBio || profile.description) && (
         <p className="text-foreground mb-6 max-w-md mx-auto" data-testid="text-description">
-          {profile.description}
+          {settings?.customBio || profile.description}
         </p>
       )}
     </div>

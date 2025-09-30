@@ -2,6 +2,7 @@ import { useRoute } from 'wouter';
 import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { atprotocol } from '../lib/atprotocol';
+import { getLinkStyling } from '../lib/link-utils';
 import { PublicProfileHeader } from '../components/PublicProfileHeader';
 import { Card, CardContent } from '../components/ui/card';
 import { Skeleton } from '../components/ui/skeleton';
@@ -11,7 +12,9 @@ import { UserProfile } from '@shared/schema';
 import { ExternalLink, ArrowLeft, Settings, LogOut, Edit } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { SettingsModal } from '../components/SettingsModal';
+import { WorkHistoryWidget } from '../components/WorkHistoryWidget';
 import { useToast } from '@/hooks/use-toast';
+import { usePublicWidgets } from '../hooks/use-atprotocol';
 
 export default function PublicProfile() {
   const [, params] = useRoute('/:handle');
@@ -307,7 +310,12 @@ function PublicLinksList({ did }: { did: string }) {
           .map((link) => (
             <Card
               key={link.id}
-              className="card-hover group relative cursor-pointer"
+              className={`card-hover group relative cursor-pointer ${getLinkStyling(link).shapeClasses}`}
+              style={{
+                backgroundColor: getLinkStyling(link).backgroundColor,
+                color: getLinkStyling(link).color,
+                fontFamily: getLinkStyling(link).fontFamily,
+              }}
               onClick={() => openLink(link.url)}
             >
               <CardContent className="p-4">
@@ -403,48 +411,41 @@ function PublicNotes({ did }: { did: string }) {
 }
 
 function PublicWidgets({ did }: { did: string }) {
-  const [widgets, setWidgets] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadWidgets = async () => {
-      try {
-        console.log('Loading widgets for DID:', did);
-        
-        const data = await atprotocol.getPublicWidgets(did);
-        setWidgets(data?.widgets || []);
-        
-        console.log('Loaded widgets:', data?.widgets);
-      } catch (err) {
-        console.error('Failed to load widgets:', err);
-        setWidgets([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (did) {
-      loadWidgets();
-    }
-  }, [did]);
+  const { data: widgets = [], isLoading: loading, error } = usePublicWidgets(did);
 
   if (loading) return <Skeleton className="h-24 w-full" />;
-  if (widgets.length === 0) return null;
+  if (error) {
+    console.log('🔍 Error loading widgets:', error);
+    return null;
+  }
+  if (widgets.length === 0) {
+    console.log('🔍 No widgets found for user');
+    return null;
+  }
 
   return (
     <div className="mb-8 fade-in">
       <h3 className="text-lg font-semibold text-foreground mb-4">Widgets</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {widgets.map((widget) => (
-          <Card key={widget.id}>
-            <CardContent className="p-4">
-              <h4 className="font-medium mb-2">{widget.type}</h4>
-              <p className="text-sm text-muted-foreground">
-                Widget configuration
-              </p>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="space-y-6">
+        {widgets.map((widget) => {
+          console.log('🔍 Rendering widget:', widget);
+          switch (widget.type) {
+            case 'work_history':
+              return <WorkHistoryWidget key={widget.id} isPublic={true} targetDid={did} />;
+            default:
+              console.log('🔍 Unknown widget type:', widget.type);
+              return (
+                <Card key={widget.id}>
+                  <CardContent className="p-4">
+                    <h4 className="font-medium mb-2">Unknown widget type: {widget.type}</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Widget configuration
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+          }
+        })}
       </div>
     </div>
   );

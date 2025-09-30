@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '../contexts/AuthContext';
 import { LoginScreen } from '../components/LoginScreen';
+import { VersionInfo } from '../components/VersionInfo';
 import { ArrowRight, Link as LinkIcon, Globe, Users, Zap, Menu, X, Star, Sparkles, Heart, Share2, Palette, StickyNote, Link2, Settings, Image as ImageIcon, ChevronDown, ChevronUp, CreditCard, Gift, Coffee, HelpCircle, Info } from 'lucide-react';
 
 export default function Landing() {
@@ -144,11 +145,8 @@ export default function Landing() {
                 <Link href="/faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   FAQ
                 </Link>
-                <Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Pricing
-                </Link>
-                <Link href="/support" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Support
+                <Link href="/info" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Info Center
                 </Link>
               </div>
               <Link href="/profile">
@@ -200,16 +198,10 @@ export default function Landing() {
                       FAQ
                     </Button>
                   </Link>
-                  <Link href="/pricing">
+                  <Link href="/info">
                     <Button variant="outline" size="sm" className="w-full justify-start gap-3">
-                      <CreditCard className="w-4 h-4" />
-                      Pricing
-                    </Button>
-                  </Link>
-                  <Link href="/support">
-                    <Button variant="outline" size="sm" className="w-full justify-start gap-3">
-                      <Coffee className="w-4 h-4" />
-                      Support
+                      <Info className="w-4 h-4" />
+                      Info Center
                     </Button>
                   </Link>
                   <Link href="/profile">
@@ -325,6 +317,9 @@ export default function Landing() {
                 <p className="text-xs text-muted-foreground mt-1">
                   Create your own link-in-bio page with basker
                 </p>
+                <div className="mt-2">
+                  <VersionInfo />
+                </div>
               </div>
             </div>
           </div>
@@ -358,11 +353,8 @@ export default function Landing() {
               <Link href="/faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 FAQ
               </Link>
-              <Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Pricing
-              </Link>
-              <Link href="/support" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Support
+              <Link href="/info" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Info Center
               </Link>
             </div>
             <Link href="/login">
@@ -1107,6 +1099,9 @@ export default function Landing() {
               <p className="text-xs text-muted-foreground mt-1">
                 Create your own link-in-bio page with basker
               </p>
+              <div className="mt-2">
+                <VersionInfo />
+              </div>
             </div>
           </div>
         </div>

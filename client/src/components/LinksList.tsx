@@ -4,13 +4,15 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Edit, Trash2, ExternalLink, GripVertical, ChevronDown } from 'lucide-react';
+import { Plus, Edit, Trash2, ExternalLink, GripVertical, ChevronDown, Palette, Type, Shapes } from 'lucide-react';
 import { Droppable, Draggable } from '@hello-pangea/dnd';
 import { useLinks, useSaveLinks, useGroups, useSaveGroups } from '../hooks/use-atprotocol';
 import { useToast } from '@/hooks/use-toast';
 import { Link, Group } from '@shared/schema';
+import { getContrastColor, getShapeClasses, getLinkStyling } from '../lib/link-utils';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -22,18 +24,51 @@ const linkFormSchema = z.object({
   description: z.string().optional(),
   icon: z.string().optional(),
   group: z.string().optional(),
+  // Customization options
+  backgroundColor: z.string().optional(),
+  textColor: z.string().optional(),
+  fontFamily: z.string().optional(),
+  containerShape: z.enum(['rounded', 'square', 'pill', 'circle']).default('rounded'),
+  autoTextColor: z.boolean().default(true),
 });
 
 interface LinksListProps {
   isEditMode: boolean;
 }
 
+
+// Font family options
+const fontOptions = [
+  { value: 'system', label: 'System Default' },
+  { value: 'inter', label: 'Inter' },
+  { value: 'roboto', label: 'Roboto' },
+  { value: 'open-sans', label: 'Open Sans' },
+  { value: 'lato', label: 'Lato' },
+  { value: 'montserrat', label: 'Montserrat' },
+  { value: 'poppins', label: 'Poppins' },
+  { value: 'nunito', label: 'Nunito' },
+  { value: 'source-sans-pro', label: 'Source Sans Pro' },
+  { value: 'raleway', label: 'Raleway' },
+];
+
+// Container shape options
+const shapeOptions = [
+  { value: 'rounded', label: 'Rounded', icon: '⬜' },
+  { value: 'square', label: 'Square', icon: '⬛' },
+  { value: 'pill', label: 'Pill', icon: '🔲' },
+  { value: 'circle', label: 'Circle', icon: '⭕' },
+];
+
+
+
 export function LinksList({ isEditMode }: LinksListProps) {
   const { data: links = [] } = useLinks();
   const { mutate: saveLinks } = useSaveLinks();
-  const { data: groups = [] } = useGroups() as { data: Group[] };
+  const { data: groups = [] } = useGroups();
+  const typedGroups = Array.isArray(groups) ? groups as Group[] : [];
   const { mutate: saveGroups } = useSaveGroups();
   const { toast } = useToast();
+  
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingLink, setEditingLink] = useState<Link | null>(null);
   const [isCreateGroupDialogOpen, setIsCreateGroupDialogOpen] = useState(false);
@@ -42,16 +77,16 @@ export function LinksList({ isEditMode }: LinksListProps) {
   // Get unique groups from links and persistent groups
   const getUniqueGroups = () => {
     const linkGroups = links.map(link => link.group).filter((group): group is string => Boolean(group));
-    const persistentGroups = Array.isArray(groups) ? groups.map(group => group.name) : [];
+    const persistentGroups = typedGroups.map(group => group.name);
     const allGroups = [...linkGroups, ...persistentGroups];
     const uniqueGroups = Array.from(new Set(allGroups));
     return uniqueGroups;
   };
 
   const toggleGroup = (groupName: string) => {
-    const group = groups.find(g => g.name === groupName);
+    const group = typedGroups.find(g => g.name === groupName);
     if (group) {
-      const updatedGroups = groups.map(g => 
+      const updatedGroups = typedGroups.map(g => 
         g.name === groupName 
           ? { ...g, isOpen: !g.isOpen, updatedAt: new Date().toISOString() }
           : g
@@ -67,12 +102,12 @@ export function LinksList({ isEditMode }: LinksListProps) {
       id: Date.now().toString(),
       name: newGroupName.trim(),
       isOpen: true,
-      order: groups.length,
+      order: typedGroups.length,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
     
-    const updatedGroups = [...groups, newGroup];
+    const updatedGroups = [...typedGroups, newGroup];
     saveGroups(updatedGroups, {
       onSuccess: () => {
         toast({
@@ -149,11 +184,23 @@ export function LinksList({ isEditMode }: LinksListProps) {
       description: '',
       icon: '',
       group: '',
+      backgroundColor: '',
+      textColor: '',
+      fontFamily: 'system',
+      containerShape: 'rounded',
+      autoTextColor: true,
     },
   });
 
   const onSubmit = (values: z.infer<typeof linkFormSchema>) => {
     console.log('🔍 Form submitted with values:', values);
+    console.log('🔍 Styling values:', {
+      backgroundColor: values.backgroundColor,
+      textColor: values.textColor,
+      fontFamily: values.fontFamily,
+      containerShape: values.containerShape,
+      autoTextColor: values.autoTextColor
+    });
     let updatedLinks: Link[];
 
     if (editingLink) {
@@ -178,6 +225,11 @@ export function LinksList({ isEditMode }: LinksListProps) {
         group: values.group || '',
         order: links.length,
         enabled: true,
+        backgroundColor: values.backgroundColor || '',
+        textColor: values.textColor || '',
+        fontFamily: values.fontFamily || 'system',
+        containerShape: values.containerShape || 'rounded',
+        autoTextColor: values.autoTextColor ?? true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -192,7 +244,18 @@ export function LinksList({ isEditMode }: LinksListProps) {
         });
         setIsDialogOpen(false);
         setEditingLink(null);
-        form.reset();
+        form.reset({
+          title: '',
+          url: '',
+          description: '',
+          icon: '',
+          group: '',
+          backgroundColor: '',
+          textColor: '',
+          fontFamily: 'system',
+          containerShape: 'rounded',
+          autoTextColor: true,
+        });
       },
       onError: () => {
         toast({
@@ -230,6 +293,11 @@ export function LinksList({ isEditMode }: LinksListProps) {
     form.setValue('description', link.description || '');
     form.setValue('icon', link.icon || 'none');
     form.setValue('group', link.group || '');
+    form.setValue('backgroundColor', link.backgroundColor || '');
+    form.setValue('textColor', link.textColor || '');
+    form.setValue('fontFamily', link.fontFamily || 'system');
+    form.setValue('containerShape', link.containerShape || 'rounded');
+    form.setValue('autoTextColor', link.autoTextColor ?? true);
     setIsDialogOpen(true);
   };
 
@@ -286,7 +354,7 @@ export function LinksList({ isEditMode }: LinksListProps) {
                       Existing Groups
                     </div>
                     {getUniqueGroups().map((group) => {
-                      const groupData = groups.find(g => g.name === group);
+                      const groupData = typedGroups.find(g => g.name === group);
                       const isOpen = groupData ? groupData.isOpen : true;
                       return (
                         <DropdownMenuItem
@@ -306,7 +374,18 @@ export function LinksList({ isEditMode }: LinksListProps) {
             setIsDialogOpen(open);
             if (!open) {
               setEditingLink(null);
-              form.reset();
+              form.reset({
+                title: '',
+                url: '',
+                description: '',
+                icon: '',
+                group: '',
+                backgroundColor: '',
+                textColor: '',
+                fontFamily: 'system',
+                containerShape: 'rounded',
+                autoTextColor: true,
+              });
             }
           }}>
             <DialogTrigger asChild>
@@ -318,7 +397,7 @@ export function LinksList({ isEditMode }: LinksListProps) {
                 Add Link
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{editingLink ? 'Edit Link' : 'Add Link'}</DialogTitle>
               </DialogHeader>
@@ -487,6 +566,160 @@ export function LinksList({ isEditMode }: LinksListProps) {
                       );
                     }}
                   />
+                  
+                  {/* Customization Section */}
+                  <div className="border-t pt-6 mt-6">
+                    <h4 className="text-lg font-medium text-foreground mb-4 flex items-center gap-2">
+                      <Palette className="w-5 h-5" />
+                      Customization
+                    </h4>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Background Color */}
+                      <FormField
+                        control={form.control}
+                        name="backgroundColor"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Background Color</FormLabel>
+                            <FormControl>
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  type="color"
+                                  className="w-12 h-10 p-1 border rounded"
+                                  value={field.value || '#ffffff'}
+                                  onChange={(e) => field.onChange(e.target.value)}
+                                />
+                                <Input
+                                  placeholder="#ffffff"
+                                  className="flex-1"
+                                  value={field.value || ''}
+                                  onChange={(e) => field.onChange(e.target.value)}
+                                />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      {/* Text Color */}
+                      <FormField
+                        control={form.control}
+                        name="textColor"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Text Color</FormLabel>
+                            <FormControl>
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  type="color"
+                                  className="w-12 h-10 p-1 border rounded"
+                                  value={field.value || '#000000'}
+                                  onChange={(e) => field.onChange(e.target.value)}
+                                />
+                                <Input
+                                  placeholder="#000000"
+                                  className="flex-1"
+                                  value={field.value || ''}
+                                  onChange={(e) => field.onChange(e.target.value)}
+                                />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      {/* Font Family */}
+                      <FormField
+                        control={form.control}
+                        name="fontFamily"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center gap-2">
+                              <Type className="w-4 h-4" />
+                              Font Family
+                            </FormLabel>
+                            <FormControl>
+                              <Select onValueChange={field.onChange} defaultValue={field.value || 'system'}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Choose a font" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {fontOptions.map((font) => (
+                                    <SelectItem key={font.value} value={font.value}>
+                                      <span style={{ fontFamily: font.value === 'system' ? 'inherit' : font.value }}>
+                                        {font.label}
+                                      </span>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      {/* Container Shape */}
+                      <FormField
+                        control={form.control}
+                        name="containerShape"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center gap-2">
+                              <Shapes className="w-4 h-4" />
+                              Container Shape
+                            </FormLabel>
+                            <FormControl>
+                              <Select onValueChange={field.onChange} defaultValue={field.value || 'rounded'}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Choose a shape" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {shapeOptions.map((shape) => (
+                                    <SelectItem key={shape.value} value={shape.value}>
+                                      <div className="flex items-center gap-2">
+                                        <span>{shape.icon}</span>
+                                        <span>{shape.label}</span>
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    
+                    {/* Auto Text Color Toggle */}
+                    <FormField
+                      control={form.control}
+                      name="autoTextColor"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">
+                              Auto Text Color
+                            </FormLabel>
+                            <div className="text-sm text-muted-foreground">
+                              Automatically choose text color based on background brightness
+                            </div>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
                   <div className="flex gap-2">
                     <Button type="submit" data-testid="button-save-link">
                       {editingLink ? 'Update Link' : 'Add Link'}
@@ -510,7 +743,7 @@ export function LinksList({ isEditMode }: LinksListProps) {
 
       {/* Create Group Dialog */}
       <Dialog open={isCreateGroupDialogOpen} onOpenChange={setIsCreateGroupDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Create New Group</DialogTitle>
           </DialogHeader>
@@ -555,10 +788,12 @@ export function LinksList({ isEditMode }: LinksListProps) {
               const groups = getUniqueGroups();
               const linksWithoutGroups = sortedLinks.filter(link => !link.group);
               
+              
               let currentIndex = 0;
               
               return (
                 <>
+                  
                   {/* Show links without groups first */}
                   {linksWithoutGroups.map((link, index) => (
                 <Draggable 
@@ -573,20 +808,27 @@ export function LinksList({ isEditMode }: LinksListProps) {
                       {...provided.draggableProps}
                       className={`card-hover group relative cursor-pointer ${
                         snapshot.isDragging ? 'shadow-lg' : ''
-                      }`}
+                      } ${getLinkStyling(link).shapeClasses}`}
+                      style={{
+                        backgroundColor: getLinkStyling(link).backgroundColor,
+                        color: getLinkStyling(link).color,
+                        fontFamily: getLinkStyling(link).fontFamily,
+                      }}
                       onClick={() => !isEditMode && openLink(link.url)}
                       data-testid={`link-${link.id}`}
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center gap-4">
                           {isEditMode && (
-                            <div 
+                            <Button
                               {...provided.dragHandleProps}
-                              className="drag-handle opacity-0 group-hover:opacity-100 transition-opacity"
+                              variant="glass"
+                              size="sm"
+                              className="drag-handle transition-all duration-200 hover:scale-105"
                               data-testid={`drag-handle-${link.id}`}
                             >
-                              <GripVertical className="w-5 h-5 text-muted-foreground" />
-                            </div>
+                              <GripVertical className="w-4 h-4" />
+                            </Button>
                           )}
                           
                           <div className="flex-shrink-0">
@@ -611,23 +853,36 @@ export function LinksList({ isEditMode }: LinksListProps) {
                           
                           <div className="flex-shrink-0 flex items-center gap-2">
                             {isEditMode && (
-                              <div className="opacity-100 flex gap-2">
+                              <div className="flex gap-2">
                                     <DropdownMenu>
                                       <DropdownMenuTrigger asChild>
                                 <Button
                                   size="sm"
-                                  variant="ghost"
-                                  className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+                                  variant="glass"
+                                  className="h-8 w-8 p-0 hover:scale-105 transition-all duration-200"
                                   onClick={(e) => e.stopPropagation()}
                                 >
-                                  <GripVertical className="w-4 h-4" />
+                                  <Edit className="w-4 h-4" />
                                 </Button>
                                       </DropdownMenuTrigger>
-                                      <DropdownMenuContent>
-                                        <DropdownMenuItem onClick={() => startEdit(link)}>
-                                          <Edit className="w-4 h-4 mr-2" />
-                                          Edit Link
-                                        </DropdownMenuItem>
+                                      <DropdownMenuContent 
+                                        className="w-56 z-50" 
+                                        align="end" 
+                                        side="bottom" 
+                                        sideOffset={5}
+                                        collisionPadding={20}
+                                        avoidCollisions={true}
+                                        style={{ 
+                                          maxHeight: '300px',
+                                          overflowY: 'auto',
+                                          position: 'fixed'
+                                        }}
+                                      >
+                                        <div className="max-h-72 overflow-y-auto">
+                                          <DropdownMenuItem onClick={() => startEdit(link)}>
+                                            <Edit className="w-4 h-4 mr-2" />
+                                            Edit Link
+                                          </DropdownMenuItem>
                                         <DropdownMenuSeparator />
                                         <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">
                                           Move to Group
@@ -659,6 +914,7 @@ export function LinksList({ isEditMode }: LinksListProps) {
                                           <Trash2 className="w-4 h-4 mr-2" />
                                           Delete Link
                                         </DropdownMenuItem>
+                                        </div>
                                       </DropdownMenuContent>
                                     </DropdownMenu>
                                   </div>
@@ -675,7 +931,7 @@ export function LinksList({ isEditMode }: LinksListProps) {
                   {/* Show grouped links */}
                   {getUniqueGroups().map((groupName) => {
                     const groupLinks = sortedLinks.filter(link => link.group === groupName);
-                    const groupData = groups.find(g => g.name === groupName);
+                    const groupData = typedGroups.find(g => g.name === groupName);
                     const isGroupOpen = groupData ? groupData.isOpen : true;
                     
                     return (
@@ -704,20 +960,27 @@ export function LinksList({ isEditMode }: LinksListProps) {
                                     {...provided.draggableProps}
                                     className={`card-hover group relative cursor-pointer ${
                                       snapshot.isDragging ? 'shadow-lg' : ''
-                                    }`}
+                                    } ${getLinkStyling(link).shapeClasses}`}
+                                    style={{
+                                      backgroundColor: getLinkStyling(link).backgroundColor,
+                                      color: getLinkStyling(link).color,
+                                      fontFamily: getLinkStyling(link).fontFamily,
+                                    }}
                                     onClick={() => !isEditMode && openLink(link.url)}
                                     data-testid={`link-${link.id}`}
                                   >
                                     <CardContent className="p-4">
                                       <div className="flex items-center gap-4">
                                         {isEditMode && (
-                                          <div 
+                                          <Button
                                             {...provided.dragHandleProps}
-                                            className="drag-handle opacity-0 group-hover:opacity-100 transition-opacity"
+                                            variant="glass"
+                                            size="sm"
+                                            className="drag-handle transition-all duration-200 hover:scale-105"
                                             data-testid={`drag-handle-${link.id}`}
                                           >
-                                            <GripVertical className="w-5 h-5 text-muted-foreground" />
-                                          </div>
+                                            <GripVertical className="w-4 h-4" />
+                                          </Button>
                                         )}
                                         
                                         <div className="flex-shrink-0">
@@ -742,23 +1005,36 @@ export function LinksList({ isEditMode }: LinksListProps) {
                                         
                                         <div className="flex-shrink-0 flex items-center gap-2">
                                           {isEditMode && (
-                                            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                                            <div className="flex gap-2">
                                               <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                 <Button
                                   size="sm"
-                                  variant="ghost"
-                                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
-                                                    onClick={(e) => e.stopPropagation()}
-                                                  >
-                                                    <GripVertical className="w-4 h-4" />
-                                                  </Button>
+                                  variant="glass"
+                                  className="h-8 w-8 p-0 hover:scale-105 transition-all duration-200"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent>
-                                                  <DropdownMenuItem onClick={() => startEdit(link)}>
-                                                    <Edit className="w-4 h-4 mr-2" />
-                                                    Edit Link
-                                                  </DropdownMenuItem>
+                                                <DropdownMenuContent 
+                                                  className="w-56 z-50" 
+                                                  align="end" 
+                                                  side="bottom" 
+                                                  sideOffset={5}
+                                                  collisionPadding={20}
+                                                  avoidCollisions={true}
+                                                  style={{ 
+                                                    maxHeight: '300px',
+                                                    overflowY: 'auto',
+                                                    position: 'fixed'
+                                                  }}
+                                                >
+                                                  <div className="max-h-72 overflow-y-auto">
+                                                    <DropdownMenuItem onClick={() => startEdit(link)}>
+                                                      <Edit className="w-4 h-4 mr-2" />
+                                                      Edit Link
+                                                    </DropdownMenuItem>
                                                   {getUniqueGroups().length > 0 && (
                                                     <>
                                                       <DropdownMenuSeparator />
@@ -790,6 +1066,7 @@ export function LinksList({ isEditMode }: LinksListProps) {
                                                     <Trash2 className="w-4 h-4 mr-2" />
                                                     Delete Link
                                                   </DropdownMenuItem>
+                                                  </div>
                                                 </DropdownMenuContent>
                                               </DropdownMenu>
                               </div>

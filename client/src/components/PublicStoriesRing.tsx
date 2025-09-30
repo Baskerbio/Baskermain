@@ -8,6 +8,7 @@ import { UserProfile } from '@shared/schema';
 import { atprotocol } from '../lib/atprotocol';
 import { Story } from '@shared/schema';
 import { useAuth } from '../contexts/AuthContext';
+import { useSettings } from '../hooks/use-atprotocol';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,6 +17,7 @@ import { z } from 'zod';
 interface PublicStoriesRingProps {
   profile: UserProfile;
   targetDid: string;
+  settings?: any; // Public settings for custom avatar
 }
 
 const storyFormSchema = z.object({
@@ -36,11 +38,15 @@ const storyFormSchema = z.object({
   sticker: z.string().optional(),
 });
 
-export function PublicStoriesRing({ profile, targetDid }: PublicStoriesRingProps) {
+export function PublicStoriesRing({ profile, targetDid, settings: propSettings }: PublicStoriesRingProps) {
   console.log('🔍 PublicStoriesRing - Component rendered with props:', { targetDid, profileHandle: profile?.handle });
   
   const { user } = useAuth();
+  const { data: settings } = useSettings();
   const { toast } = useToast();
+  
+  // Use prop settings if provided (for public profiles), otherwise use authenticated settings
+  const effectiveSettings = propSettings || settings;
   const [stories, setStories] = useState<Story[]>([]);
   const [selectedStory, setSelectedStory] = useState<Story | null>(null);
   const [loading, setLoading] = useState(false);
@@ -154,7 +160,7 @@ export function PublicStoriesRing({ profile, targetDid }: PublicStoriesRingProps
       <div className="relative inline-block mb-4">
         <Avatar className="w-24 h-24 border-4 border-primary">
           <AvatarImage 
-            src={profile.avatar} 
+            src={effectiveSettings?.customAvatar || profile.avatar} 
             alt={profile.displayName || profile.handle}
             data-testid="img-avatar"
           />
@@ -197,7 +203,7 @@ export function PublicStoriesRing({ profile, targetDid }: PublicStoriesRingProps
         {/* Avatar */}
         <Avatar className="w-24 h-24 border-4 border-primary absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
           <AvatarImage 
-            src={profile.avatar} 
+            src={effectiveSettings?.customAvatar || profile.avatar} 
             alt={profile.displayName || profile.handle}
             data-testid="img-avatar"
           />

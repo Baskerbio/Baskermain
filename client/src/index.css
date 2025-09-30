@@ -147,3 +147,42 @@
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
   }
+
+  /* Dropdown positioning fixes */
+  [data-radix-popper-content-wrapper] {
+    z-index: 9999 !important;
+  }
+
+  [data-radix-popper-content] {
+    max-height: 300px !important;
+    overflow-y: auto !important;
+    position: fixed !important;
+    transform: none !important;
+  }
+
+  /* Ensure dropdown stays within viewport */
+  [data-radix-dropdown-menu-content] {
+    max-height: 300px !important;
+    overflow-y: auto !important;
+    position: fixed !important;
+    z-index: 9999 !important;
+    width: 224px !important;
+  }
+
+  /* Force scrollable dropdown content */
+  [data-radix-dropdown-menu-content] > div {
+    max-height: 300px !important;
+    overflow-y: auto !important;
+  }
+
+  /* Ensure scrollable wrapper works */
+  .max-h-72 {
+    max-height: 18rem !important;
+    overflow-y: auto !important;
+  }
+
+  /* Make dialog content scrollable */
+  [data-radix-dialog-content] {
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+  }

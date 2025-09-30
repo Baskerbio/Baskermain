@@ -141,15 +141,15 @@ export function Stories({ isEditMode }: StoriesProps) {
                     </div>
                   </div>
                   {isEditMode && (
-                    <div className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute -top-1 -right-1">
                       <Button
                         size="sm"
-                        variant="destructive"
+                        variant="glass"
                         onClick={() => {
                           const updatedStories = stories.filter(s => s.id !== story.id);
                           saveStories(updatedStories);
                         }}
-                        className="w-5 h-5 p-0 rounded-full"
+                        className="w-5 h-5 p-0 rounded-full text-destructive hover:text-destructive/80 hover:scale-110 transition-all duration-200"
                       >
                         ×
                       </Button>

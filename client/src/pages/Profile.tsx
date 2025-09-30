@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { Edit, Settings, LogOut, Copy, Menu, X } from 'lucide-react';
+import { Edit, Settings, LogOut, Copy, Menu, X, Shield } from 'lucide-react';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { Notes } from '../components/Notes';
 import { LinksList } from '../components/LinksList';
@@ -10,6 +10,7 @@ import { SettingsModal } from '../components/SettingsModal';
 import { DragDropProvider } from '../components/DragDropProvider';
 import { useAuth } from '../contexts/AuthContext';
 import { useEditMode } from '../components/EditModeProvider';
+import { useAdmin } from '../contexts/AdminContext';
 import { useLinks, useSaveLinks, useSettings, useSaveSettings } from '../hooks/use-atprotocol';
 import { useToast } from '@/hooks/use-toast';
 import { DropResult } from '@hello-pangea/dnd';
@@ -17,6 +18,7 @@ import { DropResult } from '@hello-pangea/dnd';
 export default function Profile() {
   const { user, logout } = useAuth();
   const { isEditMode, toggleEditMode } = useEditMode();
+  const { isAdmin } = useAdmin();
   const { data: links = [] } = useLinks();
   const { mutate: saveLinks } = useSaveLinks();
   const { data: settings } = useSettings();
@@ -145,6 +147,20 @@ export default function Profile() {
                 <Edit className="w-4 h-4" />
                 {isEditMode ? 'Done' : 'Edit'}
               </Button>
+              
+              {isAdmin && (
+                <Link href="/admin">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="flex items-center gap-2 text-sm px-3"
+                    data-testid="button-admin"
+                  >
+                    <Shield className="w-4 h-4" />
+                    Admin
+                  </Button>
+                </Link>
+              )}
               
               <Button
                 variant="secondary"
@@ -323,22 +339,26 @@ export default function Profile() {
                   {sectionComponent}
                   {isEditMode && (
                     <div className="absolute -left-12 top-4 flex flex-col gap-1">
-                      <button
+                      <Button
                         onClick={moveUp}
                         disabled={index === 0}
-                        className="w-8 h-8 rounded-lg border-2 border-blue-500 bg-blue-500 hover:bg-blue-600 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-sm font-bold text-white"
+                        variant="glass"
+                        size="sm"
+                        className="w-8 h-8 p-0 hover:scale-105 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
                         title="Move up"
                       >
                         ↑
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={moveDown}
                         disabled={index === sectionOrder.length - 1}
-                        className="w-8 h-8 rounded-lg border-2 border-green-500 bg-green-500 hover:bg-green-600 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-sm font-bold text-white"
+                        variant="glass"
+                        size="sm"
+                        className="w-8 h-8 p-0 hover:scale-105 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
                         title="Move down"
                       >
                         ↓
-                      </button>
+                      </Button>
                     </div>
                   )}
                 </div>
