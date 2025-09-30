@@ -1,0 +1,89 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ master ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build application
+      run: npm run build
+      
+    - name: Run tests (if available)
+      run: npm test --if-present
+      
+    - name: Create deployment package
+      run: |
+        mkdir -p deployment
+        cp -r dist/* deployment/
+        cp package.json deployment/
+        cp package-lock.json deployment/
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-files
+        path: deployment/
+        
+    # Only deploy on master branch pushes and version tags
+    - name: Deploy to Production
+      if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v')
+      run: |
+        echo "🚀 Deploying to production..."
+        echo "Version: ${{ github.ref_name }}"
+        echo "Commit: ${{ github.sha }}"
+        echo "Deployment would happen here - configure your hosting provider"
+        
+    - name: Create Release (on tags)
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          ## What's New in ${{ github.ref }}
+          
+          This release includes:
+          - Complete work history widget with company search and verification
+          - Verification system with admin panel and status tracking
+          - Complete legal documentation (Privacy Policy, Terms of Service, EULA, Verification Policy)
+          - InfoCenter page combining all legal, pricing, and support information
+          - Enhanced link customization with colors, fonts, and shapes
+          - Fixed CSP issues for production deployment
+          - Added version tracking and display system
+          - Improved UI/UX with proper headers, footers, and navigation
+          - Added admin functionality for verification management
+          
+          ## Installation
+          
+          ```bash
+          npm install
+          npm run build
+          npm start
+          ```
+          
+          ## Configuration
+          
+          Make sure to configure your environment variables for production deployment.
+        draft: false
+        prerelease: false
