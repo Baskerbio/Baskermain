@@ -210,8 +210,9 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || '3000', 10);
-  server.listen(port, 'localhost', () => {
-    log(`serving on http://localhost:${port}`);
+  const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
+  server.listen(port, host, () => {
+    log(`serving on http://${host}:${port}`);
   }).on('error', (err: any) => {
     console.error('❌ Server failed to start:', err);
     if (err.code === 'EADDRINUSE') {
