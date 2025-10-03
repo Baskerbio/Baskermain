@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { Edit, Settings, LogOut, Copy, Menu, X, Shield } from 'lucide-react';
+import { Edit, Settings, LogOut, Copy, Menu, X } from 'lucide-react';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { Notes } from '../components/Notes';
 import { LinksList } from '../components/LinksList';
@@ -10,7 +10,6 @@ import { SettingsModal } from '../components/SettingsModal';
 import { DragDropProvider } from '../components/DragDropProvider';
 import { useAuth } from '../contexts/AuthContext';
 import { useEditMode } from '../components/EditModeProvider';
-import { useAdmin } from '../contexts/AdminContext';
 import { useLinks, useSaveLinks, useSettings, useSaveSettings } from '../hooks/use-atprotocol';
 import { useToast } from '@/hooks/use-toast';
 import { DropResult } from '@hello-pangea/dnd';
@@ -18,7 +17,6 @@ import { DropResult } from '@hello-pangea/dnd';
 export default function Profile() {
   const { user, logout } = useAuth();
   const { isEditMode, toggleEditMode } = useEditMode();
-  const { isAdmin } = useAdmin();
   const { data: links = [] } = useLinks();
   const { mutate: saveLinks } = useSaveLinks();
   const { data: settings } = useSettings();
@@ -148,19 +146,6 @@ export default function Profile() {
                 {isEditMode ? 'Done' : 'Edit'}
               </Button>
               
-              {isAdmin && (
-                <Link href="/admin">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    className="flex items-center gap-2 text-sm px-3"
-                    data-testid="button-admin"
-                  >
-                    <Shield className="w-4 h-4" />
-                    Admin
-                  </Button>
-                </Link>
-              )}
               
               <Button
                 variant="secondary"

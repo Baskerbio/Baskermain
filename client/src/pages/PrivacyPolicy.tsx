@@ -39,7 +39,7 @@ export default function PrivacyPolicy() {
             <ul>
               <li>Account information (username, email, profile data)</li>
               <li>Content you create (links, widgets, work history)</li>
-              <li>Verification documents and employment information</li>
+              <li>Work history and employment information</li>
               <li>Communications with us</li>
             </ul>
 
@@ -47,7 +47,7 @@ export default function PrivacyPolicy() {
             <p>We use the information we collect to:</p>
             <ul>
               <li>Provide, maintain, and improve our services</li>
-              <li>Process verification requests and maintain verification status</li>
+              <li>Process work history and maintain employment records</li>
               <li>Communicate with you about your account and our services</li>
               <li>Ensure the security and integrity of our platform</li>
               <li>Comply with legal obligations</li>

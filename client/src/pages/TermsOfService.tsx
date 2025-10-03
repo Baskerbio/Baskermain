@@ -72,11 +72,11 @@ export default function TermsOfService() {
               necessary to provide the service.
             </p>
 
-            <h2>6. Verification System</h2>
+            <h2>6. Work History</h2>
             <p>
-              Our verification system allows users to verify their work history and employment. 
-              Verification is subject to our review and approval. We reserve the right to reject 
-              verification requests that don't meet our standards.
+              Users can add work history and employment information to their profiles. 
+              This information is self-reported and should be accurate. We reserve the right to 
+              remove or modify content that violates our terms.
             </p>
 
             <h2>7. Privacy and Data Protection</h2>

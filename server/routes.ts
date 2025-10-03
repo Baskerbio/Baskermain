@@ -1,6 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { BskyAgent } from "@atproto/api";
+import { setupAdminRoutes } from "./admin";
+import { setupModerationRoutes } from "./moderation-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // AT Protocol handles all data storage
@@ -36,6 +38,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: error.message || 'Failed to get public profile' });
     }
   });
+
+  // Setup admin routes
+  setupAdminRoutes(app);
+  setupModerationRoutes(app);
 
   const httpServer = createServer(app);
 

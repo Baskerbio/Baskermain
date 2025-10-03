@@ -1,5 +1,5 @@
 import { BskyAgent, RichText } from '@atproto/api';
-import { Link, Note, Story, Group, Settings, Widget, LinksRecord, NotesRecord, StoriesRecord, SettingsRecord, WidgetsRecord, Company, WorkHistory, VerificationRequest, AdminUser, CompaniesRecord, WorkHistoryRecord, VerificationRequestsRecord, AdminUsersRecord } from '@shared/schema';
+import { Link, Note, Story, Group, Settings, Widget, LinksRecord, NotesRecord, StoriesRecord, SettingsRecord, WidgetsRecord, Company, WorkHistory, AdminUser, CompaniesRecord, WorkHistoryRecord, AdminUsersRecord } from '@shared/schema';
 import { BASKER_LEXICONS, validateRecord } from './lexicons';
 
 export class ATProtocolClient {
@@ -1292,71 +1292,167 @@ export class ATProtocolClient {
     }
   }
 
-  // Verification request methods
-  async submitVerificationRequest(request: VerificationRequest): Promise<void> {
-    if (!this.did) throw new Error('Not authenticated');
 
-    const record = {
-      ...request,
-      userId: this.did,
-      submittedAt: new Date().toISOString(),
-    };
-    
+
+
+  async searchUsers(query: string, limit: number = 20) {
     try {
-      await this.agent.api.com.atproto.repo.createRecord({
-        repo: this.did,
-        collection: 'app.basker.verification',
-        record,
+      const response = await this.agent.api.app.bsky.actor.searchActors({
+        term: query,
+        limit,
       });
 
-      console.log('Successfully submitted verification request to AT Protocol');
-    } catch (error: any) {
-      console.error('AT Protocol failed for verification request:', error);
-      throw new Error(`Failed to submit verification request: ${error.message}`);
+      return response.data.actors.map(actor => ({
+        did: actor.did,
+        handle: actor.handle,
+        displayName: actor.displayName || actor.handle,
+        avatar: actor.avatar,
+        description: actor.description || '',
+        followersCount: actor.followersCount || 0,
+        followsCount: actor.followsCount || 0,
+        postsCount: actor.postsCount || 0,
+        createdAt: actor.indexedAt,
+        isModerated: false,
+        moderationStatus: 'active' as const,
+        moderationNotes: '',
+        lastModerationAction: '',
+        lastModerationBy: ''
+      }));
+    } catch (error) {
+      console.error('Failed to search users:', error);
+      throw error;
     }
   }
 
-  // Admin methods (only for verified admins)
-  async getVerificationRequests(): Promise<VerificationRequest[]> {
-    if (!this.did) throw new Error('Not authenticated');
-    // TODO: Add admin verification check
-
+  async getAdminUsers() {
     try {
       const response = await this.agent.api.com.atproto.repo.listRecords({
-        repo: this.did,
-        collection: 'app.basker.verification',
+        repo: this.did!,
+        collection: 'app.basker.adminUsers',
         limit: 100,
       });
-      
-      console.log('Successfully fetched verification requests from AT Protocol');
-      return response.data.records.map((record: any) => record.value) || [];
-    } catch (error: any) {
-      console.log('No verification requests found, returning empty array');
+
+      return response.data.records.map(record => record.value as any);
+    } catch (error) {
+      console.error('Failed to fetch admin users:', error);
       return [];
     }
   }
 
-  async updateVerificationRequest(requestId: string, status: 'approved' | 'rejected', adminNotes?: string): Promise<void> {
-    if (!this.did) throw new Error('Not authenticated');
-    // TODO: Add admin verification check
-
+  async addAdminUser(did: string, handle: string, permissions: string[]) {
     try {
-      await this.agent.api.com.atproto.repo.putRecord({
-        repo: this.did,
-        collection: 'app.basker.verification',
-        rkey: requestId,
-        record: {
-          status,
-          adminNotes,
-          reviewedAt: new Date().toISOString(),
-          reviewedBy: this.did,
-        },
+      const adminUser = {
+        did,
+        handle,
+        permissions,
+        addedBy: this.did!,
+        addedAt: new Date().toISOString(),
+      };
+
+      await this.agent.api.com.atproto.repo.createRecord({
+        repo: this.did!,
+        collection: 'app.basker.adminUsers',
+        record: adminUser,
       });
 
-      console.log('Successfully updated verification request');
-    } catch (error: any) {
-      console.error('AT Protocol failed for updating verification request:', error);
-      throw new Error(`Failed to update verification request: ${error.message}`);
+      return adminUser;
+    } catch (error) {
+      console.error('Failed to add admin user:', error);
+      throw error;
+    }
+  }
+
+  async removeAdminUser(adminDid: string) {
+    try {
+      // First, find the record to get its URI
+      const response = await this.agent.api.com.atproto.repo.listRecords({
+        repo: this.did!,
+        collection: 'app.basker.adminUsers',
+        limit: 100,
+      });
+
+      const record = response.data.records.find(r => (r.value as any).did === adminDid);
+      if (!record) {
+        throw new Error('Admin user not found');
+      }
+
+      await this.agent.api.com.atproto.repo.deleteRecord({
+        repo: this.did!,
+        collection: 'app.basker.adminUsers',
+        rkey: record.uri.split('/').pop()!,
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Failed to remove admin user:', error);
+      throw error;
+    }
+  }
+
+  async getAdminInvites() {
+    try {
+      const response = await this.agent.api.com.atproto.repo.listRecords({
+        repo: this.did!,
+        collection: 'app.basker.adminInvites',
+        limit: 100,
+      });
+
+      return response.data.records.map(record => record.value as any);
+    } catch (error) {
+      console.error('Failed to fetch admin invites:', error);
+      return [];
+    }
+  }
+
+  async createAdminInvite(invitedBy: string, permissions: string[]) {
+    try {
+      const invite = {
+        id: crypto.randomUUID(),
+        code: crypto.randomUUID().replace(/-/g, '').toUpperCase(),
+        invitedBy,
+        invitedAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
+        permissions,
+        status: 'pending',
+      };
+
+      await this.agent.api.com.atproto.repo.createRecord({
+        repo: this.did!,
+        collection: 'app.basker.adminInvites',
+        record: invite,
+      });
+
+      return invite;
+    } catch (error) {
+      console.error('Failed to create admin invite:', error);
+      throw error;
+    }
+  }
+
+  async revokeAdminInvite(inviteId: string) {
+    try {
+      // First, find the record to get its URI
+      const response = await this.agent.api.com.atproto.repo.listRecords({
+        repo: this.did!,
+        collection: 'app.basker.adminInvites',
+        limit: 100,
+      });
+
+      const record = response.data.records.find(r => (r.value as any).id === inviteId);
+      if (!record) {
+        return false;
+      }
+
+      await this.agent.api.com.atproto.repo.deleteRecord({
+        repo: this.did!,
+        collection: 'app.basker.adminInvites',
+        rkey: record.uri.split('/').pop()!,
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Failed to revoke admin invite:', error);
+      throw error;
     }
   }
 }

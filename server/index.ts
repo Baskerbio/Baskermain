@@ -9,44 +9,52 @@ import { setupVite, serveStatic, log } from "./vite";
 const app = express();
 
 // Security middleware - properly configured for login compatibility
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https:", "blob:"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      connectSrc: [
-        "'self'", 
-        "https://bsky.social", 
-        "https://bsky.app", 
-        "https://cdn.bsky.app", 
-        "https://api.bsky.app",
-        "https://*.bsky.network",
-        "https://*.host.bsky.network",
-        "https://*.bsky.app",
-        "https://*.atproto.com",
-        "https://bsky.network",
-        "https://atproto.com",
-        "wss:",
-        "wss://*.bsky.network",
-        "wss://*.host.bsky.network",
-        "wss://*.bsky.app",
-        "wss://bsky.social",
-        "wss://bsky.app"
-      ],
-      objectSrc: ["'none'"],
-      upgradeInsecureRequests: [],
+// Disable helmet for development to avoid HTTPS redirects
+if (process.env.NODE_ENV !== 'production') {
+  app.use(helmet({
+    contentSecurityPolicy: false,
+    hsts: false,
+    crossOriginEmbedderPolicy: false,
+  }));
+} else {
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        imgSrc: ["'self'", "data:", "https:", "blob:"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        connectSrc: [
+          "'self'", 
+          "https://bsky.social", 
+          "https://bsky.app", 
+          "https://cdn.bsky.app", 
+          "https://api.bsky.app",
+          "https://*.bsky.network",
+          "https://*.host.bsky.network",
+          "https://*.bsky.app",
+          "https://*.atproto.com",
+          "https://bsky.network",
+          "https://atproto.com",
+          "wss:",
+          "wss://*.bsky.network",
+          "wss://*.host.bsky.network",
+          "wss://*.bsky.app",
+          "wss://bsky.social",
+          "wss://bsky.app"
+        ],
+        objectSrc: ["'none'"],
+      },
     },
-  },
-  crossOriginEmbedderPolicy: false,
-  hsts: {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true
-  }
-}));
+    crossOriginEmbedderPolicy: false,
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true
+    }
+  }));
+}
 
 // CORS configuration
 app.use(cors({
@@ -201,8 +209,13 @@ app.use((req, res, next) => {
   // Other ports are firewalled. Default to 5000 if not specified.
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen(port, '0.0.0.0', () => {
-    log(`serving on http://0.0.0.0:${port}`);
+  const port = parseInt(process.env.PORT || '3000', 10);
+  server.listen(port, 'localhost', () => {
+    log(`serving on http://localhost:${port}`);
+  }).on('error', (err: any) => {
+    console.error('❌ Server failed to start:', err);
+    if (err.code === 'EADDRINUSE') {
+      console.error(`Port ${port} is already in use. Try a different port.`);
+    }
   });
 })();

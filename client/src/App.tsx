@@ -6,7 +6,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { EditModeProvider } from "./components/EditModeProvider";
-import { AdminProvider } from "./contexts/AdminContext";
 import Home from "@/pages/Home";
 import Profile from "@/pages/Profile";
 import PublicProfilePage from "@/pages/PublicProfilePage";
@@ -19,9 +18,8 @@ import InfoCenter from "@/pages/InfoCenter";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfService from "@/pages/TermsOfService";
 import EULA from "@/pages/EULA";
-import VerificationPolicy from "@/pages/VerificationPolicy";
 import { LoginScreen } from "@/components/LoginScreen";
-import { AdminPanel } from "@/components/AdminPanel";
+import ModerationPanel from "@/pages/ModerationPanel";
 
 function Router() {
   return (
@@ -37,8 +35,7 @@ function Router() {
       <Route path="/privacy" component={PrivacyPolicy} />
       <Route path="/terms" component={TermsOfService} />
       <Route path="/eula" component={EULA} />
-      <Route path="/verification-policy" component={VerificationPolicy} />
-      <Route path="/admin" component={AdminPanel} />
+      <Route path="/moderation" component={ModerationPanel} />
       <Route path="/:handle" component={PublicProfilePage} />
       <Route component={NotFound} />
     </Switch>
@@ -50,14 +47,12 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
-          <AdminProvider>
-            <EditModeProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Router />
-              </TooltipProvider>
-            </EditModeProvider>
-          </AdminProvider>
+          <EditModeProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+            </TooltipProvider>
+          </EditModeProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

@@ -11,7 +11,8 @@
     "db:push": "drizzle-kit push"
   },
   "dependencies": {
-    "@atproto/api": "^0.16.9",
+    "@atproto/api": "^0.16.11",
+    "@atproto/ozone": "^0.1.146",
     "@hello-pangea/dnd": "^18.0.1",
     "@hookform/resolvers": "^3.10.0",
     "@jridgewell/trace-mapping": "^0.3.25",

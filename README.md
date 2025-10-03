@@ -21,11 +21,12 @@ Basker is a decentralized link-in-bio platform built on the AT Protocol, allowin
 - **Portfolio Gallery**: Showcase your work (coming soon)
 - **Product Showcase**: Highlight products (coming soon)
 
-### 🏢 **Verification System**
-- Company search and association
-- Verification status tracking
-- Admin panel for verification management
-- Email-based verification requests
+### 🛡️ **Moderation & Administration**
+- **Ozone Integration**: Professional moderation using AT Protocol's Ozone
+- **Composable Moderation**: Decentralized, transparent moderation model
+- **Granular Permissions**: Fine-tuned moderator access control
+- **Company Verification**: Work history verification system
+- See [Ozone Integration Guide](docs/OZONE_INTEGRATION.md) for details
 
 ### 🎨 **Customization**
 - Multiple themes and color schemes

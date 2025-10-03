@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '../contexts/AuthContext';
 import { useLinks, useSettings, useSaveSettings, usePublicSettings, useWorkHistory, usePublicWorkHistory, useCompanies } from '../hooks/use-atprotocol';
+import { atprotocol } from '../lib/atprotocol';
 import { useEditMode } from './EditModeProvider';
 import { Eye, Link as LinkIcon, Camera, Edit, CheckCircle, AlertCircle, Building2, Loader2 } from 'lucide-react';
 import { ProfileImageUpload } from './ProfileImageUpload';
@@ -24,7 +25,6 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [isEditingBio, setIsEditingBio] = useState(false);
   const [bioText, setBioText] = useState('');
-  const [showVerificationInfo, setShowVerificationInfo] = useState(false);
 
   // Use props if provided, otherwise fall back to context
   const profile = propProfile || user;
@@ -36,7 +36,6 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
   const { data: publicSettings } = usePublicSettings(isPublicProfile ? targetDid : null);
   const { mutate: saveSettings } = useSaveSettings();
   
-  // Fetch work history for verification badges
   const { data: workHistory = [] } = useWorkHistory();
   const { data: publicWorkHistory = [] } = usePublicWorkHistory(isPublicProfile ? targetDid : null);
   const { data: companies = [] } = useCompanies();
@@ -82,98 +81,23 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
   // Check if user has verified work history
   console.log('🔍 ProfileHeader - effectiveWorkHistory:', effectiveWorkHistory);
   console.log('🔍 ProfileHeader - companies:', companies);
-  const hasVerifiedWork = effectiveWorkHistory.some(item => item.verificationStatus === 'verified');
-  const hasUnverifiedWork = effectiveWorkHistory.some(item => item.verificationStatus === 'unverified');
-  console.log('🔍 ProfileHeader - hasVerifiedWork:', hasVerifiedWork, 'hasUnverifiedWork:', hasUnverifiedWork);
+  
+  
   
   // Get the first company from work history for the logo
   const getFirstCompany = () => {
     if (effectiveWorkHistory.length === 0) return null;
     const firstWorkItem = effectiveWorkHistory[0];
-    return companies.find(c => c.id === firstWorkItem.companyId);
+    console.log('🔍 getFirstCompany - firstWorkItem:', firstWorkItem);
+    console.log('🔍 getFirstCompany - companies:', companies);
+    console.log('🔍 getFirstCompany - looking for companyId:', firstWorkItem.companyId);
+    const company = companies.find(c => c.id === firstWorkItem.companyId || c.did === firstWorkItem.companyId);
+    console.log('🔍 getFirstCompany - found company:', company);
+    return company;
   };
 
   const firstCompany = getFirstCompany();
 
-  const getVerificationBadge = () => {
-    console.log('🔍 getVerificationBadge called - hasVerifiedWork:', hasVerifiedWork, 'hasUnverifiedWork:', hasUnverifiedWork);
-    console.log('🔍 getVerificationBadge - firstCompany:', firstCompany);
-    console.log('🔍 getVerificationBadge - showVerificationInfo state:', showVerificationInfo);
-    if (hasVerifiedWork) {
-      return (
-        <div 
-          className="flex items-center gap-1 text-green-600 cursor-pointer hover:opacity-80 transition-opacity select-none relative z-10" 
-          title="Verified employee - Click for details"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            e.nativeEvent.stopImmediatePropagation();
-            console.log('🔍 Verification badge clicked');
-            setShowVerificationInfo(true);
-          }}
-          onMouseDown={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            e.nativeEvent.stopImmediatePropagation();
-          }}
-          onMouseUp={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            e.nativeEvent.stopImmediatePropagation();
-          }}
-        >
-          {firstCompany?.logo ? (
-            <img 
-              src={firstCompany.logo} 
-              alt={firstCompany.name}
-              className="w-4 h-4 rounded-full object-cover"
-            />
-          ) : (
-            <CheckCircle className="w-4 h-4" />
-          )}
-          <span className="text-xs font-medium">Verified</span>
-        </div>
-      );
-    } else if (hasUnverifiedWork) {
-      return (
-        <div 
-          className="flex items-center gap-1 text-amber-600 cursor-pointer hover:opacity-80 transition-opacity select-none relative z-10" 
-          title="Verification pending - Click for details"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            e.nativeEvent.stopImmediatePropagation();
-            console.log('🔍 Verification badge clicked (unverified)');
-            console.log('🔍 Setting showVerificationInfo to true');
-            setShowVerificationInfo(true);
-            console.log('🔍 showVerificationInfo should now be true');
-          }}
-          onMouseDown={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            e.nativeEvent.stopImmediatePropagation();
-          }}
-          onMouseUp={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            e.nativeEvent.stopImmediatePropagation();
-          }}
-        >
-          {firstCompany?.logo ? (
-            <img 
-              src={firstCompany.logo} 
-              alt={firstCompany.name}
-              className="w-4 h-4 rounded-full object-cover"
-            />
-          ) : (
-            <AlertCircle className="w-4 h-4" />
-          )}
-          <Loader2 className="w-3 h-3" />
-        </div>
-      );
-    }
-    return null;
-  };
 
   if (!profile) return null;
 
@@ -211,11 +135,6 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
         <h2 className="text-2xl font-bold text-foreground" data-testid="text-display-name">
           {profile.displayName || profile.handle}
         </h2>
-        {(() => {
-          const badge = getVerificationBadge();
-          console.log('🔍 Verification badge rendered:', badge);
-          return badge;
-        })()}
       </div>
       
       <p className="text-muted-foreground mb-4" data-testid="text-handle">
@@ -294,66 +213,6 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
         onClose={() => setShowImageUpload(false)} 
       />
       
-      {/* Verification Info Dialog */}
-      {(() => {
-        console.log('🔍 Dialog render check - showVerificationInfo:', showVerificationInfo);
-        return showVerificationInfo;
-      })() && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowVerificationInfo(false)}>
-          <div className="bg-background border rounded-lg p-6 max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center gap-3 mb-4">
-              {firstCompany?.logo ? (
-                <img 
-                  src={firstCompany.logo} 
-                  alt={firstCompany.name}
-                  className="w-8 h-8 rounded-full object-cover"
-                />
-              ) : (
-                <Building2 className="w-8 h-8 text-muted-foreground" />
-              )}
-              <div>
-                <h3 className="font-semibold text-lg">
-                  {hasVerifiedWork ? 'Verified Employee' : 'Claims to Work Here'}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {firstCompany?.name || 'Company'}
-                </p>
-              </div>
-            </div>
-            
-            <div className="space-y-3 mb-6">
-              {hasVerifiedWork ? (
-                <div className="flex items-center gap-2 text-green-600">
-                  <CheckCircle className="w-5 h-5" />
-                  <span className="text-sm font-medium">This user has been verified as an employee</span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 text-amber-600">
-                  <AlertCircle className="w-5 h-5" />
-                  <span className="text-sm font-medium">This user claims to work here but is not verified</span>
-                </div>
-              )}
-              
-              <p className="text-sm text-muted-foreground">
-                {hasVerifiedWork 
-                  ? 'Their employment has been verified by our admin team through submitted documentation.'
-                  : 'This is an unverified claim. The user has not provided proof of employment.'
-                }
-              </p>
-            </div>
-            
-            <div className="flex justify-end">
-              <Button 
-                variant="outline" 
-                onClick={() => setShowVerificationInfo(false)}
-                size="sm"
-              >
-                Close
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

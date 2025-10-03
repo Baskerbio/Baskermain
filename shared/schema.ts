@@ -172,26 +172,10 @@ export const workHistorySchema = z.object({
   location: z.string().optional(),
   employmentType: z.enum(['full-time', 'part-time', 'contract', 'internship', 'freelance']).default('full-time'),
   isVerified: z.boolean().default(false), // Verified by admin
-  verificationStatus: z.enum(['unverified', 'pending', 'verified', 'rejected']).default('unverified'),
-  verificationNotes: z.string().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
 
-// Verification Request schema
-export const verificationRequestSchema = z.object({
-  id: z.string(),
-  userId: z.string(), // User's DID
-  workHistoryId: z.string(), // Reference to work history entry
-  companyId: z.string(), // Reference to company
-  evidence: z.string().optional(), // Description of evidence provided
-  documents: z.array(z.string()).default([]), // URLs to uploaded documents
-  status: z.enum(['pending', 'approved', 'rejected']).default('pending'),
-  adminNotes: z.string().optional(),
-  submittedAt: z.string(),
-  reviewedAt: z.string().optional(),
-  reviewedBy: z.string().optional(), // Admin DID who reviewed
-});
 
 // Admin User schema
 export const adminUserSchema = z.object({
@@ -329,9 +313,6 @@ export const workHistoryRecordSchema = z.object({
   workHistory: z.array(workHistorySchema),
 });
 
-export const verificationRequestsRecordSchema = z.object({
-  verificationRequests: z.array(verificationRequestSchema),
-});
 
 export const adminUsersRecordSchema = z.object({
   adminUsers: z.array(adminUserSchema),
@@ -360,7 +341,6 @@ export type SettingsRecord = z.infer<typeof settingsRecordSchema>;
 export type WidgetsRecord = z.infer<typeof widgetsRecordSchema>;
 export type CompaniesRecord = z.infer<typeof companiesRecordSchema>;
 export type WorkHistoryRecord = z.infer<typeof workHistoryRecordSchema>;
-export type VerificationRequestsRecord = z.infer<typeof verificationRequestsRecordSchema>;
 export type AdminUsersRecord = z.infer<typeof adminUsersRecordSchema>;
 
 export type InsertLink = z.infer<typeof insertLinkSchema>;
@@ -371,5 +351,4 @@ export type InsertWidget = z.infer<typeof insertWidgetSchema>;
 // Work History types
 export type Company = z.infer<typeof companySchema>;
 export type WorkHistory = z.infer<typeof workHistorySchema>;
-export type VerificationRequest = z.infer<typeof verificationRequestSchema>;
 export type AdminUser = z.infer<typeof adminUserSchema>;

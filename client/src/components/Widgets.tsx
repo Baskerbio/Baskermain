@@ -232,7 +232,6 @@ export function Widgets({ isEditMode }: WidgetsProps) {
       case 'work_history':
         return {
           title: 'Work History',
-          showVerificationStatus: true,
           showCompanyLogos: true,
           showEmploymentType: true
         };
@@ -3071,19 +3070,6 @@ function WidgetEditor({
             </div>
             <div className="space-y-3">
               <Label>Display Options</Label>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="showVerificationStatus"
-                  checked={editedWidget.config?.showVerificationStatus !== false}
-                  onCheckedChange={(checked) => 
-                    setEditedWidget(prev => ({
-                      ...prev,
-                      config: { ...prev.config, showVerificationStatus: checked }
-                    }))
-                  }
-                />
-                <Label htmlFor="showVerificationStatus">Show verification status</Label>
-              </div>
               <div className="flex items-center space-x-2">
                 <Switch
                   id="showCompanyLogos"
