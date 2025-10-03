@@ -212,14 +212,14 @@ export function WorkHistoryWidget({ isPublic = false, targetDid }: WorkHistoryWi
       return 'Basker'; // This matches what we see in the logs
     }
     
-    return company?.name || company?.displayName || 'Unknown Company';
+    return company?.displayName || company?.name || 'Unknown Company';
   };
 
   const getCompanyLogo = (companyId: string) => {
     console.log('getCompanyLogo called with companyId:', companyId);
     const company = companies.find((c: any) => c.id === companyId || c.did === companyId);
     console.log('Found company for logo:', company);
-    return company?.logo;
+    return company?.logo || company?.avatar;
   };
 
 
@@ -373,11 +373,15 @@ export function WorkHistoryWidget({ isPublic = false, targetDid }: WorkHistoryWi
                     <div className="space-y-2">
                       {selectedCompany && (
                         <div className="p-3 border rounded-lg bg-muted/50 flex items-center gap-3">
-                          {selectedCompany.logo && (
-                            <img src={selectedCompany.logo} alt="" className="w-8 h-8 rounded-full" />
+                          {(selectedCompany.logo || selectedCompany.avatar) && (
+                            <img 
+                              src={selectedCompany.logo || selectedCompany.avatar} 
+                              alt={selectedCompany.displayName || selectedCompany.name || 'Company'} 
+                              className="w-8 h-8 rounded-full object-cover" 
+                            />
                           )}
                           <div className="flex-1">
-                            <p className="font-medium">{selectedCompany.name}</p>
+                            <p className="font-medium">{selectedCompany.displayName || selectedCompany.name}</p>
                             {selectedCompany.handle && (
                               <p className="text-sm text-muted-foreground">@{selectedCompany.handle}</p>
                             )}
@@ -407,15 +411,19 @@ export function WorkHistoryWidget({ isPublic = false, targetDid }: WorkHistoryWi
                             <div className="max-h-40 overflow-y-auto border rounded-lg">
                               {searchResults.map((company) => (
                                 <div
-                                  key={company.id}
+                                  key={company.id || company.did}
                                   className="p-2 hover:bg-muted cursor-pointer flex items-center gap-2"
                                   onClick={() => handleSelectCompany(company)}
                                 >
-                                  {company.logo && (
-                                    <img src={company.logo} alt="" className="w-6 h-6 rounded-full" />
+                                  {(company.logo || company.avatar) && (
+                                    <img 
+                                      src={company.logo || company.avatar} 
+                                      alt={company.displayName || company.name || 'Company'} 
+                                      className="w-6 h-6 rounded-full object-cover" 
+                                    />
                                   )}
                                   <div>
-                                    <p className="font-medium">{company.name}</p>
+                                    <p className="font-medium">{company.displayName || company.name}</p>
                                     {company.handle && (
                                       <p className="text-sm text-muted-foreground">@{company.handle}</p>
                                     )}
