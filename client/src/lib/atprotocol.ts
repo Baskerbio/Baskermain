@@ -1455,6 +1455,292 @@ export class ATProtocolClient {
       throw error;
     }
   }
+
+  async followUser(targetDid: string) {
+    try {
+      const followRecord = {
+        subject: targetDid,
+        createdAt: new Date().toISOString(),
+      };
+
+      const response = await this.agent.api.app.bsky.graph.follow.create({
+        repo: this.did!,
+        collection: 'app.bsky.graph.follow',
+        record: followRecord,
+      });
+
+      return response;
+    } catch (error) {
+      console.error('Failed to follow user:', error);
+      throw error;
+    }
+  }
+
+  async unfollowUser(followUri: string) {
+    try {
+      await this.agent.api.app.bsky.graph.follow.delete({
+        repo: this.did!,
+        rkey: followUri.split('/').pop()!,
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Failed to unfollow user:', error);
+      throw error;
+    }
+  }
+
+  async getFollows(handle: string, limit: number = 100) {
+    try {
+      const response = await this.agent.api.app.bsky.graph.getFollows({
+        actor: handle,
+        limit,
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Failed to get follows:', error);
+      throw error;
+    }
+  }
+
+  async getFollowers(handle: string, limit: number = 100) {
+    try {
+      const response = await this.agent.api.app.bsky.graph.getFollowers({
+        actor: handle,
+        limit,
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Failed to get followers:', error);
+      throw error;
+    }
+  }
+
+  async getFollowStatus(targetDid: string) {
+    try {
+      // Get the current user's follows to check if they're following the target
+      const follows = await this.getFollows(this.session?.handle || '', 1000);
+      const isFollowing = follows.follows.some((follow: any) => follow.did === targetDid);
+      
+      return {
+        isFollowing,
+        followUri: isFollowing ? follows.follows.find((follow: any) => follow.did === targetDid)?.uri || null : null,
+      };
+    } catch (error) {
+      console.error('Failed to get follow status:', error);
+      return { isFollowing: false, followUri: null };
+    }
+  }
+
+  // Starter Pack Methods using Basker's own data storage
+  async createStarterPack(name: string, description: string, category: string = 'general') {
+    try {
+      const starterPackRecord = {
+        name,
+        description,
+        category,
+        creatorDid: this.did!,
+        creatorHandle: this.session?.handle || '',
+        createdAt: new Date().toISOString(),
+        members: [],
+      };
+
+      const response = await this.agent.api.com.atproto.repo.createRecord({
+        repo: this.did!,
+        collection: 'app.linkbio.starterpack',
+        record: starterPackRecord,
+      });
+
+      return response;
+    } catch (error) {
+      console.error('Failed to create starter pack:', error);
+      throw error;
+    }
+  }
+
+  async addToStarterPack(starterPackUri: string, userDid: string, userHandle: string, userDisplayName?: string, userAvatar?: string) {
+    try {
+      // First get the current starter pack
+      const currentPack = await this.getStarterPack(starterPackUri);
+      if (!currentPack) {
+        throw new Error('Starter pack not found');
+      }
+
+      // Add the new member
+      const updatedMembers = [
+        ...(currentPack.members || []),
+        {
+          did: userDid,
+          handle: userHandle,
+          displayName: userDisplayName,
+          avatar: userAvatar,
+          addedAt: new Date().toISOString(),
+        }
+      ];
+
+      const updatedRecord = {
+        ...currentPack,
+        members: updatedMembers,
+        updatedAt: new Date().toISOString(),
+      };
+
+      const response = await this.agent.api.com.atproto.repo.putRecord({
+        repo: this.did!,
+        collection: 'app.linkbio.starterpack',
+        rkey: starterPackUri.split('/').pop() || '',
+        record: updatedRecord,
+      });
+
+      return response;
+    } catch (error) {
+      console.error('Failed to add to starter pack:', error);
+      throw error;
+    }
+  }
+
+  async removeFromStarterPack(starterPackUri: string, userDid: string) {
+    try {
+      // First get the current starter pack
+      const currentPack = await this.getStarterPack(starterPackUri);
+      if (!currentPack) {
+        throw new Error('Starter pack not found');
+      }
+
+      // Remove the member
+      const updatedMembers = (currentPack.members || []).filter((member: any) => member.did !== userDid);
+
+      const updatedRecord = {
+        ...currentPack,
+        members: updatedMembers,
+        updatedAt: new Date().toISOString(),
+      };
+
+      const response = await this.agent.api.com.atproto.repo.putRecord({
+        repo: this.did!,
+        collection: 'app.linkbio.starterpack',
+        rkey: starterPackUri.split('/').pop() || '',
+        record: updatedRecord,
+      });
+
+      return response;
+    } catch (error) {
+      console.error('Failed to remove from starter pack:', error);
+      throw error;
+    }
+  }
+
+  async getStarterPacks(handle: string, limit: number = 100) {
+    try {
+      const response = await this.agent.api.com.atproto.repo.listRecords({
+        repo: this.did!,
+        collection: 'app.linkbio.starterpack',
+        limit,
+      });
+
+      return {
+        starterPacks: response.data.records.map((record: any) => ({
+          uri: record.uri,
+          name: record.value.name,
+          description: record.value.description,
+          category: record.value.category,
+          members: record.value.members || [],
+          createdAt: record.value.createdAt,
+          updatedAt: record.value.updatedAt,
+          creator: {
+            did: record.value.creatorDid,
+            handle: record.value.creatorHandle,
+          }
+        }))
+      };
+    } catch (error) {
+      console.error('Failed to get starter packs:', error);
+      throw error;
+    }
+  }
+
+  async getStarterPack(starterPackUri: string) {
+    try {
+      const response = await this.agent.api.com.atproto.repo.getRecord({
+        repo: this.did!,
+        collection: 'app.linkbio.starterpack',
+        rkey: starterPackUri.split('/').pop() || '',
+      });
+
+      return response.data.value;
+    } catch (error) {
+      console.error('Failed to get starter pack:', error);
+      throw error;
+    }
+  }
+
+  async deleteStarterPack(starterPackUri: string) {
+    try {
+      const response = await this.agent.api.com.atproto.repo.deleteRecord({
+        repo: this.did!,
+        collection: 'app.linkbio.starterpack',
+        rkey: starterPackUri.split('/').pop() || '',
+      });
+
+      return response;
+    } catch (error) {
+      console.error('Failed to delete starter pack:', error);
+      throw error;
+    }
+  }
+
+  async getPublicStarterPacks(handle: string, limit: number = 100) {
+    try {
+      const publicAgent = new BskyAgent({
+        service: 'https://public.api.bsky.app',
+      });
+
+      const response = await publicAgent.api.com.atproto.repo.listRecords({
+        repo: handle,
+        collection: 'app.linkbio.starterpack',
+        limit,
+      });
+
+      return {
+        starterPacks: response.data.records.map((record: any) => ({
+          uri: record.uri,
+          name: record.value.name,
+          description: record.value.description,
+          category: record.value.category,
+          members: record.value.members || [],
+          createdAt: record.value.createdAt,
+          updatedAt: record.value.updatedAt,
+          creator: {
+            did: record.value.creatorDid,
+            handle: record.value.creatorHandle,
+          }
+        }))
+      };
+    } catch (error) {
+      console.error('Failed to get public starter packs:', error);
+      throw error;
+    }
+  }
+
+  async getPublicStarterPack(starterPackUri: string) {
+    try {
+      const publicAgent = new BskyAgent({
+        service: 'https://public.api.bsky.app',
+      });
+
+      const response = await publicAgent.api.com.atproto.repo.getRecord({
+        repo: starterPackUri.split('/')[4], // Extract handle from URI
+        collection: 'app.linkbio.starterpack',
+        rkey: starterPackUri.split('/').pop() || '',
+      });
+
+      return response.data.value;
+    } catch (error) {
+      console.error('Failed to get public starter pack:', error);
+      throw error;
+    }
+  }
 }
 
 export const atprotocol = new ATProtocolClient();

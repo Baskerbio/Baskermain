@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '../contexts/AuthContext';
+import { Header } from '../components/Header';
 import { ArrowLeft, ChevronDown, ChevronUp, HelpCircle, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -83,49 +84,7 @@ export default function FAQ() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-      {/* Header */}
-      <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <img 
-                src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
-                alt="Basker"
-                className="w-6 h-6 rounded-full"
-              />
-              <h1 className="text-xl sm:text-2xl font-bold text-primary">Basker</h1>
-            </Link>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 sm:gap-4">
-              <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                About
-              </Link>
-              <Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Pricing
-              </Link>
-              <Link href="/faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                FAQ
-              </Link>
-              <Link href="/info" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Info Center
-              </Link>
-            </div>
-            <Link href="/">
-              <Button variant="outline" size="sm">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Home
-              </Button>
-            </Link>
-            {!isAuthenticated && (
-              <Link href="/login">
-                <Button size="sm">Sign In</Button>
-              </Link>
-            )}
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main>
         {/* Hero Section */}

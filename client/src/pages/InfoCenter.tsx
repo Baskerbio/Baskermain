@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '../contexts/AuthContext';
 import { VersionInfo } from '../components/VersionInfo';
+import { Header } from '../components/Header';
 import { 
   FileText, 
   Scale, 
@@ -30,34 +31,7 @@ export default function InfoCenter() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-      {/* Header */}
-      <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/">
-                <Button variant="ghost" size="sm" className="flex items-center gap-2">
-                  <ArrowLeft className="w-4 h-4" />
-                  Back to Home
-                </Button>
-              </Link>
-              <div>
-                <h1 className="text-2xl font-bold">Info Center</h1>
-                <p className="text-sm text-muted-foreground">
-                  Everything you need to know about Basker and our services
-                </p>
-              </div>
-            </div>
-            {isAuthenticated && (
-              <Link href="/profile">
-                <Button variant="outline" size="sm">
-                  Go to Profile
-                </Button>
-              </Link>
-            )}
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <div className="max-w-4xl mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

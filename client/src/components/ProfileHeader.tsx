@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '../contexts/AuthContext';
 import { useLinks, useSettings, useSaveSettings, usePublicSettings, useWorkHistory, usePublicWorkHistory, useCompanies } from '../hooks/use-atprotocol';
 import { atprotocol } from '../lib/atprotocol';
 import { useEditMode } from './EditModeProvider';
-import { Eye, Link as LinkIcon, Camera, Edit, CheckCircle, AlertCircle, Building2, Loader2 } from 'lucide-react';
+import { Eye, Link as LinkIcon, Camera, Edit, CheckCircle, AlertCircle, Building2, Loader2, UserPlus, UserMinus, ExternalLink } from 'lucide-react';
 import { ProfileImageUpload } from './ProfileImageUpload';
 import { StoriesRing } from './StoriesRing';
 import { PublicStoriesRing } from './PublicStoriesRing';
@@ -25,6 +25,9 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [isEditingBio, setIsEditingBio] = useState(false);
   const [bioText, setBioText] = useState('');
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followUri, setFollowUri] = useState<string | null>(null);
+  const [isFollowLoading, setIsFollowLoading] = useState(false);
 
   // Use props if provided, otherwise fall back to context
   const profile = propProfile || user;
@@ -55,6 +58,23 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
     }
   }, [effectiveSettings?.customBio]);
 
+  // Check follow status when viewing someone else's profile
+  useEffect(() => {
+    const checkFollowStatus = async () => {
+      if (isPublicProfile && targetDid && user?.did !== targetDid) {
+        try {
+          const followStatus = await atprotocol.getFollowStatus(targetDid);
+          setIsFollowing(followStatus.isFollowing);
+          setFollowUri(followStatus.followUri);
+        } catch (error) {
+          console.error('Failed to check follow status:', error);
+        }
+      }
+    };
+
+    checkFollowStatus();
+  }, [isPublicProfile, targetDid, user?.did]);
+
   const handleSaveBio = () => {
     if (!ownSettings || isPublicProfile) return;
     
@@ -76,6 +96,56 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
   const handleCancelBio = () => {
     setBioText(effectiveSettings?.customBio || '');
     setIsEditingBio(false);
+  };
+
+  const handleFollow = async () => {
+    if (!targetDid || isFollowLoading) return;
+    
+    setIsFollowLoading(true);
+    try {
+      const result = await atprotocol.followUser(targetDid);
+      setIsFollowing(true);
+      setFollowUri(result.uri);
+    } catch (error) {
+      console.error('Failed to follow user:', error);
+    } finally {
+      setIsFollowLoading(false);
+    }
+  };
+
+  const handleUnfollow = async () => {
+    if (!followUri || isFollowLoading) return;
+    
+    setIsFollowLoading(true);
+    try {
+      await atprotocol.unfollowUser(followUri);
+      setIsFollowing(false);
+      setFollowUri(null);
+    } catch (error) {
+      console.error('Failed to unfollow user:', error);
+    } finally {
+      setIsFollowLoading(false);
+    }
+  };
+
+  const handleOpenBluesky = () => {
+    if (!profile?.handle) return;
+    
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      // Try to open in the Bluesky mobile app first
+      const appUrl = `com.bsky.app://profile/${profile.handle}`;
+      window.location.href = appUrl;
+      
+      // Fallback to website if app doesn't open
+      setTimeout(() => {
+        window.open(`https://bsky.app/profile/${profile.handle}`, '_blank');
+      }, 1000);
+    } else {
+      // Open in website for desktop
+      window.open(`https://bsky.app/profile/${profile.handle}`, '_blank');
+    }
   };
 
   // Check if user has verified work history
@@ -261,6 +331,44 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
               </Button>
             </div>
           </div>
+        </div>
+      )}
+      
+      {/* Follow and Open Bluesky Buttons - Only show for public profiles when viewing someone else */}
+      {isPublicProfile && targetDid && user?.did !== targetDid && (
+        <div className="mb-4 flex gap-2">
+          <Button
+            size="sm"
+            variant={isFollowing ? "outline" : "default"}
+            onClick={isFollowing ? handleUnfollow : handleFollow}
+            disabled={isFollowLoading}
+            className="flex items-center gap-2"
+            data-testid="button-follow"
+          >
+            {isFollowLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : isFollowing ? (
+              <>
+                <UserMinus className="w-4 h-4" />
+                Following
+              </>
+            ) : (
+              <>
+                <UserPlus className="w-4 h-4" />
+                Follow
+              </>
+            )}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleOpenBluesky}
+            className="flex items-center gap-2"
+            data-testid="button-open-bluesky"
+          >
+            <ExternalLink className="w-4 h-4" />
+            Open Bluesky
+          </Button>
         </div>
       )}
       

@@ -19,6 +19,8 @@ import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfService from "@/pages/TermsOfService";
 import EULA from "@/pages/EULA";
 import Examples from "@/pages/Examples";
+import StarterPacks from "@/pages/StarterPacks";
+import StarterPackDetail from "@/pages/StarterPackDetail";
 import { LoginScreen } from "@/components/LoginScreen";
 import ModerationPanel from "@/pages/ModerationPanel";
 
@@ -37,6 +39,8 @@ function Router() {
       <Route path="/terms" component={TermsOfService} />
       <Route path="/eula" component={EULA} />
       <Route path="/examples" component={Examples} />
+      <Route path="/starter-packs" component={StarterPacks} />
+      <Route path="/starter-packs/:packId" component={StarterPackDetail} />
       <Route path="/moderation" component={ModerationPanel} />
       <Route path="/:handle" component={PublicProfilePage} />
       <Route component={NotFound} />

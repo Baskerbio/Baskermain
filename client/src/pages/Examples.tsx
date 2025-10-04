@@ -6,6 +6,7 @@ import { ArrowLeft, ExternalLink, Link as LinkIcon, Github, Twitter, Globe, Inst
 import { Link } from 'wouter';
 import { atprotocol } from '../lib/atprotocol';
 import { getLinkStyling } from '../lib/link-utils';
+import { Header } from '../components/Header';
 
 export default function Examples() {
   const [profiles, setProfiles] = useState<any[]>([]);
@@ -70,30 +71,7 @@ export default function Examples() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50 dark:from-yellow-900/20 dark:via-orange-900/20 dark:to-red-900/20">
-      {/* Header */}
-      <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/">
-                <Button variant="ghost" size="sm">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Home
-                </Button>
-              </Link>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Profile Examples</h1>
-                <p className="text-gray-600 dark:text-gray-400">See how others are using Basker</p>
-              </div>
-            </div>
-            <Link href="/login">
-              <Button className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white">
-                Create Your Profile
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <div className="max-w-6xl mx-auto px-4 py-12">
         {/* Introduction */}

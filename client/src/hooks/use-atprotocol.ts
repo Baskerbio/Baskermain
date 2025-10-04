@@ -491,3 +491,106 @@ export function useRemoveAdminUser() {
     },
   });
 }
+
+// Starter Pack Hooks
+export function useStarterPacks(handle: string) {
+  const isAuthenticated = atprotocol.isAuthenticated();
+  
+  return useQuery({
+    queryKey: ['starterPacks', handle],
+    queryFn: async () => {
+      if (isAuthenticated) {
+        return await atprotocol.getStarterPacks(handle);
+      } else {
+        return await atprotocol.getPublicStarterPacks(handle);
+      }
+    },
+    enabled: !!handle,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+export function useStarterPack(starterPackUri: string) {
+  const isAuthenticated = atprotocol.isAuthenticated();
+  
+  return useQuery({
+    queryKey: ['starterPack', starterPackUri],
+    queryFn: async () => {
+      if (isAuthenticated) {
+        return await atprotocol.getStarterPack(starterPackUri);
+      } else {
+        return await atprotocol.getPublicStarterPack(starterPackUri);
+      }
+    },
+    enabled: !!starterPackUri,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+export function useCreateStarterPack() {
+  const queryClient = useQueryClient();
+  const did = atprotocol.getCurrentDid();
+
+  return useMutation({
+    mutationFn: async ({ name, description, category }: { name: string; description: string; category?: string }) => {
+      return await atprotocol.createStarterPack(name, description, category);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['starterPacks'] });
+    },
+  });
+}
+
+export function useAddToStarterPack() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ 
+      starterPackUri, 
+      userDid, 
+      userHandle, 
+      userDisplayName, 
+      userAvatar 
+    }: { 
+      starterPackUri: string; 
+      userDid: string; 
+      userHandle: string; 
+      userDisplayName?: string; 
+      userAvatar?: string; 
+    }) => {
+      return await atprotocol.addToStarterPack(starterPackUri, userDid, userHandle, userDisplayName, userAvatar);
+    },
+    onSuccess: (_, { starterPackUri }) => {
+      queryClient.invalidateQueries({ queryKey: ['starterPack', starterPackUri] });
+      queryClient.invalidateQueries({ queryKey: ['starterPacks'] });
+    },
+  });
+}
+
+export function useRemoveFromStarterPack() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ starterPackUri, userDid }: { starterPackUri: string; userDid: string }) => {
+      return await atprotocol.removeFromStarterPack(starterPackUri, userDid);
+    },
+    onSuccess: (_, { starterPackUri }) => {
+      queryClient.invalidateQueries({ queryKey: ['starterPack', starterPackUri] });
+      queryClient.invalidateQueries({ queryKey: ['starterPacks'] });
+    },
+  });
+}
+
+export function useDeleteStarterPack() {
+  const queryClient = useQueryClient();
+  const did = atprotocol.getCurrentDid();
+
+  return useMutation({
+    mutationFn: async (starterPackUri: string) => {
+      return await atprotocol.deleteStarterPack(starterPackUri);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['starterPacks', did] });
+    },
+  });
+}

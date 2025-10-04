@@ -6,14 +6,14 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '../contexts/AuthContext';
 import { LoginScreen } from '../components/LoginScreen';
 import { VersionInfo } from '../components/VersionInfo';
-import { ArrowRight, Link as LinkIcon, Globe, Users, Zap, Menu, X, Star, Sparkles, Heart, Share2, Palette, StickyNote, Link2, Settings, Image as ImageIcon, ChevronDown, ChevronUp, HelpCircle, Info, Crown } from 'lucide-react';
+import { Header } from '../components/Header';
+import { ArrowRight, Link as LinkIcon, Globe, Users, Zap, Star, Sparkles, Heart, Share2, Palette, StickyNote, Link2, Settings, Image as ImageIcon, ChevronDown, ChevronUp, Info, ExternalLink } from 'lucide-react';
 import { atprotocol } from '../lib/atprotocol';
 import { createPortal } from 'react-dom';
 
 export default function Landing() {
   const { isAuthenticated, user } = useAuth();
   const [searchHandle, setSearchHandle] = useState('');
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [searchSuggestions, setSearchSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -193,8 +193,22 @@ export default function Landing() {
       }
     }, 300); // 300ms debounce
 
-    return () => clearTimeout(searchTimeout);
-  }, [searchHandle]);
+    // Update position on scroll and resize
+    const handleScroll = () => {
+      if (showSuggestions && searchInputRef.current) {
+        setSearchBoxRect(searchInputRef.current.getBoundingClientRect());
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+
+    return () => {
+      clearTimeout(searchTimeout);
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, [searchHandle, showSuggestions]);
 
   const handleSearch = () => {
     if (searchHandle.trim()) {
@@ -224,151 +238,118 @@ export default function Landing() {
     // Show a welcome interface for authenticated users instead of redirecting
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-        {/* Header */}
-        <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
-          <div className="max-w-6xl mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
-            <div className="flex items-center gap-2 sm:gap-3">
-              
-              <Link href="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity">
-                <img 
-                  src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
-                  alt="Basker"
-                  className="w-5 h-5 sm:w-6 sm:h-6 rounded-full"
-                />
-                <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-primary">Basker</h1>
-              </Link>
-            </div>
-            
-            {/* Desktop buttons */}
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="flex items-center gap-2 sm:gap-4">
-                <Link href="/about" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors">
-                  About
-                </Link>
-                <Link href="/pricing">
-                  <Button variant="outline" size="sm" className="text-sm">
-                    Pricing
-                  </Button>
-                </Link>
-                <Link href="/faq" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors">
-                  FAQ
-                </Link>
-                <Link href="/info" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors">
-                  Info Center
-                </Link>
-              </div>
-              <Link href="/profile">
-                <Button size="sm" className="text-sm px-3">
-                  My Profile
-                </Button>
-              </Link>
-            </div>
-
-            {/* Mobile menu button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="sm:hidden px-2"
-            >
-              {showMobileMenu ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </Button>
-          </div>
-
-          {/* Mobile menu */}
-          {showMobileMenu && (
-            <div className="sm:hidden border-t border-border bg-card">
-              <div className="max-w-6xl mx-auto px-4 py-3 space-y-3">
-                {/* User info */}
-                <div className="flex items-center gap-3 pb-3 border-b border-border">
-                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                    <span className="text-primary text-sm font-medium">
-                      {user?.handle?.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-foreground">@{user?.handle}</div>
-                    <div className="text-xs text-muted-foreground">Welcome back!</div>
-                  </div>
-                </div>
-
-                {/* Action buttons */}
-                <div className="space-y-2">
-                  <Link href="/about">
-                    <Button variant="outline" size="sm" className="w-full justify-start gap-3">
-                      <Info className="w-4 h-4" />
-                      About
-                    </Button>
-                  </Link>
-                  <Link href="/pricing">
-                    <Button variant="outline" size="sm" className="w-full justify-start gap-3">
-                      <Crown className="w-4 h-4" />
-                      Pricing
-                    </Button>
-                  </Link>
-                  <Link href="/faq">
-                    <Button variant="outline" size="sm" className="w-full justify-start gap-3">
-                      <HelpCircle className="w-4 h-4" />
-                      FAQ
-                    </Button>
-                  </Link>
-                  <Link href="/info">
-                    <Button variant="outline" size="sm" className="w-full justify-start gap-3">
-                      <Info className="w-4 h-4" />
-                      Info Center
-                    </Button>
-                  </Link>
-                  <Link href="/profile">
-                    <Button variant="outline" size="sm" className="w-full justify-start gap-3">
-                      <Users className="w-4 h-4" />
-                      My Profile
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          )}
-        </header>
+        <Header />
 
         <main>
           {/* Welcome Section */}
-          <section className="py-20 px-4">
-            <div className="max-w-4xl mx-auto text-center">
-              <h1 className="text-5xl font-bold text-foreground mb-6">
-                Welcome back, <span className="text-primary">{user.displayName || user.handle}</span>!
+          <section className="relative py-20 px-4 overflow-hidden">
+            {/* Animated Background Elements */}
+            <div className="absolute inset-0 overflow-hidden">
+              {/* Floating particles */}
+              <div className="absolute top-20 left-10 w-2 h-2 bg-yellow-400 rounded-full animate-pulse opacity-60"></div>
+              <div className="absolute top-32 right-20 w-3 h-3 bg-orange-400 rounded-full animate-pulse opacity-40" style={{ animationDelay: '1s' }}></div>
+              <div className="absolute top-60 left-1/4 w-2 h-2 bg-yellow-500 rounded-full animate-pulse opacity-50" style={{ animationDelay: '2s' }}></div>
+              <div className="absolute top-40 right-1/3 w-2 h-2 bg-orange-500 rounded-full animate-pulse opacity-30" style={{ animationDelay: '0.5s' }}></div>
+              <div className="absolute top-80 left-1/2 w-3 h-3 bg-yellow-400 rounded-full animate-pulse opacity-40" style={{ animationDelay: '1.5s' }}></div>
+              
+              {/* Animated sun rays */}
+              <div className="absolute top-10 right-10 opacity-20">
+                <svg width="60" height="60" viewBox="0 0 60 60" className="animate-spin" style={{ animationDuration: '20s' }}>
+                  <g>
+                    <line x1="30" y1="0" x2="30" y2="8" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
+                    <line x1="30" y1="52" x2="30" y2="60" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
+                    <line x1="0" y1="30" x2="8" y2="30" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
+                    <line x1="52" y1="30" x2="60" y2="30" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
+                    <line x1="8.5" y1="8.5" x2="13.5" y2="13.5" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
+                    <line x1="46.5" y1="46.5" x2="51.5" y2="51.5" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
+                    <line x1="8.5" y1="51.5" x2="13.5" y2="46.5" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
+                    <line x1="46.5" y1="8.5" x2="51.5" y2="13.5" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
+                    <defs>
+                      <linearGradient id="rayGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#fbbf24"/>
+                        <stop offset="100%" stopColor="#f97316"/>
+                      </linearGradient>
+                    </defs>
+                  </g>
+                </svg>
+              </div>
+            </div>
+
+            <div className="max-w-4xl mx-auto text-center relative z-10">
+              {/* Animated Welcome Badge */}
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/20 dark:to-orange-900/20 px-4 py-2 rounded-full mb-6 animate-pulse">
+                <Sparkles className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+                <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">Welcome Back!</span>
+              </div>
+
+              <h1 className="text-5xl sm:text-6xl font-bold text-foreground mb-6 animate-fade-in">
+                Welcome back, <span className="bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">{user.displayName || user.handle}</span>!
               </h1>
-              <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-                Your link-in-bio page is ready. Manage your links, stories, and content.
+              <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                Your link-in-bio page is ready. Manage your links, stories, and content with ease.
               </p>
               
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              {/* Enhanced Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 animate-fade-in" style={{ animationDelay: '0.4s' }}>
                 <Link href="/profile">
-                  <Button size="lg" className="w-full sm:w-auto">
+                  <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <Settings className="w-5 h-5 mr-2" />
                     Edit My Profile
                   </Button>
                 </Link>
                 <Link href={`/${user.handle}`}>
-                  <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                  <Button variant="outline" size="lg" className="w-full sm:w-auto border-2 border-yellow-500 text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <ExternalLink className="w-5 h-5 mr-2" />
                     View My Public Profile
                   </Button>
                 </Link>
               </div>
-              
-              {/* Bluesky Link */}
-              <div className="mt-6 text-center">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <span className="text-sm text-muted-foreground">Powered by</span>
-                  <span className="text-sm text-blue-500 font-bold">the AT Protocol</span>
+
+              {/* Quick Stats Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto mb-8 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-yellow-200 dark:border-yellow-800">
+                  <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <LinkIcon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Unlimited Links</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Add as many links as you want</p>
                 </div>
-                <a 
-                  href="https://bsky.app" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-primary hover:text-primary/80 underline text-sm font-medium"
-                >
-                  Visit Bluesky →
-                </a>
+                
+                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-yellow-200 dark:border-yellow-800">
+                  <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <Palette className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Custom Themes</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Personalize your profile</p>
+                </div>
+                
+                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-yellow-200 dark:border-yellow-800">
+                  <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <Heart className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Stories & Notes</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Share your moments</p>
+                </div>
+              </div>
+              
+              {/* Enhanced Bluesky Link */}
+              <div className="mt-6 text-center animate-fade-in" style={{ animationDelay: '0.8s' }}>
+                <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-full mb-4">
+                  <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">AT</span>
+                  </div>
+                  <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">Powered by the AT Protocol</span>
+                </div>
+                <div>
+                  <a 
+                    href="https://bsky.app" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors"
+                  >
+                    Visit Bluesky <ExternalLink className="w-4 h-4" />
+                  </a>
+                </div>
               </div>
             </div>
           </section>
@@ -486,41 +467,7 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-      {/* Header */}
-      <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            
-            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <img 
-                src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
-                alt="Basker"
-                className="w-6 h-6 rounded-full"
-              />
-              <h1 className="text-xl sm:text-2xl font-bold text-primary">Basker</h1>
-            </Link>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-4">
-              <Link href="/about" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors">
-                About
-              </Link>
-              <Link href="/faq" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors">
-                FAQ
-              </Link>
-              <Link href="/info" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors">
-                Info Center
-              </Link>
-            </div>
-            <Link href="/login">
-              <Button variant="outline" size="sm">
-                Sign In
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main>
         {/* Hero Section */}
@@ -629,7 +576,7 @@ export default function Landing() {
                 </div>
             
             {/* Modern Search Box with Suggestions */}
-                <div className={`max-w-lg transition-all duration-1000 delay-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                <div className={`max-w-lg transition-all duration-1000 delay-700 relative z-50 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               <div className="flex gap-3 group">
                 <div className="relative flex-1">
                   <Input
@@ -665,8 +612,7 @@ export default function Landing() {
                 </Button>
               </div>
               
-              
-              {/* Search Suggestions Dropdown - rendered as portal */}
+              {/* Search Suggestions Dropdown - rendered as portal to break out of grid container */}
               {showSuggestions && searchSuggestions.length > 0 && searchBoxRect && createPortal(
                 <div 
                   className="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl max-h-64 overflow-y-auto"
