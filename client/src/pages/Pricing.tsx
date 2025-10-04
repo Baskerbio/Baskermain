@@ -1,9 +1,8 @@
 import React from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowLeft, CreditCard, Gift, Check, Star, Zap, Heart, Coffee } from 'lucide-react';
+import { ArrowLeft, Gift, Check, Star, Zap, Heart, Coffee, QrCode } from 'lucide-react';
 
 export default function Pricing() {
   const { isAuthenticated } = useAuth();
@@ -17,17 +16,6 @@ export default function Pricing() {
     "AT Protocol integration",
     "Data ownership",
     "Open source"
-  ];
-
-  const premiumFeatures = [
-    "Everything in Free",
-    "Advanced themes and customization",
-    "Analytics and insights",
-    "Priority support",
-    "Early access to new features",
-    "Supporter badge on your profile",
-    "Custom domains (coming soon)",
-    "Advanced widgets (coming soon)"
   ];
 
   return (
@@ -64,227 +52,113 @@ export default function Pricing() {
 
       <main>
         {/* Hero Section */}
-        <section className="py-20 px-4">
+        <section className="pt-20 pb-8 px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-6">
-              Simple, Transparent Pricing
+              Free Forever
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Choose the plan that works for you. No hidden fees, no surprises.
+              Basker is completely free to use. No hidden fees, no premium tiers, no limits.
             </p>
           </div>
         </section>
 
-        {/* Pricing Cards */}
+
+        {/* Features Section */}
         <section className="py-16 px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-              {/* Free Plan */}
-              <Card className="border-border/50">
-                <CardContent className="p-8">
-                  <div className="text-center mb-6">
-                    <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <Heart className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-foreground mb-2">Free</h3>
-                    <div className="text-4xl font-bold text-foreground mb-2">$0</div>
-                    <p className="text-muted-foreground">Forever free</p>
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl font-bold text-foreground mb-4">What's Included</h2>
+            <p className="text-lg text-muted-foreground mb-8">
+              Everything you need to create an amazing link-in-bio page
+            </p>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              {features.map((feature, index) => (
+                <div key={index} className="p-4 border border-border rounded-lg bg-card/50 backdrop-blur-sm">
+                  <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center mx-auto mb-3">
+                    <Check className="w-4 h-4 text-white" />
                   </div>
-
-                  <div className="space-y-4 mb-8">
-                    {features.map((feature, index) => (
-                      <div key={index} className="flex items-center gap-3">
-                        <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                          <Check className="w-3 h-3 text-white" />
-                        </div>
-                        <span className="text-foreground">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {isAuthenticated ? (
-                    <Link href="/profile">
-                      <Button className="w-full h-12">
-                        <Zap className="w-4 h-4 mr-2" />
-                        Go to My Profile
-                      </Button>
-                    </Link>
-                  ) : (
-                    <Link href="/login">
-                      <Button className="w-full h-12">
-                        <Zap className="w-4 h-4 mr-2" />
-                        Get Started Free
-                      </Button>
-                    </Link>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Supporter Plan */}
-              <Card className="relative border-2 border-primary/20 hover:border-primary/40 transition-all duration-300">
-                <div className="absolute top-4 right-4">
-                  <div className="bg-primary text-primary-foreground text-xs font-medium px-2 py-1 rounded-full">
-                    Coming Soon
-                  </div>
+                  <h3 className="text-sm font-semibold">{feature}</h3>
                 </div>
-                <CardContent className="p-8">
-                  <div className="text-center mb-6">
-                    <div className="w-16 h-16 bg-gradient-to-r from-primary to-secondary rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <Gift className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-foreground mb-2">Supporter</h3>
-                    <div className="text-4xl font-bold text-primary mb-2">$3.99</div>
-                    <p className="text-muted-foreground">per month</p>
-                  </div>
-
-                  <div className="space-y-4 mb-8">
-                    {premiumFeatures.map((feature, index) => (
-                      <div key={index} className="flex items-center gap-3">
-                        <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-                          <Check className="w-3 h-3 text-white" />
-                        </div>
-                        <span className="text-foreground">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <Button 
-                    className="w-full h-12" 
-                    disabled
-                    variant="outline"
-                  >
-                    <CreditCard className="w-4 h-4 mr-2" />
-                    Coming Soon
-                  </Button>
-                </CardContent>
-              </Card>
+              ))}
             </div>
-          </div>
-        </section>
 
-        {/* Features Comparison */}
-        <section className="py-16 px-4 bg-muted/20">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-foreground mb-4">Feature Comparison</h2>
-              <p className="text-lg text-muted-foreground">
-                See what's included in each plan
+            <div className="bg-gradient-to-r from-primary/10 to-secondary/10 p-6 rounded-lg">
+              <h3 className="text-lg font-semibold mb-4 flex items-center justify-center gap-2">
+                <Heart className="w-5 h-5 text-red-500" />
+                Support Our Mission
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                While Basker is free, donations help us keep the service running and improve it for everyone.
               </p>
-            </div>
-
-            <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-8">
-              <div className="grid md:grid-cols-3 gap-8">
-                <div className="text-center">
-                  <h3 className="text-lg font-semibold text-foreground mb-4">Free</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-center gap-2">
-                      <Check className="w-4 h-4 text-green-500" />
-                      <span className="text-sm text-foreground">Unlimited links</span>
-                    </div>
-                    <div className="flex items-center justify-center gap-2">
-                      <Check className="w-4 h-4 text-green-500" />
-                      <span className="text-sm text-foreground">Basic themes</span>
-                    </div>
-                    <div className="flex items-center justify-center gap-2">
-                      <Check className="w-4 h-4 text-green-500" />
-                      <span className="text-sm text-foreground">Stories & notes</span>
-                    </div>
-                    <div className="flex items-center justify-center gap-2">
-                      <Check className="w-4 h-4 text-green-500" />
-                      <span className="text-sm text-foreground">Public profiles</span>
-                    </div>
-                    <div className="flex items-center justify-center gap-2">
-                      <Check className="w-4 h-4 text-green-500" />
-                      <span className="text-sm text-foreground">AT Protocol</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="text-center">
-                  <h3 className="text-lg font-semibold text-foreground mb-4">Supporter</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-center gap-2">
-                      <Check className="w-4 h-4 text-primary" />
-                      <span className="text-sm text-foreground">Everything in Free</span>
-                    </div>
-                    <div className="flex items-center justify-center gap-2">
-                      <Check className="w-4 h-4 text-primary" />
-                      <span className="text-sm text-foreground">Advanced themes</span>
-                    </div>
-                    <div className="flex items-center justify-center gap-2">
-                      <Check className="w-4 h-4 text-primary" />
-                      <span className="text-sm text-foreground">Analytics</span>
-                    </div>
-                    <div className="flex items-center justify-center gap-2">
-                      <Check className="w-4 h-4 text-primary" />
-                      <span className="text-sm text-foreground">Priority support</span>
-                    </div>
-                    <div className="flex items-center justify-center gap-2">
-                      <Check className="w-4 h-4 text-primary" />
-                      <span className="text-sm text-foreground">Supporter badge</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="text-center">
-                  <h3 className="text-lg font-semibold text-foreground mb-4">Coming Soon</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-center gap-2">
-                      <Star className="w-4 h-4 text-yellow-500" />
-                      <span className="text-sm text-muted-foreground">Custom domains</span>
-                    </div>
-                    <div className="flex items-center justify-center gap-2">
-                      <Star className="w-4 h-4 text-yellow-500" />
-                      <span className="text-sm text-muted-foreground">Advanced widgets</span>
-                    </div>
-                    <div className="flex items-center justify-center gap-2">
-                      <Star className="w-4 h-4 text-yellow-500" />
-                      <span className="text-sm text-muted-foreground">Team features</span>
-                    </div>
-                    <div className="flex items-center justify-center gap-2">
-                      <Star className="w-4 h-4 text-yellow-500" />
-                      <span className="text-sm text-muted-foreground">API access</span>
-                    </div>
-                    <div className="flex items-center justify-center gap-2">
-                      <Star className="w-4 h-4 text-yellow-500" />
-                      <span className="text-sm text-muted-foreground">White-label</span>
-                    </div>
-                  </div>
-                </div>
+              <div className="flex flex-wrap gap-2 justify-center">
+                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                  <Coffee className="w-4 h-4" />
+                  Buy us a coffee
+                </Button>
+                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                  <Gift className="w-4 h-4" />
+                  Send a tip
+                </Button>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Support Section */}
-        <section className="py-16 px-4">
+        {/* Physical Card Section */}
+        <section className="pt-8 pb-16 px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-foreground mb-4">Support Basker Development</h2>
+            <h2 className="text-3xl font-bold text-foreground mb-4">Physical Basker Card</h2>
             <p className="text-lg text-muted-foreground mb-8">
-              Help us keep Basker free and open source
+              Take your digital presence offline with a physical card
             </p>
             <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-8">
-              <div className="grid md:grid-cols-3 gap-6">
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <Coffee className="w-6 h-6 text-white" />
+              <div className="flex flex-col md:flex-row items-center gap-8">
+                <div className="flex-1 text-left">
+                  <h3 className="text-xl font-semibold text-foreground mb-4">Scan & Connect</h3>
+                  <p className="text-muted-foreground mb-6">
+                    A sleek, physical card with QR code and NFC technology that instantly connects people to your Basker profile. 
+                    Perfect for networking events, business meetings, or casual encounters.
+                  </p>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-6 h-6 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                        <QrCode className="w-3 h-3 text-white" />
+                      </div>
+                      <span className="text-foreground">QR code scanning for instant access</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-6 h-6 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                        <Zap className="w-3 h-3 text-white" />
+                      </div>
+                      <span className="text-foreground">NFC tap technology for seamless connection</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-6 h-6 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                        <Star className="w-3 h-3 text-white" />
+                      </div>
+                      <span className="text-foreground">Premium card design with your branding</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-6 h-6 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                        <Heart className="w-3 h-3 text-white" />
+                      </div>
+                      <span className="text-foreground">Eco-friendly materials</span>
+                    </div>
                   </div>
-                  <h3 className="font-semibold text-foreground mb-2">Buy us a coffee</h3>
-                  <p className="text-sm text-muted-foreground">Support development with a small donation</p>
                 </div>
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <Heart className="w-6 h-6 text-white" />
+                <div className="flex-1">
+                  <div className="relative">
+                    <div className="w-64 h-40 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-2xl border-2 border-dashed border-primary/30 flex items-center justify-center mx-auto">
+                      <div className="text-center">
+                        <QrCode className="w-16 h-16 text-primary/50 mx-auto mb-2" />
+                        <p className="text-sm text-muted-foreground">Card Preview</p>
+                      </div>
+                    </div>
+                    <div className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                      Might be coming soon 👀
+                    </div>
                   </div>
-                  <h3 className="font-semibold text-foreground mb-2">Spread the word</h3>
-                  <p className="text-sm text-muted-foreground">Share Basker with your friends and followers</p>
-                </div>
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <Star className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="font-semibold text-foreground mb-2">Contribute</h3>
-                  <p className="text-sm text-muted-foreground">Help improve Basker with code, design, or feedback</p>
                 </div>
               </div>
             </div>
@@ -294,10 +168,7 @@ export default function Pricing() {
         {/* CTA Section */}
         <section className="py-16 px-4 bg-muted/20">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-foreground mb-4">Ready to get started?</h2>
-            <p className="text-lg text-muted-foreground mb-8">
-              Join thousands of users who have already created their decentralized link-in-bio pages
-            </p>
+            <h2 className="text-3xl font-bold text-foreground mb-8">Ready to get started?</h2>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               {isAuthenticated ? (
                 <Link href="/profile">
@@ -314,12 +185,6 @@ export default function Pricing() {
                   </Button>
                 </Link>
               )}
-              <Link href="/support">
-                <Button variant="outline" size="lg" className="w-full sm:w-auto h-12 px-8">
-                  <Coffee className="w-4 h-4 mr-2" />
-                  Support Basker
-                </Button>
-              </Link>
             </div>
           </div>
         </section>

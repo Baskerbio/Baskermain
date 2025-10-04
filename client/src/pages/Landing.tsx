@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -6,17 +6,29 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '../contexts/AuthContext';
 import { LoginScreen } from '../components/LoginScreen';
 import { VersionInfo } from '../components/VersionInfo';
-import { ArrowRight, Link as LinkIcon, Globe, Users, Zap, Menu, X, Star, Sparkles, Heart, Share2, Palette, StickyNote, Link2, Settings, Image as ImageIcon, ChevronDown, ChevronUp, CreditCard, Gift, Coffee, HelpCircle, Info } from 'lucide-react';
+import { ArrowRight, Link as LinkIcon, Globe, Users, Zap, Menu, X, Star, Sparkles, Heart, Share2, Palette, StickyNote, Link2, Settings, Image as ImageIcon, ChevronDown, ChevronUp, HelpCircle, Info, Crown } from 'lucide-react';
+import { atprotocol } from '../lib/atprotocol';
+import { createPortal } from 'react-dom';
 
 export default function Landing() {
   const { isAuthenticated, user } = useAuth();
   const [searchHandle, setSearchHandle] = useState('');
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [searchSuggestions, setSearchSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchBoxRect, setSearchBoxRect] = useState<DOMRect | null>(null);
   const [currentFeature, setCurrentFeature] = useState(0);
   const [nextFeature, setNextFeature] = useState(1);
   const [isVisible, setIsVisible] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [openFAQ, setOpenFAQ] = useState<number | null>(null);
+  const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const heroRef = useRef<HTMLDivElement>(null);
+  const featuresRef = useRef<HTMLDivElement>(null);
+  const statsRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const features = [
     {
@@ -99,6 +111,91 @@ export default function Landing() {
     return () => clearInterval(interval);
   }, [currentFeature]);
 
+  // Scroll-triggered animations
+  useEffect(() => {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setVisibleSections(prev => new Set(Array.from(prev).concat(entry.target.id)));
+        }
+      });
+    }, observerOptions);
+
+    // Observe sections
+    const sections = document.querySelectorAll('[data-section]');
+    sections.forEach(section => observer.observe(section));
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Mouse tracking for parallax effects
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({
+        x: (e.clientX / window.innerWidth) * 100,
+        y: (e.clientY / window.innerHeight) * 100
+      });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // Debounced search function
+  useEffect(() => {
+    const searchTimeout = setTimeout(async () => {
+      if (searchHandle.trim().length >= 2) {
+        setIsSearching(true);
+        try {
+          // Use the public API directly for search without authentication
+          console.log('Searching for:', searchHandle.trim());
+          const response = await fetch(`https://public.api.bsky.app/xrpc/app.bsky.actor.searchActors?term=${encodeURIComponent(searchHandle.trim())}&limit=5`);
+          const data = await response.json();
+          
+          console.log('Search response:', data);
+          
+          if (data.actors && data.actors.length > 0) {
+            const suggestions = data.actors.map((actor: any) => ({
+              did: actor.did,
+              handle: actor.handle,
+              displayName: actor.displayName || actor.handle,
+              avatar: actor.avatar,
+              description: actor.description || '',
+              followersCount: actor.followersCount || 0,
+              followsCount: actor.followsCount || 0,
+              postsCount: actor.postsCount || 0,
+            }));
+            console.log('Suggestions:', suggestions);
+            setSearchSuggestions(suggestions);
+            setShowSuggestions(true);
+            // Update position when suggestions change
+            if (searchInputRef.current) {
+              setSearchBoxRect(searchInputRef.current.getBoundingClientRect());
+            }
+          } else {
+            console.log('No actors found');
+            setSearchSuggestions([]);
+          }
+        } catch (error) {
+          console.error('Search failed:', error);
+          setSearchSuggestions([]);
+        } finally {
+          setIsSearching(false);
+        }
+      } else {
+        setSearchSuggestions([]);
+        setShowSuggestions(false);
+      }
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(searchTimeout);
+  }, [searchHandle]);
+
   const handleSearch = () => {
     if (searchHandle.trim()) {
       let handle = searchHandle.trim();
@@ -109,6 +206,12 @@ export default function Landing() {
       // Navigate to the profile
       window.location.href = `/${handle}`;
     }
+  };
+
+  const handleSuggestionClick = (suggestion: any) => {
+    setSearchHandle(suggestion.handle);
+    setShowSuggestions(false);
+    window.location.href = `/${suggestion.handle}`;
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -137,15 +240,20 @@ export default function Landing() {
             </div>
             
             {/* Desktop buttons */}
-            <div className="hidden sm:flex items-center gap-2 sm:gap-3">
-              <div className="hidden md:flex items-center gap-4">
-                <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-2 sm:gap-4">
+                <Link href="/about" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors">
                   About
                 </Link>
-                <Link href="/faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/pricing">
+                  <Button variant="outline" size="sm" className="text-sm">
+                    Pricing
+                  </Button>
+                </Link>
+                <Link href="/faq" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors">
                   FAQ
                 </Link>
-                <Link href="/info" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/info" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors">
                   Info Center
                 </Link>
               </div>
@@ -190,6 +298,12 @@ export default function Landing() {
                     <Button variant="outline" size="sm" className="w-full justify-start gap-3">
                       <Info className="w-4 h-4" />
                       About
+                    </Button>
+                  </Link>
+                  <Link href="/pricing">
+                    <Button variant="outline" size="sm" className="w-full justify-start gap-3">
+                      <Crown className="w-4 h-4" />
+                      Pricing
                     </Button>
                   </Link>
                   <Link href="/faq">
@@ -266,7 +380,7 @@ export default function Landing() {
                 Explore Other Profiles
               </h2>
               
-              {/* Search Box */}
+              {/* Search Box with Suggestions */}
               <div className="max-w-md mx-auto mb-8">
                 <div className="flex gap-2">
                   <div className="relative flex-1">
@@ -276,9 +390,51 @@ export default function Landing() {
                       value={searchHandle}
                       onChange={(e) => setSearchHandle(e.target.value)}
                       onKeyPress={handleKeyPress}
+                      onFocus={() => setShowSuggestions(searchSuggestions.length > 0)}
+                      onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                       className="pl-8"
                     />
                     <LinkIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    {isSearching && (
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                      </div>
+                    )}
+                    
+                    {/* Search Suggestions Dropdown */}
+                    {showSuggestions && searchSuggestions.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-[9999] max-h-64 overflow-y-auto">
+                        {searchSuggestions.map((suggestion, index) => (
+                          <div
+                            key={suggestion.did}
+                            onClick={() => handleSuggestionClick(suggestion)}
+                            className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors first:rounded-t-lg last:rounded-b-lg"
+                          >
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-400 to-orange-400 flex items-center justify-center flex-shrink-0">
+                              {suggestion.avatar ? (
+                                <img 
+                                  src={suggestion.avatar} 
+                                  alt={suggestion.displayName}
+                                  className="w-8 h-8 rounded-full object-cover"
+                                />
+                              ) : (
+                                <span className="text-white font-semibold text-xs">
+                                  {suggestion.displayName.charAt(0).toUpperCase()}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-semibold text-gray-900 dark:text-gray-100 truncate text-sm">
+                                {suggestion.displayName}
+                              </div>
+                              <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                @{suggestion.handle}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <Button onClick={handleSearch} className="px-6">
                     <ArrowRight className="w-4 h-4" />
@@ -347,13 +503,13 @@ export default function Landing() {
           
           <div className="flex items-center gap-3">
             <div className="hidden md:flex items-center gap-4">
-              <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="/about" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors">
                 About
               </Link>
-              <Link href="/faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="/faq" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors">
                 FAQ
               </Link>
-              <Link href="/info" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="/info" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors">
                 Info Center
               </Link>
             </div>
@@ -368,102 +524,234 @@ export default function Landing() {
 
       <main>
         {/* Hero Section */}
-        <section className="py-16 px-4 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/5"></div>
+        <section 
+          ref={heroRef}
+          id="hero"
+          data-section="hero"
+          className="relative overflow-hidden min-h-screen flex items-center"
+        >
+          {/* Warm sun-colored gradient background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50 dark:from-yellow-900/20 dark:via-orange-900/20 dark:to-red-900/20"></div>
           
-          {/* Sun Animation */}
-          <div className="absolute top-20 right-20 w-32 h-32 opacity-30">
-            {/* Sun Center */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full sun-pulse"></div>
-            
-            {/* Sun Rays */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 sun-rays">
-              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-8 bg-gradient-to-b from-yellow-300 to-transparent ray-glow"></div>
-              <div className="absolute top-1/2 right-0 transform translate-y-1/2 w-8 h-1 bg-gradient-to-l from-yellow-300 to-transparent ray-glow"></div>
-              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-8 bg-gradient-to-t from-yellow-300 to-transparent ray-glow"></div>
-              <div className="absolute top-1/2 left-0 transform -translate-y-1/2 w-8 h-1 bg-gradient-to-r from-yellow-300 to-transparent ray-glow"></div>
-              <div className="absolute top-2 left-2 w-1 h-6 bg-gradient-to-br from-yellow-300 to-transparent ray-glow transform rotate-45"></div>
-              <div className="absolute top-2 right-2 w-1 h-6 bg-gradient-to-bl from-yellow-300 to-transparent ray-glow transform -rotate-45"></div>
-              <div className="absolute bottom-2 left-2 w-1 h-6 bg-gradient-to-tr from-yellow-300 to-transparent ray-glow transform -rotate-45"></div>
-              <div className="absolute bottom-2 right-2 w-1 h-6 bg-gradient-to-tl from-yellow-300 to-transparent ray-glow transform rotate-45"></div>
-            </div>
+          {/* Sun rays background */}
+          <div className="absolute inset-0 overflow-hidden">
+            <svg className="absolute top-0 left-0 w-full h-full opacity-15 dark:opacity-8" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+              <defs>
+                <linearGradient id="sunRayGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#fbbf24" />
+                  <stop offset="50%" stopColor="#f97316" />
+                  <stop offset="100%" stopColor="#ef4444" />
+                </linearGradient>
+                <radialGradient id="sunCenter" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#fde047" />
+                  <stop offset="70%" stopColor="#fbbf24" />
+                  <stop offset="100%" stopColor="#f97316" />
+                </radialGradient>
+              </defs>
+              
+              {/* Main sun center */}
+              <circle cx="300" cy="200" r="40" fill="url(#sunCenter)" opacity="0.4" />
+              
+              {/* Animated sun rays radiating outward */}
+              <g stroke="url(#sunRayGradient)" strokeWidth="3" opacity="0.3">
+                {/* Vertical rays */}
+                <line x1="300" y1="120" x2="300" y2="80" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0s', animationDuration: '3s' }} />
+                <line x1="300" y1="280" x2="300" y2="320" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0.5s', animationDuration: '3s' }} />
+                
+                {/* Horizontal rays */}
+                <line x1="220" y1="200" x2="180" y2="200" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '1s', animationDuration: '3s' }} />
+                <line x1="380" y1="200" x2="420" y2="200" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '1.5s', animationDuration: '3s' }} />
+                
+                {/* Diagonal rays */}
+                <line x1="240" y1="140" x2="200" y2="100" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '2s', animationDuration: '3s' }} />
+                <line x1="360" y1="140" x2="400" y2="100" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0.3s', animationDuration: '3s' }} />
+                <line x1="240" y1="260" x2="200" y2="300" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '1.8s', animationDuration: '3s' }} />
+                <line x1="360" y1="260" x2="400" y2="300" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '2.3s', animationDuration: '3s' }} />
+                
+                {/* Additional rays for fuller sun */}
+                <line x1="265" y1="125" x2="245" y2="105" strokeLinecap="round" strokeWidth="2" className="animate-pulse" style={{ animationDelay: '0.8s', animationDuration: '3s' }} />
+                <line x1="335" y1="125" x2="355" y2="105" strokeLinecap="round" strokeWidth="2" className="animate-pulse" style={{ animationDelay: '2.8s', animationDuration: '3s' }} />
+                <line x1="265" y1="275" x2="245" y2="295" strokeLinecap="round" strokeWidth="2" className="animate-pulse" style={{ animationDelay: '1.3s', animationDuration: '3s' }} />
+                <line x1="335" y1="275" x2="355" y2="295" strokeLinecap="round" strokeWidth="2" className="animate-pulse" style={{ animationDelay: '0.7s', animationDuration: '3s' }} />
+              </g>
+              
+              {/* Second smaller sun */}
+              <circle cx="900" cy="600" r="25" fill="url(#sunCenter)" opacity="0.3" />
+              
+              {/* Animated rays for second sun */}
+              <g stroke="url(#sunRayGradient)" strokeWidth="2" opacity="0.2">
+                <line x1="900" y1="550" x2="900" y2="520" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '1.2s', animationDuration: '4s' }} />
+                <line x1="900" y1="650" x2="900" y2="680" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '2.7s', animationDuration: '4s' }} />
+                <line x1="850" y1="600" x2="820" y2="600" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0.9s', animationDuration: '4s' }} />
+                <line x1="950" y1="600" x2="980" y2="600" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '3.1s', animationDuration: '4s' }} />
+                <line x1="875" y1="575" x2="855" y2="555" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '2.1s', animationDuration: '4s' }} />
+                <line x1="925" y1="575" x2="945" y2="555" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0.4s', animationDuration: '4s' }} />
+                <line x1="875" y1="625" x2="855" y2="645" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '3.6s', animationDuration: '4s' }} />
+                <line x1="925" y1="625" x2="945" y2="645" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '1.7s', animationDuration: '4s' }} />
+              </g>
+            </svg>
           </div>
           
-          {/* Additional Sun Elements */}
-          <div className="absolute top-40 left-10 w-20 h-20 opacity-20">
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-gradient-to-r from-yellow-300 to-orange-300 rounded-full sun-pulse"></div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 sun-rays">
-              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-0.5 h-4 bg-yellow-300 ray-glow"></div>
-              <div className="absolute top-1/2 right-0 transform translate-y-1/2 w-4 h-0.5 bg-yellow-300 ray-glow"></div>
-              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0.5 h-4 bg-yellow-300 ray-glow"></div>
-              <div className="absolute top-1/2 left-0 transform -translate-y-1/2 w-4 h-0.5 bg-yellow-300 ray-glow"></div>
-            </div>
+          {/* Additional floating elements */}
+          <div className="absolute inset-0 opacity-5 dark:opacity-10">
+            <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-r from-orange-400 to-red-400 rounded-full blur-3xl"></div>
           </div>
-          <div className="max-w-7xl mx-auto relative">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
+          
+          {/* Simple floating particles */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-yellow-400/30 rounded-full floating-particle" style={{ animationDelay: '0s' }}></div>
+            <div className="absolute top-3/4 right-1/3 w-1 h-1 bg-orange-400/40 rounded-full floating-particle" style={{ animationDelay: '2s' }}></div>
+            <div className="absolute top-1/2 left-3/4 w-1.5 h-1.5 bg-red-400/30 rounded-full floating-particle" style={{ animationDelay: '4s' }}></div>
+            <div className="absolute top-1/3 right-1/4 w-1 h-1 bg-yellow-500/20 rounded-full floating-particle" style={{ animationDelay: '1s' }}></div>
+          </div>
+          <div className="max-w-7xl mx-auto relative px-6 lg:px-8">
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
               {/* Left Content */}
-              <div className={`space-y-8 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Sparkles className="w-4 h-4 text-primary" />
-                    <span>Powered by the AT Protocol</span>
+              <div className={`space-y-10 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                <div className="space-y-6">
+                  {/* Warm badge */}
+                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/30 dark:to-orange-900/30 border border-yellow-200/50 dark:border-yellow-800/50 transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
+                    <div className="w-2 h-2 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Powered by AT Protocol</span>
                   </div>
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
-              Your Link-in-Bio,
-                    <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"> Decentralized</span>
-            </h1>
-                  <p className="text-lg sm:text-xl text-muted-foreground max-w-xl">
-                    Create stunning link-in-bio pages with unlimited customization. 
-              Share your links, stories, and content with the world.
-            </p>
+                  
+                  {/* Modern typography */}
+                  <h1 className={`text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 dark:text-white leading-[1.1] tracking-tight transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                    Your Link-in-Bio,
+                    <span className="block bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 bg-clip-text text-transparent animate-gradient">Decentralized</span>
+                  </h1>
+                  
+                  <p className={`text-xl sm:text-2xl text-gray-600 dark:text-gray-300 max-w-2xl leading-relaxed transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                    Create stunning, personalized link-in-bio pages with unlimited customization. 
+                    Share your digital presence with the world.
+                  </p>
                 </div>
             
-            {/* Search Box */}
-                <div className="max-w-md">
-              <div className="flex gap-2">
+            {/* Modern Search Box with Suggestions */}
+                <div className={`max-w-lg transition-all duration-1000 delay-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              <div className="flex gap-3 group">
                 <div className="relative flex-1">
                   <Input
+                    ref={searchInputRef}
                     type="text"
                     placeholder="username.bsky.social"
                     value={searchHandle}
                     onChange={(e) => setSearchHandle(e.target.value)}
                     onKeyPress={handleKeyPress}
-                        className="pl-8 h-12"
+                    onFocus={() => {
+                      if (searchSuggestions.length > 0) {
+                        setShowSuggestions(true);
+                      }
+                      if (searchInputRef.current) {
+                        setSearchBoxRect(searchInputRef.current.getBoundingClientRect());
+                      }
+                    }}
+                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                    className="pl-12 h-14 text-lg border-2 border-gray-200 dark:border-gray-700 rounded-2xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm transition-all duration-300 group-hover:border-yellow-300 dark:group-hover:border-yellow-600 group-hover:shadow-xl focus:border-orange-500 dark:focus:border-orange-400"
                   />
-                  <LinkIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <LinkIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors group-hover:text-orange-500" />
+                  {isSearching && (
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                      <div className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  )}
                 </div>
-                    <Button onClick={handleSearch} className="px-6 h-12">
-                  <ArrowRight className="w-4 h-4" />
+                    <Button 
+                      onClick={handleSearch} 
+                      className="px-8 h-14 rounded-2xl bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                    >
+                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                 </Button>
               </div>
-              <p className="text-sm text-muted-foreground mt-2">
+              
+              
+              {/* Search Suggestions Dropdown - rendered as portal */}
+              {showSuggestions && searchSuggestions.length > 0 && searchBoxRect && createPortal(
+                <div 
+                  className="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl max-h-64 overflow-y-auto"
+                  style={{
+                    top: `${searchBoxRect.bottom + 8}px`,
+                    left: `${searchBoxRect.left}px`,
+                    width: `${searchBoxRect.width}px`,
+                    zIndex: 999999,
+                  }}
+                >
+                  {searchSuggestions.map((suggestion, index) => (
+                    <div
+                      key={suggestion.did}
+                      onClick={() => handleSuggestionClick(suggestion)}
+                      className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors first:rounded-t-2xl last:rounded-b-2xl"
+                    >
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-yellow-400 to-orange-400 flex items-center justify-center flex-shrink-0">
+                        {suggestion.avatar ? (
+                          <img 
+                            src={suggestion.avatar} 
+                            alt={suggestion.displayName}
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-white font-semibold text-sm">
+                            {suggestion.displayName.charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+                          {suggestion.displayName}
+                        </div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                          @{suggestion.handle}
+                        </div>
+                        {suggestion.description && (
+                          <div className="text-xs text-gray-400 dark:text-gray-500 truncate mt-1">
+                            {suggestion.description}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>,
+                document.body
+              )}
+              
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-3 transition-all duration-1000 delay-800">
                 Search for any Bluesky user's profile
               </p>
             </div>
 
-            {/* CTA Buttons */}
-                <div className="flex flex-col sm:flex-row gap-3">
+            {/* Modern CTA Buttons */}
+                <div className={`flex flex-col sm:flex-row gap-4 transition-all duration-1000 delay-900 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               <Link href="/login">
-                    <Button size="lg" className="w-full sm:w-auto h-12 px-8">
-                      <Sparkles className="w-4 h-4 mr-2" />
+                    <Button 
+                      size="lg" 
+                      className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl group"
+                    >
+                      <Sparkles className="w-5 h-5 mr-3 transition-transform group-hover:rotate-12" />
                   Create Your Profile
                 </Button>
               </Link>
-                  <Button variant="outline" size="lg" className="w-full sm:w-auto h-12 px-8">
-                    <Heart className="w-4 h-4 mr-2" />
-                    See Examples
-              </Button>
+                  <Link href="/examples">
+                    <Button 
+                      variant="outline" 
+                      size="lg" 
+                      className="w-full sm:w-auto h-14 px-10 rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm text-gray-700 dark:text-gray-300 font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-white dark:hover:bg-gray-800 group"
+                    >
+                      <Heart className="w-5 h-5 mr-3 transition-transform group-hover:scale-110" />
+                      See Examples
+                    </Button>
+                  </Link>
                 </div>
               </div>
 
-              {/* Right Content - Feature Showcase */}
+              {/* Right Content - Modern Feature Showcase */}
               <div className={`relative transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}>
                 <div className="relative">
-                  {/* Background Glow */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-3xl blur-3xl"></div>
+                  {/* Modern glassmorphism background */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 dark:from-gray-800/20 dark:to-gray-900/20 rounded-3xl backdrop-blur-xl border border-white/20 dark:border-gray-700/30 shadow-2xl"></div>
                   
                   {/* Feature Display */}
-                  <div className="relative bg-card/50 backdrop-blur-sm border border-border/50 rounded-3xl p-6 shadow-2xl">
+                  <div className="relative bg-white/10 dark:bg-gray-800/10 backdrop-blur-xl border border-white/20 dark:border-gray-700/30 rounded-3xl p-8 shadow-2xl">
                     <div className="flex items-center gap-3 mb-4">
                       <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${features[currentFeature].color} flex items-center justify-center transition-all duration-800 ease-out`}>
                         {React.createElement(features[currentFeature].icon, { className: "w-5 h-5 text-white transition-all duration-800" })}
@@ -539,51 +827,88 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* Features Showcase Section */}
-        <section className="py-20 px-4 relative">
-          {/* Background Sun Elements */}
-          <div className="absolute top-10 right-1/4 w-16 h-16 opacity-15">
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-gradient-to-r from-yellow-300 to-orange-300 rounded-full sun-pulse"></div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 sun-rays">
-              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-0.5 h-3 bg-yellow-300 ray-glow"></div>
-              <div className="absolute top-1/2 right-0 transform translate-y-1/2 w-3 h-0.5 bg-yellow-300 ray-glow"></div>
-              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0.5 h-3 bg-yellow-300 ray-glow"></div>
-              <div className="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-0.5 bg-yellow-300 ray-glow"></div>
-            </div>
+        {/* Modern Features Showcase Section */}
+        <section 
+          ref={featuresRef}
+          id="features"
+          data-section="features"
+          className="py-24 px-6 lg:px-8 relative"
+        >
+          {/* Sun rays for features section */}
+          <div className="absolute top-10 right-1/4 w-32 h-32 opacity-10">
+            <svg className="w-full h-full" viewBox="0 0 128 128">
+              <defs>
+                <radialGradient id="featureSunCenter" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#fde047" />
+                  <stop offset="70%" stopColor="#fbbf24" />
+                  <stop offset="100%" stopColor="#f97316" />
+                </radialGradient>
+              </defs>
+              <circle cx="64" cy="64" r="12" fill="url(#featureSunCenter)" />
+              <g stroke="#fbbf24" strokeWidth="2" opacity="0.6">
+                <line x1="64" y1="40" x2="64" y2="20" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0s', animationDuration: '2.5s' }} />
+                <line x1="64" y1="88" x2="64" y2="108" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0.6s', animationDuration: '2.5s' }} />
+                <line x1="40" y1="64" x2="20" y2="64" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '1.2s', animationDuration: '2.5s' }} />
+                <line x1="88" y1="64" x2="108" y2="64" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '1.8s', animationDuration: '2.5s' }} />
+                <line x1="48" y1="48" x2="32" y2="32" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0.3s', animationDuration: '2.5s' }} />
+                <line x1="80" y1="48" x2="96" y2="32" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0.9s', animationDuration: '2.5s' }} />
+                <line x1="48" y1="80" x2="32" y2="96" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '1.5s', animationDuration: '2.5s' }} />
+                <line x1="80" y1="80" x2="96" y2="96" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '2.1s', animationDuration: '2.5s' }} />
+              </g>
+            </svg>
           </div>
           
-          <div className="absolute bottom-20 left-20 w-12 h-12 opacity-10">
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full sun-pulse"></div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 sun-rays">
-              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-0.5 h-2 bg-yellow-300 ray-glow"></div>
-              <div className="absolute top-1/2 right-0 transform translate-y-1/2 w-2 h-0.5 bg-yellow-300 ray-glow"></div>
-              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0.5 h-2 bg-yellow-300 ray-glow"></div>
-              <div className="absolute top-1/2 left-0 transform -translate-y-1/2 w-2 h-0.5 bg-yellow-300 ray-glow"></div>
-            </div>
+          <div className="absolute bottom-20 left-20 w-24 h-24 opacity-5">
+            <svg className="w-full h-full" viewBox="0 0 96 96">
+              <circle cx="48" cy="48" r="8" fill="url(#featureSunCenter)" />
+              <g stroke="#f97316" strokeWidth="1.5" opacity="0.4">
+                <line x1="48" y1="32" x2="48" y2="16" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0.2s', animationDuration: '3.5s' }} />
+                <line x1="48" y1="64" x2="48" y2="80" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '1.4s', animationDuration: '3.5s' }} />
+                <line x1="32" y1="48" x2="16" y2="48" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '2.6s', animationDuration: '3.5s' }} />
+                <line x1="64" y1="48" x2="80" y2="48" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0.8s', animationDuration: '3.5s' }} />
+                <line x1="36" y1="36" x2="24" y2="24" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '1.9s', animationDuration: '3.5s' }} />
+                <line x1="60" y1="36" x2="72" y2="24" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0.5s', animationDuration: '3.5s' }} />
+                <line x1="36" y1="60" x2="24" y2="72" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '3.1s', animationDuration: '3.5s' }} />
+                <line x1="60" y1="60" x2="72" y2="72" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '1.7s', animationDuration: '3.5s' }} />
+              </g>
+            </svg>
           </div>
           
           <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
-                Everything you need for your link-in-bio
+            <div className="text-center mb-20">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/30 dark:to-orange-900/30 border border-yellow-200/50 dark:border-yellow-800/50 mb-6">
+                <div className="w-2 h-2 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full animate-pulse"></div>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Features</span>
+              </div>
+              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight tracking-tight">
+                Everything you need for your
+                <span className="block bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 bg-clip-text text-transparent">link-in-bio</span>
               </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Built on the decentralized AT Protocol, your profile is truly yours with unlimited customization
+              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                Built on the decentralized AT Protocol, your profile is truly yours with unlimited customization and modern design tools
               </p>
             </div>
 
-            {/* Feature Grid */}
+            {/* Modern Feature Grid */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {features.map((feature, index) => (
-                <Card key={index} className="group hover:shadow-xl transition-all duration-300 border-border/50 hover:border-primary/30">
-                <CardContent className="p-6">
-                    <div className="space-y-4">
-                      {/* Feature Image */}
-                      <div className="relative rounded-xl overflow-hidden bg-muted/20 group-hover:bg-muted/30 transition-colors">
+                <Card 
+                  key={index} 
+                  className={`group hover:shadow-2xl transition-all duration-500 bg-white/50 dark:bg-gray-800/50 backdrop-blur-xl border border-white/20 dark:border-gray-700/30 hover:border-yellow-300/50 dark:hover:border-yellow-600/50 hover:-translate-y-3 ${
+                    visibleSections.has('features') 
+                      ? 'opacity-100 translate-y-0' 
+                      : 'opacity-0 translate-y-8'
+                  }`}
+                  style={{ transitionDelay: `${index * 150}ms` }}
+                >
+                <CardContent className="p-8">
+                    <div className="space-y-6">
+                      {/* Modern Feature Image */}
+                        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 group-hover:from-yellow-50 dark:group-hover:from-yellow-900/20 transition-all duration-500">
                         <img 
                           src={feature.image} 
                           alt={feature.title}
-                          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                           onError={(e) => {
                             console.error('Image failed to load:', feature.image, e);
                             e.currentTarget.style.display = 'none';
@@ -592,18 +917,18 @@ export default function Landing() {
                             console.log('Image loaded successfully:', feature.image);
                           }}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div className={`absolute top-4 left-4 w-10 h-10 rounded-xl bg-gradient-to-r ${feature.color} flex items-center justify-center shadow-lg`}>
-                          {React.createElement(feature.icon, { className: "w-5 h-5 text-white" })}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div className={`absolute top-6 left-6 w-12 h-12 rounded-2xl bg-gradient-to-r ${feature.color} flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
+                          {React.createElement(feature.icon, { className: "w-6 h-6 text-white" })}
                         </div>
                   </div>
                       
-                      {/* Feature Content */}
-                      <div className="space-y-2">
-                        <h3 className="text-xl font-semibold text-foreground group-hover:text-primary transition-colors">
+                      {/* Modern Feature Content */}
+                      <div className="space-y-3">
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-300">
                           {feature.title}
                         </h3>
-                        <p className="text-muted-foreground text-sm leading-relaxed">
+                        <p className="text-gray-600 dark:text-gray-300 leading-relaxed group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors duration-300">
                           {feature.description}
                         </p>
                       </div>
@@ -613,36 +938,36 @@ export default function Landing() {
               ))}
             </div>
 
-            {/* Additional Features */}
-            <div className="mt-16 grid md:grid-cols-3 gap-8">
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto">
-                  <Globe className="w-8 h-8 text-white" />
-                  </div>
-                <h3 className="text-xl font-semibold text-foreground">Public Profiles</h3>
-                <p className="text-muted-foreground text-sm">
-                    Your profile is accessible at a clean URL that you can share anywhere. No platform lock-in.
-                  </p>
+            {/* Modern Additional Features */}
+            <div className="mt-24 grid md:grid-cols-3 gap-8">
+              <div className="text-center space-y-6 group">
+                <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-3xl flex items-center justify-center mx-auto shadow-xl group-hover:scale-110 transition-transform duration-300">
+                  <Globe className="w-10 h-10 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Public Profiles</h3>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                  Your profile is accessible at a clean URL that you can share anywhere. No platform lock-in, complete freedom.
+                </p>
               </div>
 
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto">
-                  <Zap className="w-8 h-8 text-white" />
+              <div className="text-center space-y-6 group">
+                <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-3xl flex items-center justify-center mx-auto shadow-xl group-hover:scale-110 transition-transform duration-300">
+                  <Zap className="w-10 h-10 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold text-foreground">Decentralized</h3>
-                <p className="text-muted-foreground text-sm">
-                  Powered by the AT Protocol. Your data belongs to you and works across the entire network.
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">Decentralized</h3>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                  Powered by the AT Protocol. Your data belongs to you and works across the entire network seamlessly.
                 </p>
-                  </div>
+              </div>
 
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto">
-                  <Share2 className="w-8 h-8 text-white" />
-                    </div>
-                <h3 className="text-xl font-semibold text-foreground">Easy Sharing</h3>
-                <p className="text-muted-foreground text-sm">
-                  Share your profile anywhere with a simple link. Works on all platforms and devices.
-                  </p>
+              <div className="text-center space-y-6 group">
+                <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto shadow-xl group-hover:scale-110 transition-transform duration-300">
+                  <Share2 className="w-10 h-10 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Easy Sharing</h3>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                  Share your profile anywhere with a simple link. Works on all platforms and devices effortlessly.
+                </p>
               </div>
             </div>
           </div>
@@ -729,10 +1054,12 @@ export default function Landing() {
                       Create Your Profile
                     </Button>
                   </Link>
-                  <Button variant="outline" size="lg" className="w-full sm:w-auto h-12 px-8">
-                    <Heart className="w-4 h-4 mr-2" />
-                    See Examples
-                  </Button>
+                  <Link href="/examples">
+                    <Button variant="outline" size="lg" className="w-full sm:w-auto h-12 px-8">
+                      <Heart className="w-4 h-4 mr-2" />
+                      See Examples
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -743,20 +1070,6 @@ export default function Landing() {
         <section className="py-20 px-4 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/5"></div>
           
-          {/* Large Background Sun */}
-          <div className="absolute top-1/2 right-10 transform -translate-y-1/2 w-40 h-40 opacity-5">
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full sun-pulse"></div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 sun-rays">
-              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-10 bg-gradient-to-b from-yellow-300 to-transparent ray-glow"></div>
-              <div className="absolute top-1/2 right-0 transform translate-y-1/2 w-10 h-1 bg-gradient-to-l from-yellow-300 to-transparent ray-glow"></div>
-              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-10 bg-gradient-to-t from-yellow-300 to-transparent ray-glow"></div>
-              <div className="absolute top-1/2 left-0 transform -translate-y-1/2 w-10 h-1 bg-gradient-to-r from-yellow-300 to-transparent ray-glow"></div>
-              <div className="absolute top-3 left-3 w-1 h-8 bg-gradient-to-br from-yellow-300 to-transparent ray-glow transform rotate-45"></div>
-              <div className="absolute top-3 right-3 w-1 h-8 bg-gradient-to-bl from-yellow-300 to-transparent ray-glow transform -rotate-45"></div>
-              <div className="absolute bottom-3 left-3 w-1 h-8 bg-gradient-to-tr from-yellow-300 to-transparent ray-glow transform -rotate-45"></div>
-              <div className="absolute bottom-3 right-3 w-1 h-8 bg-gradient-to-tl from-yellow-300 to-transparent ray-glow transform rotate-45"></div>
-            </div>
-          </div>
           <div className="max-w-6xl mx-auto relative">
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
@@ -934,148 +1247,6 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* Pricing & Supporter Section */}
-        <section className="py-20 px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
-                Support Basker
-              </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Help us build the future of decentralized link-in-bio pages
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* Supporter Plan */}
-              <Card className="relative border-2 border-primary/20 hover:border-primary/40 transition-all duration-300">
-                <div className="absolute top-4 right-4">
-                  <div className="bg-primary text-primary-foreground text-xs font-medium px-2 py-1 rounded-full">
-                    Coming Soon
-                  </div>
-                </div>
-                <CardContent className="p-8">
-                  <div className="text-center mb-6">
-                    <div className="w-16 h-16 bg-gradient-to-r from-primary to-secondary rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <Gift className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-foreground mb-2">Supporter</h3>
-                    <div className="text-4xl font-bold text-primary mb-2">$3.99</div>
-                    <p className="text-muted-foreground">per month</p>
-                  </div>
-
-                  <div className="space-y-4 mb-8">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span className="text-foreground">Advanced themes and customization</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span className="text-foreground">Analytics and insights</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span className="text-foreground">Priority support</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span className="text-foreground">Early access to new features</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span className="text-foreground">Supporter badge on your profile</span>
-                    </div>
-                  </div>
-
-                  <Button 
-                    className="w-full h-12" 
-                    disabled
-                    variant="outline"
-                  >
-                    <CreditCard className="w-4 h-4 mr-2" />
-                    Coming Soon
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Donation Section */}
-              <Card className="border-border/50">
-                <CardContent className="p-8">
-                  <div className="text-center mb-6">
-                    <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <Coffee className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-foreground mb-2">Support Development</h3>
-                    <p className="text-muted-foreground">
-                      Help us keep Basker free and open source
-                    </p>
-                  </div>
-
-                  <div className="space-y-4 mb-8">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                      <span className="text-foreground">Fund server costs and development</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                      <span className="text-foreground">Support open source initiatives</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                      <span className="text-foreground">Help us build new features</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                      <span className="text-foreground">Keep Basker accessible to everyone</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <Button className="w-full h-12" variant="outline">
-                      <Coffee className="w-4 h-4 mr-2" />
-                      Buy us a coffee
-                    </Button>
-                    <Button className="w-full h-12" variant="outline">
-                      <Heart className="w-4 h-4 mr-2" />
-                      Donate via PayPal
-                    </Button>
-                    <Button className="w-full h-12" variant="outline">
-                      <CreditCard className="w-4 h-4 mr-2" />
-                      One-time donation
-                    </Button>
-                  </div>
-
-                  <div className="mt-6 text-center">
-                    <p className="text-sm text-muted-foreground">
-                      Every contribution helps us improve Basker for everyone
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="text-center mt-12">
-              <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-8 max-w-2xl mx-auto">
-                <h3 className="text-xl font-semibold text-foreground mb-4">
-                  Join our community
-                </h3>
-                <p className="text-muted-foreground mb-6">
-                  Get updates, share feedback, and connect with other Basker users
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <Button variant="outline" className="h-12 px-6">
-                    <Globe className="w-4 h-4 mr-2" />
-                    Join Discord
-                  </Button>
-                  <Button variant="outline" className="h-12 px-6">
-                    <Share2 className="w-4 h-4 mr-2" />
-                    Follow on Bluesky
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
 
       {/* Footer */}
@@ -1107,7 +1278,7 @@ export default function Landing() {
         </div>
       </footer>
 
-      {/* Custom CSS for smooth crossfade animations and sun effects */}
+      {/* Enhanced CSS for smooth animations and effects */}
       <style>{`
         .feature-image {
           transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -1157,44 +1328,94 @@ export default function Landing() {
           }
         }
         
-        .sun-rays {
-          animation: sunRays 20s linear infinite;
+        @keyframes floatingParticle {
+          0%, 100% {
+            transform: translateY(0px) translateX(0px);
+            opacity: 0.3;
+          }
+          25% {
+            transform: translateY(-20px) translateX(10px);
+            opacity: 0.6;
+          }
+          50% {
+            transform: translateY(-10px) translateX(-5px);
+            opacity: 0.4;
+          }
+          75% {
+            transform: translateY(-30px) translateX(15px);
+            opacity: 0.7;
+          }
         }
         
-        .sun-pulse {
-          animation: sunPulse 4s ease-in-out infinite;
+        @keyframes gradientShift {
+          0%, 100% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
         }
         
-        .ray-glow {
-          animation: rayGlow 3s ease-in-out infinite;
+        @keyframes floatUp {
+          0% {
+            transform: translateY(20px);
+            opacity: 0;
+          }
+          100% {
+            transform: translateY(0);
+            opacity: 1;
+          }
         }
         
-        .ray-glow:nth-child(2) {
-          animation-delay: 0.5s;
+        
+        .floating-particle {
+          animation: floatingParticle 8s ease-in-out infinite;
         }
         
-        .ray-glow:nth-child(3) {
-          animation-delay: 1s;
+        .floating-element {
+          transition: transform 0.3s ease-out;
         }
         
-        .ray-glow:nth-child(4) {
-          animation-delay: 1.5s;
+        .animate-gradient {
+          background-size: 200% 200%;
+          animation: gradientShift 3s ease infinite;
         }
         
-        .ray-glow:nth-child(5) {
-          animation-delay: 2s;
+        
+        /* Smooth scroll behavior */
+        html {
+          scroll-behavior: smooth;
         }
         
-        .ray-glow:nth-child(6) {
-          animation-delay: 2.5s;
+        /* Enhanced hover effects */
+        .group:hover .group-hover\\:scale-110 {
+          transform: scale(1.1);
         }
         
-        .ray-glow:nth-child(7) {
-          animation-delay: 3s;
+        .group:hover .group-hover\\:rotate-12 {
+          transform: rotate(12deg);
         }
         
-        .ray-glow:nth-child(8) {
-          animation-delay: 3.5s;
+        .group:hover .group-hover\\:translate-x-1 {
+          transform: translateX(4px);
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+          width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+          background: hsl(var(--muted));
+        }
+        
+        ::-webkit-scrollbar-thumb {
+          background: hsl(var(--primary));
+          border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+          background: hsl(var(--primary) / 0.8);
         }
       `}</style>
     </div>

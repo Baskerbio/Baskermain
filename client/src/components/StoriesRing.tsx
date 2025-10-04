@@ -274,7 +274,7 @@ export function StoriesRing({ profile, isEditMode = false, isOwnProfile = false,
       </style>
       <div className="relative inline-block -mb-8 w-48 h-48 flex items-center justify-center" data-component-id={componentId}>
         {/* Avatar */}
-        <Avatar className="w-24 h-24 border-4 border-primary absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+        <Avatar className="w-24 h-24 border-4 border-white dark:border-gray-900 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
           <AvatarImage 
             src={effectiveSettings?.customAvatar || profile.avatar} 
             alt={profile.displayName || profile.handle}

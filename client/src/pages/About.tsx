@@ -25,6 +25,20 @@ export default function About() {
           </div>
           
           <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                About
+              </Link>
+              <Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Pricing
+              </Link>
+              <Link href="/faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                FAQ
+              </Link>
+              <Link href="/info" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Info Center
+              </Link>
+            </div>
             <Link href="/">
               <Button variant="outline" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />

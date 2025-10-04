@@ -18,6 +18,7 @@ import InfoCenter from "@/pages/InfoCenter";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfService from "@/pages/TermsOfService";
 import EULA from "@/pages/EULA";
+import Examples from "@/pages/Examples";
 import { LoginScreen } from "@/components/LoginScreen";
 import ModerationPanel from "@/pages/ModerationPanel";
 
@@ -35,6 +36,7 @@ function Router() {
       <Route path="/privacy" component={PrivacyPolicy} />
       <Route path="/terms" component={TermsOfService} />
       <Route path="/eula" component={EULA} />
+      <Route path="/examples" component={Examples} />
       <Route path="/moderation" component={ModerationPanel} />
       <Route path="/:handle" component={PublicProfilePage} />
       <Route component={NotFound} />

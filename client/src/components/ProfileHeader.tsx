@@ -103,7 +103,76 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
 
   return (
     <div className="text-center mb-8 fade-in" data-testid="profile-header">
-      <div className="relative inline-block mb-0">
+      {/* Banner Section */}
+      {effectiveSettings?.showBanner !== false && (
+        <div className="relative mb-6 mx-4 sm:mx-6 md:mx-8 lg:mx-12 xl:mx-16 2xl:mx-24">
+          <div className="relative h-24 sm:h-28 md:h-32 lg:h-36 bg-gradient-to-r from-yellow-400 to-orange-500 overflow-hidden rounded-xl">
+            {profile.banner && (
+              <img 
+                src={profile.banner} 
+                alt="Profile banner" 
+                className="w-full h-full object-cover rounded-xl"
+                data-testid="img-banner"
+              />
+            )}
+            {isEditMode && isOwnProfile && (
+              <div className="absolute top-2 right-2 flex gap-2">
+                <Button
+                  size="sm"
+                  onClick={() => setShowImageUpload(true)}
+                  className="bg-black/50 hover:bg-black/70 text-white"
+                  data-testid="button-upload-banner"
+                >
+                  <Camera className="w-4 h-4 mr-2" />
+                  Banner
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    if (ownSettings) {
+                      const updatedSettings = {
+                        ...ownSettings,
+                        showBanner: false,
+                      };
+                      saveSettings(updatedSettings);
+                    }
+                  }}
+                  className="bg-black/50 hover:bg-black/70 text-white"
+                  data-testid="button-hide-banner"
+                >
+                  Hide
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      
+      {/* Show banner button when hidden */}
+      {effectiveSettings?.showBanner === false && isEditMode && isOwnProfile && (
+        <div className="mb-6">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              if (ownSettings) {
+                const updatedSettings = {
+                  ...ownSettings,
+                  showBanner: true,
+                };
+                saveSettings(updatedSettings);
+              }
+            }}
+            className="mx-auto"
+            data-testid="button-show-banner"
+          >
+            <Camera className="w-4 h-4 mr-2" />
+            Show Banner
+          </Button>
+        </div>
+      )}
+      
+      <div className="relative inline-block mb-0 -mt-16">
         {(effectiveSettings === null || effectiveSettings?.showStories !== false) && (
           targetDid ? (
             <PublicStoriesRing 
