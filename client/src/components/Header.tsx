@@ -28,10 +28,8 @@ export function Header() {
             <Link href="/about" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors">
               About
             </Link>
-            <Link href="/pricing">
-              <Button variant="outline" size="sm" className="text-sm">
-                Pricing
-              </Button>
+            <Link href="/pricing" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors">
+              Pricing
             </Link>
             <Link href="/faq" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors">
               FAQ
