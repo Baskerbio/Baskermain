@@ -624,6 +624,8 @@ function PublicWidgets({ did }: { did: string }) {
         return <PublicHeatMapWidget config={config} />;
       case 'work_history':
         return <WorkHistoryWidget isPublic={true} targetDid={did} />;
+      case 'product_showcase':
+        return <PublicProductShowcaseWidget config={config} />;
       default:
         return <div className="p-4 bg-muted rounded-lg">Unknown widget type: {widget.type}</div>;
     }
@@ -1502,6 +1504,92 @@ function PublicHeatMapWidget({ config }: { config: any }) {
         <p className="text-sm text-muted-foreground">
           Analytics data is only visible to the profile owner
         </p>
+      </div>
+    </div>
+  );
+}
+
+function PublicProductShowcaseWidget({ config }: { config: any }) {
+  const products = config.products || [];
+  
+  if (products.length === 0) {
+    return (
+      <div className="space-y-4">
+        <h3 className="font-semibold text-lg">{config.title || 'Products'}</h3>
+        <div className="text-center p-4 bg-muted/50 rounded-lg">
+          <p className="text-sm text-muted-foreground">
+            No products available
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <h3 className="font-semibold text-lg">{config.title || 'Products'}</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {products.map((product: any, index: number) => (
+          <div key={index} className="bg-card border rounded-lg p-4 hover:shadow-md transition-shadow">
+            {product.imageUrl && (
+              <div className="aspect-square mb-3 rounded-lg overflow-hidden">
+                <img 
+                  src={product.imageUrl} 
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            
+            <div className="space-y-2">
+              <div className="flex items-start justify-between">
+                <h4 className="font-medium text-sm">{product.name}</h4>
+                {product.featured && (
+                  <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">Featured</span>
+                )}
+              </div>
+              
+              {product.description && (
+                <p className="text-xs text-muted-foreground line-clamp-2">
+                  {product.description}
+                </p>
+              )}
+              
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {product.price && (
+                    <span className="font-semibold text-sm">
+                      {product.currency || '$'}{product.price}
+                    </span>
+                  )}
+                  {product.originalPrice && product.originalPrice > product.price && (
+                    <span className="text-xs text-muted-foreground line-through">
+                      {product.currency || '$'}{product.originalPrice}
+                    </span>
+                  )}
+                </div>
+                
+                {product.rating && (
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs">⭐</span>
+                    <span className="text-xs">{product.rating}</span>
+                  </div>
+                )}
+              </div>
+              
+              {product.platformUrl && (
+                <a
+                  href={product.platformUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full mt-3 bg-primary text-primary-foreground text-center py-2 px-4 rounded-md text-sm hover:bg-primary/90 transition-colors"
+                >
+                  {product.isAvailable ? 'View Product' : 'Coming Soon'}
+                </a>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

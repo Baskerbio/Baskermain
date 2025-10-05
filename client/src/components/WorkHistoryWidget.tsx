@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useWorkHistory, useCompanies, useSaveWorkHistory, useSaveCompanies, useCompanySearch, usePublicWorkHistory } from '../hooks/use-atprotocol';
 import { atprotocol } from '../lib/atprotocol';
 import { useEditMode } from './EditModeProvider';
-import { Plus, Edit, Trash2, Building2, Calendar, MapPin, Briefcase, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { Plus, Edit, Trash2, Building2, Calendar, MapPin, Briefcase, CheckCircle, Clock, AlertCircle, ChevronDown, ChevronUp, GripVertical } from 'lucide-react';
 import { WorkHistory, Company } from '@shared/schema';
 import { useToast } from '@/hooks/use-toast';
 
@@ -26,6 +26,8 @@ export function WorkHistoryWidget({ isPublic = false, targetDid }: WorkHistoryWi
   const [editingWorkHistory, setEditingWorkHistory] = useState<WorkHistory | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [draggedItem, setDraggedItem] = useState<string | null>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -35,7 +37,7 @@ export function WorkHistoryWidget({ isPublic = false, targetDid }: WorkHistoryWi
     endDate: '',
     isCurrent: false,
     location: '',
-    employmentType: 'full-time' as const,
+    employmentType: 'full-time' as 'full-time' | 'part-time' | 'contract' | 'internship' | 'freelance',
     companyId: '',
   });
 
@@ -49,6 +51,33 @@ export function WorkHistoryWidget({ isPublic = false, targetDid }: WorkHistoryWi
 
   // Use appropriate work history data
   const effectiveWorkHistory = isPublic ? publicWorkHistory : workHistory;
+  
+  // Sort work history by date (most recent first)
+  const sortedWorkHistory = useMemo(() => {
+    return [...effectiveWorkHistory].sort((a, b) => {
+      // For current jobs, use start date
+      if (a.isCurrent && !b.isCurrent) return -1;
+      if (!a.isCurrent && b.isCurrent) return 1;
+      
+      // For non-current jobs, use end date
+      if (!a.isCurrent && !b.isCurrent) {
+        const aEndDate = new Date(a.endDate || '');
+        const bEndDate = new Date(b.endDate || '');
+        return bEndDate.getTime() - aEndDate.getTime();
+      }
+      
+      // For current jobs, use start date
+      const aStartDate = new Date(a.startDate);
+      const bStartDate = new Date(b.startDate);
+      return bStartDate.getTime() - aStartDate.getTime();
+    });
+  }, [effectiveWorkHistory]);
+
+  // Determine if we should show collapse functionality
+  const shouldShowCollapse = sortedWorkHistory.length > 3;
+  const displayWorkHistory = isCollapsed && shouldShowCollapse 
+    ? sortedWorkHistory.slice(0, 2) 
+    : sortedWorkHistory;
   
   console.log('🔍 WorkHistoryWidget render - isPublic:', isPublic, 'targetDid:', targetDid);
   console.log('🔍 WorkHistoryWidget - workHistory length:', workHistory.length);
@@ -164,11 +193,11 @@ export function WorkHistoryWidget({ isPublic = false, targetDid }: WorkHistoryWi
       endDate: workHistoryItem.endDate || '',
       isCurrent: workHistoryItem.isCurrent,
       location: workHistoryItem.location || '',
-      employmentType: workHistoryItem.employmentType,
+      employmentType: workHistoryItem.employmentType as 'full-time' | 'part-time' | 'contract' | 'internship' | 'freelance',
       companyId: workHistoryItem.companyId,
     });
     
-    const company = companies.find(c => c.id === workHistoryItem.companyId);
+    const company = companies.find((c: Company) => c.id === workHistoryItem.companyId);
     setSelectedCompany(company || null);
     
     setIsDialogOpen(true);
@@ -183,7 +212,7 @@ export function WorkHistoryWidget({ isPublic = false, targetDid }: WorkHistoryWi
     console.log('Company selected:', company, 'companyId:', companyId);
     
     // Save the company to the companies list if it's not already there
-    const existingCompany = companies.find((c: any) => c.id === companyId || c.did === companyId);
+    const existingCompany = companies.find((c: Company) => c.id === companyId || (c as any).did === companyId);
     if (!existingCompany) {
       console.log('Saving new company to companies list:', company);
       const newCompany = {
@@ -192,6 +221,58 @@ export function WorkHistoryWidget({ isPublic = false, targetDid }: WorkHistoryWi
       };
       saveCompanies([...companies, newCompany]);
     }
+  };
+
+  // Drag and drop handlers
+  const handleDragStart = (e: React.DragEvent, itemId: string) => {
+    setDraggedItem(itemId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    
+    if (!draggedItem || draggedItem === targetId) {
+      setDraggedItem(null);
+      return;
+    }
+
+    const draggedIndex = sortedWorkHistory.findIndex(item => item.id === draggedItem);
+    const targetIndex = sortedWorkHistory.findIndex(item => item.id === targetId);
+    
+    if (draggedIndex === -1 || targetIndex === -1) {
+      setDraggedItem(null);
+      return;
+    }
+
+    // Create new array with reordered items
+    const newWorkHistory = [...sortedWorkHistory];
+    const [draggedItemData] = newWorkHistory.splice(draggedIndex, 1);
+    newWorkHistory.splice(targetIndex, 0, draggedItemData);
+
+    // Save the new order
+    saveWorkHistory(newWorkHistory, {
+      onSuccess: () => {
+        toast({
+          title: 'Success',
+          description: 'Work history order updated',
+        });
+      },
+      onError: () => {
+        toast({
+          title: 'Error',
+          description: 'Failed to update work history order',
+          variant: 'destructive',
+        });
+      },
+    });
+
+    setDraggedItem(null);
   };
 
   const getCompanyName = (companyId: string, workHistoryItem?: any) => {
@@ -234,17 +315,39 @@ export function WorkHistoryWidget({ isPublic = false, targetDid }: WorkHistoryWi
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Briefcase className="w-5 h-5" />
-            Work History
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Briefcase className="w-5 h-5" />
+              Work History
+            </div>
+            {shouldShowCollapse && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                {isCollapsed ? (
+                  <>
+                    <ChevronDown className="w-4 h-4 mr-1" />
+                    Show All ({sortedWorkHistory.length})
+                  </>
+                ) : (
+                  <>
+                    <ChevronUp className="w-4 h-4 mr-1" />
+                    Show Less
+                  </>
+                )}
+              </Button>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {effectiveWorkHistory.length === 0 ? (
+          {sortedWorkHistory.length === 0 ? (
             <p className="text-muted-foreground text-center py-4">No work history available</p>
           ) : (
             <div className="space-y-4">
-              {effectiveWorkHistory.map((item) => (
+              {displayWorkHistory.map((item) => (
                 <div key={item.id} className="flex items-start gap-3 p-3 border rounded-lg">
                   <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
                     {getCompanyLogo(item.companyId) ? (
@@ -290,15 +393,53 @@ export function WorkHistoryWidget({ isPublic = false, targetDid }: WorkHistoryWi
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Briefcase className="w-5 h-5" />
-          Work History
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Briefcase className="w-5 h-5" />
+            Work History
+          </div>
+          {shouldShowCollapse && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              {isCollapsed ? (
+                <>
+                  <ChevronDown className="w-4 h-4 mr-1" />
+                  Show All ({sortedWorkHistory.length})
+                </>
+              ) : (
+                <>
+                  <ChevronUp className="w-4 h-4 mr-1" />
+                  Show Less
+                </>
+              )}
+            </Button>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {effectiveWorkHistory.map((item) => (
-            <div key={item.id} className="flex items-start gap-3 p-3 border rounded-lg">
+          {displayWorkHistory.map((item, index) => (
+            <div 
+              key={item.id} 
+              className={`flex items-start gap-3 p-3 border rounded-lg transition-all duration-200 ${
+                draggedItem === item.id ? 'opacity-50 scale-95' : ''
+              }`}
+              draggable={isEditMode}
+              onDragStart={(e) => handleDragStart(e, item.id)}
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, item.id)}
+            >
+              {/* Drag handle */}
+              {isEditMode && (
+                <div className="flex items-center justify-center w-6 h-6 text-muted-foreground hover:text-foreground cursor-move">
+                  <GripVertical className="w-4 h-4" />
+                </div>
+              )}
+              
               <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
                 {getCompanyLogo(item.companyId) ? (
                   <img 
@@ -313,6 +454,11 @@ export function WorkHistoryWidget({ isPublic = false, targetDid }: WorkHistoryWi
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <h3 className="font-semibold text-sm">{item.position}</h3>
+                  {index < 2 && (
+                    <Badge variant="secondary" className="text-xs">
+                      {index === 0 ? 'Current' : 'Recent'}
+                    </Badge>
+                  )}
                 </div>
                 <p className="text-sm text-muted-foreground mb-1">{getCompanyName(item.companyId, item)}</p>
                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
@@ -373,15 +519,15 @@ export function WorkHistoryWidget({ isPublic = false, targetDid }: WorkHistoryWi
                     <div className="space-y-2">
                       {selectedCompany && (
                         <div className="p-3 border rounded-lg bg-muted/50 flex items-center gap-3">
-                          {(selectedCompany.logo || selectedCompany.avatar) && (
+                          {selectedCompany.logo && (
                             <img 
-                              src={selectedCompany.logo || selectedCompany.avatar} 
-                              alt={selectedCompany.displayName || selectedCompany.name || 'Company'} 
+                              src={selectedCompany.logo} 
+                              alt={selectedCompany.name || 'Company'} 
                               className="w-8 h-8 rounded-full object-cover" 
                             />
                           )}
                           <div className="flex-1">
-                            <p className="font-medium">{selectedCompany.displayName || selectedCompany.name}</p>
+                            <p className="font-medium">{selectedCompany.name}</p>
                             {selectedCompany.handle && (
                               <p className="text-sm text-muted-foreground">@{selectedCompany.handle}</p>
                             )}
@@ -415,15 +561,15 @@ export function WorkHistoryWidget({ isPublic = false, targetDid }: WorkHistoryWi
                                   className="p-2 hover:bg-muted cursor-pointer flex items-center gap-2"
                                   onClick={() => handleSelectCompany(company)}
                                 >
-                                  {(company.logo || company.avatar) && (
+                                  {company.logo && (
                                     <img 
-                                      src={company.logo || company.avatar} 
-                                      alt={company.displayName || company.name || 'Company'} 
+                                      src={company.logo} 
+                                      alt={company.name || 'Company'} 
                                       className="w-6 h-6 rounded-full object-cover" 
                                     />
                                   )}
                                   <div>
-                                    <p className="font-medium">{company.displayName || company.name}</p>
+                                    <p className="font-medium">{company.name}</p>
                                     {company.handle && (
                                       <p className="text-sm text-muted-foreground">@{company.handle}</p>
                                     )}

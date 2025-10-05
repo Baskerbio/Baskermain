@@ -17,7 +17,7 @@ import { HeatMapWidget } from './widgets/HeatMapWidget';
 import PortfolioGalleryWidget from './widgets/PortfolioGalleryWidget';
 import ProductShowcaseWidget from './widgets/ProductShowcaseWidget';
 import { WorkHistoryWidget } from './WorkHistoryWidget';
-import { Plus, Settings, Trash2, Clock, Code, Users, Cloud, Quote, TrendingUp, Calendar, Music, Heart, Mail, Youtube, Type, Image, BarChart3, Megaphone, X, CheckSquare, Timer, QrCode, Share2, Star, DollarSign, Bell, FileText, Maximize2, Minimize2, MessageCircle, ShoppingBag, Briefcase } from 'lucide-react';
+import { Plus, Settings, Trash2, Clock, Code, Users, Cloud, Quote, TrendingUp, Calendar, Music, Heart, Mail, Youtube, Type, Image, BarChart3, Megaphone, X, CheckSquare, Timer, QrCode, Share2, Star, DollarSign, Bell, FileText, Maximize2, Minimize2, MessageCircle, ShoppingBag, Briefcase, ExternalLink } from 'lucide-react';
 
 interface WidgetsProps {
   isEditMode: boolean;
@@ -132,9 +132,28 @@ export function Widgets({ isEditMode }: WidgetsProps) {
       case 'custom_code':
         return { html: '', css: '', js: '' };
       case 'social_badge':
-        return { platform: 'twitter', username: '', showCount: true };
+        return { 
+          platform: 'twitter', 
+          username: '', 
+          showCount: true,
+          showIcon: true,
+          customColor: '',
+          backgroundColor: '',
+          size: 'md',
+          style: 'rounded',
+          links: []
+        };
       case 'weather':
-        return { location: '', unit: 'celsius' };
+        return { 
+          location: '', 
+          unit: 'celsius',
+          apiKey: '',
+          apiProvider: 'openweather',
+          showDetails: true,
+          showForecast: false,
+          updateInterval: 15,
+          theme: 'auto'
+        };
       case 'quote':
         return { text: '', author: '', style: 'modern' };
       case 'counter':
@@ -227,7 +246,18 @@ export function Widgets({ isEditMode }: WidgetsProps) {
           title: 'Products',
           showPrices: true,
           showCategories: true,
-          itemsPerRow: 3
+          showStock: true,
+          showRatings: true,
+          showDiscounts: true,
+          itemsPerRow: 3,
+          layout: 'grid',
+          sortBy: 'featured',
+          sortOrder: 'desc',
+          filterByCategory: true,
+          showFilters: true,
+          enableAffiliate: true,
+          showPlatform: true,
+          products: []
         };
       case 'work_history':
         return {
@@ -305,7 +335,7 @@ export function Widgets({ isEditMode }: WidgetsProps) {
       case 'portfolio_gallery':
         return <PortfolioGalleryWidget config={config} onConfigChange={(newConfig) => handleUpdateWidget({ ...widget, config: newConfig })} />;
       case 'product_showcase':
-        return <ProductShowcaseWidget config={config} onConfigChange={(newConfig) => handleUpdateWidget({ ...widget, config: newConfig })} />;
+        return <ProductShowcaseWidget config={config} isEditMode={isEditMode} onConfigChange={(newConfig) => handleUpdateWidget({ ...widget, config: newConfig })} />;
       case 'work_history':
         return <WorkHistoryWidget />;
       default:
@@ -521,33 +551,277 @@ function CustomCodeWidget({ config }: { config: any }) {
 }
 
 function SocialBadgeWidget({ config }: { config: any }) {
+  const platformIcons = {
+    twitter: '🐦',
+    instagram: '📷',
+    youtube: '📺',
+    linkedin: '💼',
+    github: '💻',
+    facebook: '👥',
+    tiktok: '🎵',
+    discord: '💬',
+    twitch: '🎮',
+    spotify: '🎵',
+    custom: '🔗'
+  };
+
+  const platformColors = {
+    twitter: 'bg-blue-500',
+    instagram: 'bg-pink-500',
+    youtube: 'bg-red-500',
+    linkedin: 'bg-blue-600',
+    github: 'bg-gray-800',
+    facebook: 'bg-blue-700',
+    tiktok: 'bg-black',
+    discord: 'bg-indigo-600',
+    twitch: 'bg-purple-600',
+    spotify: 'bg-green-500',
+    custom: 'bg-gray-500'
+  };
+
+  const sizeClasses = {
+    sm: 'w-6 h-6 text-xs',
+    md: 'w-8 h-8 text-sm',
+    lg: 'w-10 h-10 text-base'
+  };
+
+  const styleClasses = {
+    rounded: 'rounded-lg',
+    square: 'rounded-none',
+    pill: 'rounded-full'
+  };
+
   return (
-    <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-      <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-        <Users className="w-4 h-4 text-primary-foreground" />
-      </div>
-      <div>
-        <div className="font-medium">@{config.username || 'username'}</div>
-        {config.showCount && (
-          <div className="text-sm text-muted-foreground">
-            {Math.floor(Math.random() * 10000)} followers
+    <div className="space-y-2">
+      {config.links && config.links.length > 0 ? (
+        <div className="flex flex-wrap gap-2">
+          {config.links.map((link: any, index: number) => (
+            <a
+              key={index}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${sizeClasses[config.size as keyof typeof sizeClasses || 'md']} ${styleClasses[config.style as keyof typeof styleClasses || 'rounded']} flex items-center gap-2 px-3 py-2 transition-all duration-200 hover:scale-105 cursor-pointer`}
+              style={{
+                backgroundColor: link.backgroundColor || platformColors[link.platform as keyof typeof platformColors]?.replace('bg-', '') + '20',
+                color: link.customColor || 'inherit'
+              }}
+            >
+              {config.showIcon && (
+                <span className="text-lg">
+                  {platformIcons[link.platform as keyof typeof platformIcons] || '🔗'}
+                </span>
+              )}
+              <span className="font-medium">{link.label}</span>
+              <ExternalLink className="w-3 h-3 opacity-70" />
+            </a>
+          ))}
+        </div>
+      ) : (
+        <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+          <div className={`w-8 h-8 ${platformColors[config.platform as keyof typeof platformColors] || 'bg-primary'} rounded-full flex items-center justify-center`}>
+            <span className="text-white text-lg">
+              {platformIcons[config.platform as keyof typeof platformIcons] || '🔗'}
+            </span>
           </div>
-        )}
-      </div>
+          <div>
+            <div className="font-medium">@{config.username || 'username'}</div>
+            {config.showCount && (
+              <div className="text-sm text-muted-foreground">
+                {Math.floor(Math.random() * 10000)} followers
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 function WeatherWidget({ config }: { config: any }) {
-  return (
-    <div className="flex items-center gap-3">
-      <Cloud className="w-8 h-8 text-blue-500" />
-      <div>
-        <div className="font-medium">{config.location || 'Your Location'}</div>
-        <div className="text-sm text-muted-foreground">
-          22°C • Sunny
+  const [weatherData, setWeatherData] = React.useState<any>(null);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const weatherIcons = {
+    '01d': '☀️', '01n': '🌙',
+    '02d': '⛅', '02n': '☁️',
+    '03d': '☁️', '03n': '☁️',
+    '04d': '☁️', '04n': '☁️',
+    '09d': '🌦️', '09n': '🌧️',
+    '10d': '🌧️', '10n': '🌧️',
+    '11d': '⛈️', '11n': '⛈️',
+    '13d': '❄️', '13n': '❄️',
+    '50d': '🌫️', '50n': '🌫️'
+  };
+
+  const fetchWeather = async () => {
+    if (!config.location) return;
+    
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Use demo API key if none provided
+      const apiKey = config.apiKey || 'demo';
+      let apiUrl = '';
+
+      switch (config.apiProvider) {
+        case 'openweather':
+          apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(config.location)}&appid=${apiKey}&units=${config.unit === 'celsius' ? 'metric' : 'imperial'}`;
+          break;
+        case 'weatherapi':
+          apiUrl = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${encodeURIComponent(config.location)}`;
+          break;
+        case 'weatherbit':
+          apiUrl = `https://api.weatherbit.io/v2.0/current?key=${apiKey}&city=${encodeURIComponent(config.location)}&units=${config.unit === 'celsius' ? 'M' : 'I'}`;
+          break;
+        default:
+          apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(config.location)}&appid=${apiKey}&units=metric`;
+      }
+
+      const response = await fetch(apiUrl);
+      if (!response.ok) throw new Error('Weather API error');
+      
+      const data = await response.json();
+      
+      // Transform data based on API provider
+      let transformedData;
+      if (config.apiProvider === 'openweather') {
+        transformedData = {
+          location: data.name,
+          temperature: Math.round(data.main.temp),
+          condition: data.weather[0].description,
+          icon: data.weather[0].icon,
+          humidity: data.main.humidity,
+          windSpeed: data.wind.speed,
+          pressure: data.main.pressure,
+          feelsLike: Math.round(data.main.feels_like)
+        };
+      } else if (config.apiProvider === 'weatherapi') {
+        transformedData = {
+          location: data.location.name,
+          temperature: Math.round(data.current.temp_c),
+          condition: data.current.condition.text,
+          icon: data.current.condition.icon,
+          humidity: data.current.humidity,
+          windSpeed: data.current.wind_kph,
+          pressure: data.current.pressure_mb,
+          feelsLike: Math.round(data.current.feelslike_c)
+        };
+      } else {
+        transformedData = {
+          location: data.data[0].city_name,
+          temperature: Math.round(data.data[0].temp),
+          condition: data.data[0].weather.description,
+          icon: data.data[0].weather.icon,
+          humidity: data.data[0].rh,
+          windSpeed: data.data[0].wind_spd,
+          pressure: data.data[0].pres,
+          feelsLike: Math.round(data.data[0].app_temp)
+        };
+      }
+
+      setWeatherData(transformedData);
+    } catch (err) {
+      setError('Weather data unavailable');
+      console.error('Weather fetch error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    if (config.location) {
+      fetchWeather();
+      // Auto-refresh based on interval
+      const interval = setInterval(fetchWeather, (config.updateInterval || 15) * 60 * 1000);
+      return () => clearInterval(interval);
+    }
+  }, [config.location, config.apiProvider, config.unit]);
+
+  const getTemperatureUnit = () => {
+    return config.unit === 'celsius' ? '°C' : config.unit === 'fahrenheit' ? '°F' : 'K';
+  };
+
+  if (!config.location) {
+    return (
+      <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+        <Cloud className="w-8 h-8 text-blue-500" />
+        <div>
+          <div className="font-medium">Weather</div>
+          <div className="text-sm text-muted-foreground">Location not set</div>
         </div>
       </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+        <div className="w-8 h-8 bg-blue-500 rounded-full animate-pulse"></div>
+        <div>
+          <div className="font-medium">Loading weather...</div>
+          <div className="text-sm text-muted-foreground">{config.location}</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !weatherData) {
+    return (
+      <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+        <Cloud className="w-8 h-8 text-red-500" />
+        <div>
+          <div className="font-medium">Weather unavailable</div>
+          <div className="text-sm text-muted-foreground">{error || 'No data'}</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-3">
+        <div className="text-3xl">
+          {weatherIcons[weatherData.icon as keyof typeof weatherIcons] || '☁️'}
+        </div>
+        <div>
+          <div className="font-medium">{weatherData.location}</div>
+          <div className="text-sm text-muted-foreground capitalize">
+            {weatherData.condition}
+          </div>
+        </div>
+        <div className="ml-auto text-right">
+          <div className="text-2xl font-bold">
+            {weatherData.temperature}{getTemperatureUnit()}
+          </div>
+          <div className="text-xs text-muted-foreground">
+            Feels like {weatherData.feelsLike}{getTemperatureUnit()}
+          </div>
+        </div>
+      </div>
+
+      {config.showDetails && (
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <div className="flex items-center gap-1">
+            <span>💧</span>
+            <span>{weatherData.humidity}%</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span>💨</span>
+            <span>{weatherData.windSpeed} {config.unit === 'celsius' ? 'km/h' : 'mph'}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span>📊</span>
+            <span>{weatherData.pressure} hPa</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span>🔄</span>
+            <span>Auto-refresh</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1354,14 +1628,15 @@ function WidgetEditor({
                 placeholder="City, Country"
               />
             </div>
+            
             <div>
-              <Label>Temperature Unit</Label>
+              <Label>API Provider</Label>
               <Select 
-                value={editedWidget.config?.unit || 'celsius'} 
+                value={editedWidget.config?.apiProvider || 'openweather'} 
                 onValueChange={(value) => 
                   setEditedWidget(prev => ({
                     ...prev,
-                    config: { ...prev.config, unit: value }
+                    config: { ...prev.config, apiProvider: value }
                   }))
                 }
               >
@@ -1369,10 +1644,110 @@ function WidgetEditor({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="celsius">Celsius (°C)</SelectItem>
-                  <SelectItem value="fahrenheit">Fahrenheit (°F)</SelectItem>
+                  <SelectItem value="openweather">OpenWeatherMap (Free tier available)</SelectItem>
+                  <SelectItem value="weatherapi">WeatherAPI (Free tier available)</SelectItem>
+                  <SelectItem value="weatherbit">Weatherbit (Free tier available)</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            <div>
+              <Label>API Key (Optional - uses demo keys if not provided)</Label>
+              <Input
+                value={editedWidget.config?.apiKey || ''}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, apiKey: e.target.value }
+                  }))
+                }
+                placeholder="Your API key (optional)"
+                type="password"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Get free API keys from: OpenWeatherMap, WeatherAPI, or Weatherbit
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Temperature Unit</Label>
+                <Select 
+                  value={editedWidget.config?.unit || 'celsius'} 
+                  onValueChange={(value) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, unit: value }
+                    }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="celsius">Celsius (°C)</SelectItem>
+                    <SelectItem value="fahrenheit">Fahrenheit (°F)</SelectItem>
+                    <SelectItem value="kelvin">Kelvin (K)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Update Interval (minutes)</Label>
+                <Select 
+                  value={editedWidget.config?.updateInterval?.toString() || '15'} 
+                  onValueChange={(value) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, updateInterval: parseInt(value) }
+                    }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="5">5 minutes</SelectItem>
+                    <SelectItem value="15">15 minutes</SelectItem>
+                    <SelectItem value="30">30 minutes</SelectItem>
+                    <SelectItem value="60">1 hour</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Display Options</Label>
+              <div className="space-y-2">
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={editedWidget.config?.showDetails || false}
+                    onChange={(e) => 
+                      setEditedWidget(prev => ({
+                        ...prev,
+                        config: { ...prev.config, showDetails: e.target.checked }
+                      }))
+                    }
+                    className="rounded"
+                  />
+                  <span className="text-sm">Show detailed weather information</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={editedWidget.config?.showForecast || false}
+                    onChange={(e) => 
+                      setEditedWidget(prev => ({
+                        ...prev,
+                        config: { ...prev.config, showForecast: e.target.checked }
+                      }))
+                    }
+                    className="rounded"
+                  />
+                  <span className="text-sm">Show forecast (if available)</span>
+                </label>
+              </div>
             </div>
           </div>
         );

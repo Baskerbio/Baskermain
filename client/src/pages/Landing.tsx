@@ -280,7 +280,7 @@ export default function Landing() {
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/20 dark:to-orange-900/20 px-4 py-2 rounded-full mb-6 animate-pulse">
                 <Sparkles className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
                 <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">Welcome Back!</span>
-              </div>
+          </div>
 
               <h1 className="text-5xl sm:text-6xl font-bold text-foreground mb-6 animate-fade-in">
                 Welcome back, <span className="bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">{user.displayName || user.handle}</span>!
@@ -304,13 +304,13 @@ export default function Landing() {
                   </Button>
                 </Link>
               </div>
-
+              
               {/* Quick Stats Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto mb-8 animate-fade-in" style={{ animationDelay: '0.6s' }}>
                 <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-yellow-200 dark:border-yellow-800">
                   <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-xl flex items-center justify-center mx-auto mb-4">
                     <LinkIcon className="w-6 h-6 text-white" />
-                  </div>
+                </div>
                   <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Unlimited Links</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">Add as many links as you want</p>
                 </div>
@@ -332,8 +332,9 @@ export default function Landing() {
                 </div>
               </div>
               
+
               {/* Enhanced Bluesky Link */}
-              <div className="mt-6 text-center animate-fade-in" style={{ animationDelay: '0.8s' }}>
+              <div className="mt-6 text-center animate-fade-in" style={{ animationDelay: '1.0s' }}>
                 <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-full mb-4">
                   <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                     <span className="text-white text-xs font-bold">AT</span>
@@ -341,10 +342,10 @@ export default function Landing() {
                   <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">Powered by the AT Protocol</span>
                 </div>
                 <div>
-                  <a 
-                    href="https://bsky.app" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
+                <a 
+                  href="https://bsky.app" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors"
                   >
                     Visit Bluesky <ExternalLink className="w-4 h-4" />
@@ -353,6 +354,7 @@ export default function Landing() {
               </div>
             </div>
           </section>
+
 
           {/* Search Section */}
           <section className="py-16 px-4 bg-muted/30">
@@ -537,7 +539,7 @@ export default function Landing() {
                 <line x1="925" y1="625" x2="945" y2="645" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '1.7s', animationDuration: '4s' }} />
               </g>
             </svg>
-          </div>
+            </div>
           
           {/* Additional floating elements */}
           <div className="absolute inset-0 opacity-5 dark:opacity-10">
@@ -551,7 +553,7 @@ export default function Landing() {
             <div className="absolute top-3/4 right-1/3 w-1 h-1 bg-orange-400/40 rounded-full floating-particle" style={{ animationDelay: '2s' }}></div>
             <div className="absolute top-1/2 left-3/4 w-1.5 h-1.5 bg-red-400/30 rounded-full floating-particle" style={{ animationDelay: '4s' }}></div>
             <div className="absolute top-1/3 right-1/4 w-1 h-1 bg-yellow-500/20 rounded-full floating-particle" style={{ animationDelay: '1s' }}></div>
-          </div>
+            </div>
           <div className="max-w-7xl mx-auto relative px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               {/* Left Content */}
@@ -565,14 +567,14 @@ export default function Landing() {
                   
                   {/* Modern typography */}
                   <h1 className={`text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 dark:text-white leading-[1.1] tracking-tight transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                    Your Link-in-Bio,
+              Your Link-in-Bio,
                     <span className="block bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 bg-clip-text text-transparent animate-gradient">Decentralized</span>
-                  </h1>
+            </h1>
                   
                   <p className={`text-xl sm:text-2xl text-gray-600 dark:text-gray-300 max-w-2xl leading-relaxed transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                     Create stunning, personalized link-in-bio pages with unlimited customization. 
                     Share your digital presence with the world.
-                  </p>
+            </p>
                 </div>
             
             {/* Modern Search Box with Suggestions */}
@@ -601,7 +603,7 @@ export default function Landing() {
                   {isSearching && (
                     <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
                       <div className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-                    </div>
+                </div>
                   )}
                 </div>
                     <Button 
@@ -684,8 +686,8 @@ export default function Landing() {
                       className="w-full sm:w-auto h-14 px-10 rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm text-gray-700 dark:text-gray-300 font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-white dark:hover:bg-gray-800 group"
                     >
                       <Heart className="w-5 h-5 mr-3 transition-transform group-hover:scale-110" />
-                      See Examples
-                    </Button>
+                    See Examples
+              </Button>
                   </Link>
                 </div>
               </div>
@@ -889,11 +891,11 @@ export default function Landing() {
               <div className="text-center space-y-6 group">
                 <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-3xl flex items-center justify-center mx-auto shadow-xl group-hover:scale-110 transition-transform duration-300">
                   <Globe className="w-10 h-10 text-white" />
-                </div>
+                  </div>
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Public Profiles</h3>
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                   Your profile is accessible at a clean URL that you can share anywhere. No platform lock-in, complete freedom.
-                </p>
+                  </p>
               </div>
 
               <div className="text-center space-y-6 group">
@@ -904,16 +906,16 @@ export default function Landing() {
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                   Powered by the AT Protocol. Your data belongs to you and works across the entire network seamlessly.
                 </p>
-              </div>
+                  </div>
 
               <div className="text-center space-y-6 group">
                 <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto shadow-xl group-hover:scale-110 transition-transform duration-300">
                   <Share2 className="w-10 h-10 text-white" />
-                </div>
+                    </div>
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Easy Sharing</h3>
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                   Share your profile anywhere with a simple link. Works on all platforms and devices effortlessly.
-                </p>
+                  </p>
               </div>
             </div>
           </div>
@@ -1001,10 +1003,10 @@ export default function Landing() {
                     </Button>
                   </Link>
                   <Link href="/examples">
-                    <Button variant="outline" size="lg" className="w-full sm:w-auto h-12 px-8">
-                      <Heart className="w-4 h-4 mr-2" />
-                      See Examples
-                    </Button>
+                  <Button variant="outline" size="lg" className="w-full sm:w-auto h-12 px-8">
+                    <Heart className="w-4 h-4 mr-2" />
+                    See Examples
+                  </Button>
                   </Link>
                 </div>
               </div>

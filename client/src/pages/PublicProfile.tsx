@@ -13,6 +13,9 @@ import { ExternalLink, ArrowLeft, Settings, LogOut, Edit } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { SettingsModal } from '../components/SettingsModal';
 import { WorkHistoryWidget } from '../components/WorkHistoryWidget';
+import ProductShowcaseWidget from '../components/widgets/ProductShowcaseWidget';
+import { SocialBadgeWidget } from '../components/widgets/SocialBadgeWidget';
+import { WeatherWidget } from '../components/widgets/WeatherWidget';
 import { useToast } from '@/hooks/use-toast';
 import { usePublicWidgets } from '../hooks/use-atprotocol';
 
@@ -432,6 +435,12 @@ function PublicWidgets({ did }: { did: string }) {
           switch (widget.type) {
             case 'work_history':
               return <WorkHistoryWidget key={widget.id} isPublic={true} targetDid={did} />;
+            case 'product_showcase':
+              return <ProductShowcaseWidget key={widget.id} config={widget.config} isEditMode={false} />;
+            case 'social_badge':
+              return <SocialBadgeWidget key={widget.id} config={widget.config} />;
+            case 'weather':
+              return <WeatherWidget key={widget.id} config={widget.config} />;
             default:
               console.log('🔍 Unknown widget type:', widget.type);
               return (
