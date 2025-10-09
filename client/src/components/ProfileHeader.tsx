@@ -7,6 +7,7 @@ import { atprotocol } from '../lib/atprotocol';
 import { useEditMode } from './EditModeProvider';
 import { Eye, Link as LinkIcon, Camera, Edit, CheckCircle, AlertCircle, Building2, Loader2, UserPlus, UserMinus, ExternalLink } from 'lucide-react';
 import { ProfileImageUpload } from './ProfileImageUpload';
+import { BannerUpload } from './BannerUpload';
 import { StoriesRing } from './StoriesRing';
 import { PublicStoriesRing } from './PublicStoriesRing';
 import { SocialIconsRow } from './SocialIconsRow';
@@ -26,6 +27,7 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
   const { data: links = [] } = useLinks();
   const { isEditMode: contextEditMode } = useEditMode();
   const [showImageUpload, setShowImageUpload] = useState(false);
+  const [showBannerUpload, setShowBannerUpload] = useState(false);
   const [isEditingBio, setIsEditingBio] = useState(false);
   const [bioText, setBioText] = useState('');
   const [isFollowing, setIsFollowing] = useState(false);
@@ -192,7 +194,7 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
               <div className="absolute top-2 right-2 flex gap-2">
                 <Button
                   size="sm"
-                  onClick={() => setShowImageUpload(true)}
+                  onClick={() => setShowBannerUpload(true)}
                   className="bg-black/50 hover:bg-black/70 text-white"
                   data-testid="button-upload-banner"
                 >
@@ -513,6 +515,11 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
       <ProfileImageUpload 
         isOpen={showImageUpload} 
         onClose={() => setShowImageUpload(false)} 
+      />
+      
+      <BannerUpload 
+        isOpen={showBannerUpload} 
+        onClose={() => setShowBannerUpload(false)} 
       />
       
     </div>
