@@ -192,7 +192,7 @@ export function BannerUpload({ isOpen, onClose }: BannerUploadProps) {
 
     setIsUploading(true);
     try {
-      // Save banner adjustments to settings
+      // Save banner adjustments to settings FIRST and WAIT for completion
       const baseSettings = settings || {
         theme: {
           name: 'dark',
@@ -220,12 +220,23 @@ export function BannerUpload({ isOpen, onClose }: BannerUploadProps) {
         },
       };
       
-      // Save settings to AT Protocol
-      saveSettings(updatedSettings);
+      console.log('💾 Saving banner adjustments to AT Protocol:', updatedSettings.bannerAdjustment);
+      
+      // Save settings to AT Protocol and WAIT for it to complete
+      await new Promise<void>((resolve, reject) => {
+        saveSettings(updatedSettings, {
+          onSuccess: () => {
+            console.log('✅ Banner adjustments saved to AT Protocol');
+            resolve();
+          },
+          onError: (error) => {
+            console.error('❌ Failed to save banner adjustments:', error);
+            reject(error);
+          },
+        });
+      });
       
       // Update banner URL in profile
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
       await updateProfile({
         ...user!,
         banner: imageToUpload,
@@ -233,7 +244,7 @@ export function BannerUpload({ isOpen, onClose }: BannerUploadProps) {
 
       toast({
         title: 'Banner updated!',
-        description: 'Your banner has been updated with adjustments',
+        description: 'Your banner has been saved with adjustments',
       });
       
       onClose();
@@ -242,9 +253,10 @@ export function BannerUpload({ isOpen, onClose }: BannerUploadProps) {
       setShowEditor(false);
       setImageToEdit(null);
     } catch (error) {
+      console.error('❌ Banner upload error:', error);
       toast({
         title: 'Upload failed',
-        description: 'Failed to upload banner',
+        description: 'Failed to save banner adjustments',
         variant: 'destructive',
       });
     } finally {
