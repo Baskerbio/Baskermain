@@ -87,8 +87,20 @@ export default function PublicProfilePage() {
           
           // Apply theme from loaded settings
           if (loadedSettings && loadedSettings.theme) {
-            console.log('Applying public profile theme:', loadedSettings.theme);
+            console.log('🎨 Applying public profile theme:', loadedSettings.theme);
+            console.log('🎨 Theme has background image:', loadedSettings.theme.backgroundImage);
+            console.log('🎨 Theme background color:', loadedSettings.theme.backgroundColor);
             setTheme(loadedSettings.theme);
+            
+            // Force apply background image to body
+            if (loadedSettings.theme.backgroundImage) {
+              console.log('🎨 Forcing background image application');
+              document.body.style.backgroundImage = `url(${loadedSettings.theme.backgroundImage})`;
+              document.body.style.backgroundSize = 'cover';
+              document.body.style.backgroundPosition = 'center';
+              document.body.style.backgroundRepeat = 'no-repeat';
+              document.body.style.backgroundAttachment = 'fixed';
+            }
           }
         } catch (settingsErr: any) {
           console.error('Failed to load settings:', settingsErr);

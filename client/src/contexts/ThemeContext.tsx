@@ -28,11 +28,14 @@ interface ThemeProviderProps {
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>(defaultTheme);
   const [location] = useLocation();
+  const [shouldLoadLocalTheme, setShouldLoadLocalTheme] = useState(true);
 
   const isDark = theme.name === 'dark';
   
   // Check if we're on a profile page (own profile or public profile)
-  const isProfilePage = location === '/profile' || (location.startsWith('/') && location !== '/' && !location.startsWith('/about') && !location.startsWith('/faq') && !location.startsWith('/pricing') && !location.startsWith('/support') && !location.startsWith('/info') && !location.startsWith('/privacy') && !location.startsWith('/terms') && !location.startsWith('/eula') && !location.startsWith('/examples') && !location.startsWith('/starter-packs') && !location.startsWith('/moderation') && !location.startsWith('/login'));
+  const isOwnProfile = location === '/profile';
+  const isPublicProfile = location.startsWith('/') && location !== '/' && !location.startsWith('/about') && !location.startsWith('/faq') && !location.startsWith('/pricing') && !location.startsWith('/support') && !location.startsWith('/info') && !location.startsWith('/privacy') && !location.startsWith('/terms') && !location.startsWith('/eula') && !location.startsWith('/examples') && !location.startsWith('/starter-packs') && !location.startsWith('/moderation') && !location.startsWith('/login');
+  const isProfilePage = isOwnProfile || isPublicProfile;
 
   useEffect(() => {
     // Only apply custom themes on profile pages
@@ -125,8 +128,12 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   }, [theme, isDark, isProfilePage, location]);
 
   const setTheme = (newTheme: Theme) => {
+    console.log('🎨 setTheme called with:', newTheme);
     setThemeState(newTheme);
-    localStorage.setItem('basker_theme', JSON.stringify(newTheme));
+    // Only save to localStorage on own profile
+    if (isOwnProfile) {
+      localStorage.setItem('basker_theme', JSON.stringify(newTheme));
+    }
   };
 
   const toggleTheme = () => {
@@ -137,30 +144,39 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     setTheme(newTheme);
   };
 
-  // Load theme from localStorage on mount, but only apply on profile pages
+  // Load theme from localStorage, but only for own profile page
   useEffect(() => {
     if (!isProfilePage) {
       // Reset to default theme when not on profile page
       setThemeState(defaultTheme);
+      setShouldLoadLocalTheme(true);
       return;
     }
     
-    const savedTheme = localStorage.getItem('basker_theme');
-    console.log('🔍 Loading saved theme from localStorage:', savedTheme);
-    if (savedTheme) {
-      try {
-        const parsedTheme = JSON.parse(savedTheme);
-        console.log('🔍 Parsed theme:', parsedTheme);
-        setThemeState(parsedTheme);
-      } catch (error) {
-        console.error('Failed to parse saved theme:', error);
+    // On own profile, load from localStorage
+    // On public profiles, wait for setTheme() call from the page component
+    if (isOwnProfile && shouldLoadLocalTheme) {
+      const savedTheme = localStorage.getItem('basker_theme');
+      console.log('🔍 Loading own profile theme from localStorage:', savedTheme);
+      if (savedTheme) {
+        try {
+          const parsedTheme = JSON.parse(savedTheme);
+          console.log('🔍 Parsed theme:', parsedTheme);
+          setThemeState(parsedTheme);
+        } catch (error) {
+          console.error('Failed to parse saved theme:', error);
+          setThemeState(defaultTheme);
+        }
+      } else {
+        console.log('🔍 No saved theme found, using default theme:', defaultTheme);
         setThemeState(defaultTheme);
       }
-    } else {
-      console.log('🔍 No saved theme found, using default theme:', defaultTheme);
-      setThemeState(defaultTheme);
+    } else if (isPublicProfile) {
+      // For public profiles, reset to default and let the page component set the theme
+      console.log('🔍 Public profile detected, waiting for theme from AT Protocol');
+      setShouldLoadLocalTheme(false);
     }
-  }, [isProfilePage]);
+  }, [isProfilePage, isOwnProfile, isPublicProfile, location, shouldLoadLocalTheme]);
 
   return (
     <ThemeContext.Provider value={{
