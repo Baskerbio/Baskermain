@@ -1123,12 +1123,12 @@ function PublicStatsWidget({ config }: { config: any }) {
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="text-center">
-        <div className="text-2xl font-bold text-primary">1.2K</div>
-        <div className="text-sm text-muted-foreground">Views</div>
+        <div className="text-2xl font-bold text-primary">{config?.stat1Value || '0'}</div>
+        <div className="text-sm text-muted-foreground">{config?.stat1Label || 'Views'}</div>
       </div>
       <div className="text-center">
-        <div className="text-2xl font-bold text-primary">45</div>
-        <div className="text-sm text-muted-foreground">Downloads</div>
+        <div className="text-2xl font-bold text-primary">{config?.stat2Value || '0'}</div>
+        <div className="text-sm text-muted-foreground">{config?.stat2Label || 'Downloads'}</div>
       </div>
     </div>
   );

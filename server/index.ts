@@ -37,6 +37,7 @@ if (process.env.NODE_ENV !== 'production') {
           "https://*.atproto.com",
           "https://bsky.network",
           "https://atproto.com",
+          "https://tenor.googleapis.com",
           "wss:",
           "wss://*.bsky.network",
           "wss://*.host.bsky.network",
