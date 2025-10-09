@@ -297,6 +297,7 @@ export const settingsSchema = z.object({
   // Custom Profile Overrides
   customBio: z.string().optional(),
   customAvatar: z.string().optional(),
+  customBanner: z.string().optional(), // Custom banner URL
   // Banner adjustments
   bannerAdjustment: bannerAdjustmentSchema.optional(),
   // SEO Settings

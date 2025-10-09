@@ -212,6 +212,7 @@ export function BannerUpload({ isOpen, onClose }: BannerUploadProps) {
       
       const updatedSettings = {
         ...baseSettings,
+        customBanner: imageToUpload, // Save banner URL in settings too!
         bannerAdjustment: {
           scale: imageScale,
           positionX: imagePositionX,
@@ -220,31 +221,36 @@ export function BannerUpload({ isOpen, onClose }: BannerUploadProps) {
         },
       };
       
-      console.log('💾 Saving banner adjustments to AT Protocol:', updatedSettings.bannerAdjustment);
+      console.log('💾 Saving banner URL and adjustments to AT Protocol:', {
+        bannerUrl: imageToUpload,
+        adjustments: updatedSettings.bannerAdjustment,
+      });
       console.log('💾 Full settings being saved:', updatedSettings);
       
-      // First update the banner URL in profile
+      // Save EVERYTHING to AT Protocol (banner URL + adjustments)
+      await new Promise<void>((resolve, reject) => {
+        saveSettings(updatedSettings, {
+          onSuccess: () => {
+            console.log('✅ Banner and adjustments saved to AT Protocol successfully');
+            console.log('✅ Saved settings:', updatedSettings);
+            resolve();
+          },
+          onError: (error) => {
+            console.error('❌ Failed to save to AT Protocol:', error);
+            reject(error);
+          },
+        });
+      });
+      
+      console.log('✅ Settings saved, now updating profile in localStorage');
+      
+      // Also update the banner URL in profile (for immediate display)
       await updateProfile({
         ...user!,
         banner: imageToUpload,
       });
       
       console.log('✅ Banner URL updated in profile');
-      
-      // Then save settings to AT Protocol and WAIT for it to complete
-      await new Promise<void>((resolve, reject) => {
-        saveSettings(updatedSettings, {
-          onSuccess: () => {
-            console.log('✅ Banner adjustments saved to AT Protocol successfully');
-            console.log('✅ Saved settings:', updatedSettings);
-            resolve();
-          },
-          onError: (error) => {
-            console.error('❌ Failed to save banner adjustments to AT Protocol:', error);
-            reject(error);
-          },
-        });
-      });
       
       // Wait a bit for the save to propagate
       await new Promise(resolve => setTimeout(resolve, 500));

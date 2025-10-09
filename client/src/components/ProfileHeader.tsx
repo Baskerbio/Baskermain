@@ -184,9 +184,10 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
       {effectiveSettings?.showBanner !== false && (
         <div className="relative mb-6 mx-4 sm:mx-6 md:mx-8 lg:mx-12 xl:mx-16 2xl:mx-24">
           <div className="relative h-24 sm:h-28 md:h-32 lg:h-36 bg-gradient-to-r from-yellow-400 to-orange-500 overflow-hidden rounded-xl">
-            {profile.banner && (
+            {/* Use custom banner from settings if available, otherwise use profile banner */}
+            {(effectiveSettings?.customBanner || profile.banner) && (
               <img 
-                src={profile.banner} 
+                src={effectiveSettings?.customBanner || profile.banner} 
                 alt="Profile banner" 
                 className="w-full h-full object-cover rounded-xl transition-transform"
                 style={effectiveSettings?.bannerAdjustment ? {
