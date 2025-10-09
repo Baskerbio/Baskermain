@@ -297,11 +297,19 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
                   ...ownSettings,
                   socialLinks: links,
                   socialIconsConfig: {
+                    enabled: false,
+                    placement: 'under-bio',
+                    style: 'default',
+                    size: 'medium',
                     ...(ownSettings.socialIconsConfig || {}),
                     ...config,
                     enabled: links.length > 0,
                   },
                 };
+                console.log('💾 ProfileHeader saving settings (under-avatar):', {
+                  socialLinks: updatedSettings.socialLinks?.length,
+                  socialIconsConfig: updatedSettings.socialIconsConfig,
+                });
                 saveSettings(updatedSettings);
               }}
               onOpenSettings={onOpenSettings}
@@ -352,11 +360,19 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
                   ...ownSettings,
                   socialLinks: links,
                   socialIconsConfig: {
+                    enabled: false,
+                    placement: 'under-bio',
+                    style: 'default',
+                    size: 'medium',
                     ...(ownSettings.socialIconsConfig || {}),
                     ...config,
                     enabled: links.length > 0, // Auto-enable if links exist
                   },
                 };
+                console.log('💾 ProfileHeader saving settings (under-bio):', {
+                  socialLinks: updatedSettings.socialLinks?.length,
+                  socialIconsConfig: updatedSettings.socialIconsConfig,
+                });
                 saveSettings(updatedSettings);
               }}
               onOpenSettings={onOpenSettings}

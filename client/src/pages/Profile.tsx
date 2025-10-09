@@ -276,11 +276,19 @@ export default function Profile() {
                       ...settings,
                       socialLinks: links,
                       socialIconsConfig: {
+                        enabled: false,
+                        placement: 'above-sections',
+                        style: 'default',
+                        size: 'medium',
                         ...(settings.socialIconsConfig || {}),
                         ...config,
                         enabled: links.length > 0,
                       },
                     };
+                    console.log('💾 Profile.tsx saving settings (above-sections):', {
+                      socialLinks: updatedSettings.socialLinks?.length,
+                      socialIconsConfig: updatedSettings.socialIconsConfig,
+                    });
                     saveSettings(updatedSettings);
                   }}
                   onOpenSettings={() => {

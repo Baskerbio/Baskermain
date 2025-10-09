@@ -648,8 +648,12 @@ export class ATProtocolClient {
         rkey: 'self',
       });
       
-      console.log('Successfully fetched settings from AT Protocol');
       const record = response.data.value as any;
+      console.log('✅ Fetched settings from AT Protocol:', {
+        socialLinks: record.settings?.socialLinks?.length || 0,
+        socialIconsConfig: record.settings?.socialIconsConfig,
+        theme: record.settings?.theme?.name,
+      });
       return { settings: record.settings || null };
     } catch (error: any) {
       if (error.status === 404) {
@@ -664,11 +668,18 @@ export class ATProtocolClient {
   async saveSettings(settings: Settings): Promise<void> {
     if (!this.did) throw new Error('Not authenticated');
 
+    // Ensure all fields are properly serialized
     const record = {
-      settings,
+      settings: JSON.parse(JSON.stringify(settings)), // Deep clone to ensure serialization
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
+    
+    console.log('💾 Saving settings to AT Protocol:', {
+      socialLinks: record.settings.socialLinks?.length || 0,
+      socialIconsConfig: record.settings.socialIconsConfig,
+      theme: record.settings.theme?.name,
+    });
     
     try {
       await this.agent.api.com.atproto.repo.putRecord({
@@ -677,9 +688,10 @@ export class ATProtocolClient {
         rkey: 'self',
         record,
       });
-      console.log('Successfully saved settings to AT Protocol');
+      console.log('✅ Successfully saved settings to AT Protocol');
     } catch (error: any) {
-      console.error('AT Protocol failed for saving settings:', error);
+      console.error('❌ AT Protocol failed for saving settings:', error);
+      console.error('Failed record:', record);
       throw new Error(`Failed to save settings to AT Protocol: ${error.message}`);
     }
   }
@@ -968,8 +980,13 @@ export class ATProtocolClient {
         rkey: 'self',
       });
       
-      console.log('Successfully fetched public settings from AT Protocol');
       const record = response.data.value as any;
+      console.log('✅ Fetched public settings from AT Protocol:', {
+        socialLinks: record.settings?.socialLinks?.length || 0,
+        socialIconsConfig: record.settings?.socialIconsConfig,
+        theme: record.settings?.theme?.name,
+        fullSettings: record.settings,
+      });
       return { settings: record.settings || null };
     } catch (error: any) {
       if (error.status === 404) {

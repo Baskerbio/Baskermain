@@ -230,6 +230,13 @@ const DEFAULT_FORM_DATA: Partial<Settings> = {
   isPublic: true,
   enableAnalytics: true,
   sectionOrder: DEFAULT_SECTIONS,
+  socialLinks: [],
+  socialIconsConfig: {
+    enabled: false,
+    placement: 'under-bio',
+    style: 'default',
+    size: 'medium',
+  },
 };
 
 export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: SettingsModalProps) {
@@ -246,6 +253,13 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
     isPublic: true,
     enableAnalytics: true,
     sectionOrder: DEFAULT_SECTIONS,
+    socialLinks: [],
+    socialIconsConfig: {
+      enabled: false,
+      placement: 'under-bio',
+      style: 'default',
+      size: 'medium',
+    },
   } as Settings));
 
   // Merge settings from backend with defaults so we never lose sections or theme fields
@@ -271,7 +285,21 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
       ...(settings as object),
       theme: mergedTheme,
       sectionOrder: mergedOrder,
+      // Ensure social links arrays exist
+      socialLinks: (settings as any).socialLinks || [],
+      socialIconsConfig: {
+        enabled: false,
+        placement: 'under-bio',
+        style: 'default',
+        size: 'medium',
+        ...(settings as any).socialIconsConfig,
+      },
     } as Settings;
+
+    console.log('🔍 SettingsModal - Merged form data:', {
+      socialLinks: mergedForm.socialLinks?.length,
+      socialIconsConfig: mergedForm.socialIconsConfig,
+    });
 
     setFormData(mergedForm);
   }, [settings]);
@@ -303,9 +331,21 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
     const saveData = {
       ...formData,
       sectionOrder: mergedOrder,
+      // Explicitly include social links fields
+      socialLinks: formData.socialLinks || [],
+      socialIconsConfig: formData.socialIconsConfig || {
+        enabled: false,
+        placement: 'under-bio',
+        style: 'default',
+        size: 'medium',
+      },
     } as Settings;
 
-    console.log('🔍 Saving settings:', saveData);
+    console.log('💾 Saving settings to AT Protocol:', {
+      socialLinks: saveData.socialLinks?.length,
+      socialIconsConfig: saveData.socialIconsConfig,
+      fullData: saveData,
+    });
 
     saveSettings(saveData, {
       onSuccess: () => {
