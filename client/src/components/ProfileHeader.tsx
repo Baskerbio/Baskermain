@@ -55,6 +55,8 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
   console.log('🔍 ProfileHeader - profile:', profile);
   console.log('🔍 ProfileHeader - isEditMode:', isEditMode, 'isOwnProfile:', isOwnProfile, 'targetDid:', targetDid);
   console.log('🔍 ProfileHeader - isPublicProfile:', isPublicProfile, 'ownSettings:', ownSettings, 'publicSettings:', publicSettings, 'effectiveSettings:', effectiveSettings);
+  console.log('🔍 ProfileHeader - bannerAdjustment:', effectiveSettings?.bannerAdjustment);
+  console.log('🔍 ProfileHeader - profile.banner:', profile?.banner);
 
   // Initialize bio text when settings change
   React.useEffect(() => {

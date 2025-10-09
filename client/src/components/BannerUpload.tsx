@@ -221,30 +221,37 @@ export function BannerUpload({ isOpen, onClose }: BannerUploadProps) {
       };
       
       console.log('💾 Saving banner adjustments to AT Protocol:', updatedSettings.bannerAdjustment);
+      console.log('💾 Full settings being saved:', updatedSettings);
       
-      // Save settings to AT Protocol and WAIT for it to complete
+      // First update the banner URL in profile
+      await updateProfile({
+        ...user!,
+        banner: imageToUpload,
+      });
+      
+      console.log('✅ Banner URL updated in profile');
+      
+      // Then save settings to AT Protocol and WAIT for it to complete
       await new Promise<void>((resolve, reject) => {
         saveSettings(updatedSettings, {
           onSuccess: () => {
-            console.log('✅ Banner adjustments saved to AT Protocol');
+            console.log('✅ Banner adjustments saved to AT Protocol successfully');
+            console.log('✅ Saved settings:', updatedSettings);
             resolve();
           },
           onError: (error) => {
-            console.error('❌ Failed to save banner adjustments:', error);
+            console.error('❌ Failed to save banner adjustments to AT Protocol:', error);
             reject(error);
           },
         });
       });
       
-      // Update banner URL in profile
-      await updateProfile({
-        ...user!,
-        banner: imageToUpload,
-      });
+      // Wait a bit for the save to propagate
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       toast({
         title: 'Banner updated!',
-        description: 'Your banner has been saved with adjustments',
+        description: 'Your banner and adjustments have been saved',
       });
       
       onClose();
