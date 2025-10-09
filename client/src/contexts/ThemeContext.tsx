@@ -42,11 +42,58 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       root.classList.remove('dark');
     }
 
-    // Apply custom colors
+    // Apply core colors
     root.style.setProperty('--primary', theme.primaryColor);
     root.style.setProperty('--accent', theme.accentColor);
     root.style.setProperty('--background', theme.backgroundColor);
     root.style.setProperty('--foreground', theme.textColor);
+    
+    // Apply card colors
+    if (theme.cardBackground) {
+      root.style.setProperty('--card', theme.cardBackground);
+    }
+    if (theme.cardText) {
+      root.style.setProperty('--card-foreground', theme.cardText);
+    }
+    
+    // Apply text variations
+    if (theme.headingColor) {
+      root.style.setProperty('--heading', theme.headingColor);
+    }
+    if (theme.mutedTextColor) {
+      root.style.setProperty('--muted-foreground', theme.mutedTextColor);
+    }
+    if (theme.linkColor) {
+      root.style.setProperty('--link-color', theme.linkColor);
+    }
+    if (theme.linkHoverColor) {
+      root.style.setProperty('--link-hover-color', theme.linkHoverColor);
+    }
+    
+    // Apply UI element colors
+    if (theme.borderColor) {
+      root.style.setProperty('--border', theme.borderColor);
+    }
+    if (theme.buttonBackground) {
+      root.style.setProperty('--button-bg', theme.buttonBackground);
+    }
+    if (theme.buttonText) {
+      root.style.setProperty('--button-text', theme.buttonText);
+    }
+    if (theme.buttonHoverBackground) {
+      root.style.setProperty('--button-hover-bg', theme.buttonHoverBackground);
+    }
+    
+    // Apply input colors
+    if (theme.inputBackground) {
+      root.style.setProperty('--input', theme.inputBackground);
+    }
+    if (theme.inputText) {
+      root.style.setProperty('--input-text', theme.inputText);
+    }
+    if (theme.inputBorder) {
+      root.style.setProperty('--input-border', theme.inputBorder);
+    }
     
     // Apply background image
     if (theme.backgroundImage) {

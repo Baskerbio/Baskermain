@@ -15,7 +15,9 @@ import { Label } from '../components/ui/label';
 import { UserProfile } from '@shared/schema';
 import { ArrowLeft, Users, Cloud, Music, Heart, Image, Megaphone, Mail, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { WorkHistoryWidget } from '../components/WorkHistoryWidget';
+import { SocialIconsRow } from '../components/SocialIconsRow';
 
 export default function PublicProfilePage() {
   const [, params] = useRoute('/:handle');
@@ -24,6 +26,7 @@ export default function PublicProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user: currentUser } = useAuth();
+  const { setTheme } = useTheme();
 
   useEffect(() => {
     if (!params?.handle) return;
@@ -76,7 +79,14 @@ export default function PublicProfilePage() {
           console.log('Loading settings for DID:', did);
           const settingsData = await atprotocol.getPublicSettings(did);
           console.log('Loaded public settings:', settingsData);
-          setSettings(settingsData?.settings || null);
+          const loadedSettings = settingsData?.settings || null;
+          setSettings(loadedSettings);
+          
+          // Apply theme from loaded settings
+          if (loadedSettings && loadedSettings.theme) {
+            console.log('Applying public profile theme:', loadedSettings.theme);
+            setTheme(loadedSettings.theme);
+          }
         } catch (settingsErr: any) {
           console.error('Failed to load settings:', settingsErr);
           // Settings loading failure shouldn't break the profile page
@@ -237,6 +247,19 @@ export default function PublicProfilePage() {
           isOwnProfile={false}
           targetDid={profile.did}
         />
+        
+        {/* Social Icons Row - above sections placement */}
+        {settings?.socialIconsConfig?.placement === 'above-sections' && settings?.socialLinks && (
+          <div className="mb-8">
+            <div className="flex items-center justify-center">
+              <SocialIconsRow 
+                socialLinks={settings.socialLinks} 
+                config={settings.socialIconsConfig}
+                isEditMode={false}
+              />
+            </div>
+          </div>
+        )}
         
         {(() => {
           // Use the loaded settings section order, or default if not available

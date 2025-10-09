@@ -198,22 +198,76 @@ export const groupSchema = z.object({
   updatedAt: z.string(),
 });
 
-// Theme schema
+// Theme schema - comprehensive color customization
 export const themeSchema = z.object({
   name: z.enum([
     "light", "dark", "gradient", 
     "halloween", "christmas", "ocean", 
     "sunset", "forest", "cosmic", 
     "neon", "vintage", "minimal", 
-    "retro", "modern"
+    "retro", "modern", "custom"
   ]),
+  // Core colors
   primaryColor: z.string(),
   accentColor: z.string(),
   backgroundColor: z.string(),
   textColor: z.string(),
+  
+  // Card colors
+  cardBackground: z.string().optional(),
+  cardText: z.string().optional(),
+  
+  // Text variations
+  headingColor: z.string().optional(),
+  mutedTextColor: z.string().optional(),
+  linkColor: z.string().optional(),
+  linkHoverColor: z.string().optional(),
+  
+  // UI elements
+  borderColor: z.string().optional(),
+  buttonBackground: z.string().optional(),
+  buttonText: z.string().optional(),
+  buttonHoverBackground: z.string().optional(),
+  
+  // Input elements
+  inputBackground: z.string().optional(),
+  inputText: z.string().optional(),
+  inputBorder: z.string().optional(),
+  
+  // Layout
   fontFamily: z.string(),
   layout: z.string(),
   backgroundImage: z.string().optional(),
+});
+
+// Social link schema for the top row icons
+export const socialLinkSchema = z.object({
+  id: z.string(),
+  platform: z.enum([
+    'twitter', 'instagram', 'facebook', 'linkedin', 'youtube', 'tiktok', 
+    'github', 'twitch', 'discord', 'telegram', 'whatsapp', 'snapchat',
+    'reddit', 'pinterest', 'spotify', 'soundcloud', 'bandcamp', 'patreon',
+    'kofi', 'buymeacoffee', 'venmo', 'cashapp', 'paypal', 'email',
+    'website', 'custom'
+  ]),
+  url: z.string().url(),
+  label: z.string().optional(), // Custom label for 'custom' platform
+  order: z.number().default(0),
+  enabled: z.boolean().default(true),
+  // Per-icon customization
+  customColor: z.string().optional(), // Override platform default color
+  customBackgroundColor: z.string().optional(), // Override background
+});
+
+// Social icons row configuration
+export const socialIconsConfigSchema = z.object({
+  enabled: z.boolean().default(false),
+  placement: z.enum(['under-bio', 'under-avatar', 'above-sections']).default('under-bio'),
+  style: z.enum(['default', 'rounded', 'square', 'minimal']).default('default'),
+  size: z.enum(['small', 'medium', 'large']).default('medium'),
+  backgroundColor: z.string().optional(),
+  iconColor: z.string().optional(),
+  hoverColor: z.string().optional(),
 });
 
 // Settings schema
@@ -224,6 +278,14 @@ export const settingsSchema = z.object({
   isPublic: z.boolean().default(true),
   enableAnalytics: z.boolean().default(true),
   sectionOrder: z.array(z.enum(["widgets", "notes", "links"])).default(["widgets", "notes", "links"]),
+  // Social Icons Row
+  socialLinks: z.array(socialLinkSchema).default([]).optional(),
+  socialIconsConfig: socialIconsConfigSchema.default({
+    enabled: false,
+    placement: 'under-bio',
+    style: 'default',
+    size: 'medium',
+  }).optional(),
   // Custom Profile Overrides
   customBio: z.string().optional(),
   customAvatar: z.string().optional(),
@@ -333,6 +395,8 @@ export type Group = z.infer<typeof groupSchema>;
 export type Theme = z.infer<typeof themeSchema>;
 export type Settings = z.infer<typeof settingsSchema>;
 export type Widget = z.infer<typeof widgetSchema>;
+export type SocialLink = z.infer<typeof socialLinkSchema>;
+export type SocialIconsConfig = z.infer<typeof socialIconsConfigSchema>;
 
 export type LinksRecord = z.infer<typeof linksRecordSchema>;
 export type NotesRecord = z.infer<typeof notesRecordSchema>;

@@ -9,6 +9,8 @@ import { Eye, Link as LinkIcon, Camera, Edit, CheckCircle, AlertCircle, Building
 import { ProfileImageUpload } from './ProfileImageUpload';
 import { StoriesRing } from './StoriesRing';
 import { PublicStoriesRing } from './PublicStoriesRing';
+import { SocialIconsRow } from './SocialIconsRow';
+import { SocialIconsEditor } from './SocialIconsEditor';
 import { UserProfile } from '@shared/schema';
 
 interface ProfileHeaderProps {
@@ -16,9 +18,10 @@ interface ProfileHeaderProps {
   isEditMode?: boolean;
   isOwnProfile?: boolean;
   targetDid?: string; // For public profiles
+  onOpenSettings?: () => void; // Callback to open settings modal
 }
 
-export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode, isOwnProfile = true, targetDid }: ProfileHeaderProps) {
+export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode, isOwnProfile = true, targetDid, onOpenSettings }: ProfileHeaderProps) {
   const { user } = useAuth();
   const { data: links = [] } = useLinks();
   const { isEditMode: contextEditMode } = useEditMode();
@@ -280,6 +283,42 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
         @{profile.handle}
       </p>
       
+      {/* Social Icons - under avatar placement */}
+      {effectiveSettings?.socialIconsConfig?.placement === 'under-avatar' && (
+        <>
+          {/* Show editor in edit mode */}
+          {isEditMode && !isPublicProfile ? (
+            <SocialIconsEditor
+              socialLinks={effectiveSettings?.socialLinks || []}
+              config={effectiveSettings?.socialIconsConfig}
+              onSave={(links, config) => {
+                if (!ownSettings) return;
+                const updatedSettings = {
+                  ...ownSettings,
+                  socialLinks: links,
+                  socialIconsConfig: {
+                    ...(ownSettings.socialIconsConfig || {}),
+                    ...config,
+                    enabled: links.length > 0,
+                  },
+                };
+                saveSettings(updatedSettings);
+              }}
+              onOpenSettings={onOpenSettings}
+            />
+          ) : (
+            /* Show preview for public/non-edit mode */
+            effectiveSettings?.socialLinks && effectiveSettings.socialLinks.length > 0 && (
+              <SocialIconsRow 
+                socialLinks={effectiveSettings.socialLinks} 
+                config={effectiveSettings.socialIconsConfig}
+                isEditMode={false}
+              />
+            )
+          )}
+        </>
+      )}
+      
       {(effectiveSettings?.customBio || profile.description) && !isEditingBio && (
         <div className="relative group mb-6 max-w-md mx-auto">
           <p className="text-foreground" data-testid="text-bio">
@@ -297,6 +336,42 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
             </Button>
           )}
         </div>
+      )}
+      
+      {/* Social Icons - under bio placement (default) */}
+      {(!effectiveSettings?.socialIconsConfig?.placement || effectiveSettings?.socialIconsConfig?.placement === 'under-bio') && (
+        <>
+          {/* Show editor in edit mode */}
+          {isEditMode && !isPublicProfile ? (
+            <SocialIconsEditor
+              socialLinks={effectiveSettings?.socialLinks || []}
+              config={effectiveSettings?.socialIconsConfig}
+              onSave={(links, config) => {
+                if (!ownSettings) return;
+                const updatedSettings = {
+                  ...ownSettings,
+                  socialLinks: links,
+                  socialIconsConfig: {
+                    ...(ownSettings.socialIconsConfig || {}),
+                    ...config,
+                    enabled: links.length > 0, // Auto-enable if links exist
+                  },
+                };
+                saveSettings(updatedSettings);
+              }}
+              onOpenSettings={onOpenSettings}
+            />
+          ) : (
+            /* Show preview for public/non-edit mode */
+            effectiveSettings?.socialLinks && effectiveSettings.socialLinks.length > 0 && (
+              <SocialIconsRow 
+                socialLinks={effectiveSettings.socialLinks} 
+                config={effectiveSettings.socialIconsConfig}
+                isEditMode={false}
+              />
+            )
+          )}
+        </>
       )}
       
       {isEditingBio && isEditMode && !isPublicProfile && (

@@ -4,6 +4,7 @@ import { Link } from 'wouter';
 import { atprotocol } from '../lib/atprotocol';
 import { getLinkStyling } from '../lib/link-utils';
 import { PublicProfileHeader } from '../components/PublicProfileHeader';
+import { SocialIconsRow } from '../components/SocialIconsRow';
 import { Card, CardContent } from '../components/ui/card';
 import { Skeleton } from '../components/ui/skeleton';
 import { Alert, AlertDescription } from '../components/ui/alert';
@@ -11,6 +12,7 @@ import { Button } from '../components/ui/button';
 import { UserProfile } from '@shared/schema';
 import { ExternalLink, ArrowLeft, Settings, LogOut, Edit } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { SettingsModal } from '../components/SettingsModal';
 import { WorkHistoryWidget } from '../components/WorkHistoryWidget';
 import ProductShowcaseWidget from '../components/widgets/ProductShowcaseWidget';
@@ -22,11 +24,13 @@ import { usePublicWidgets } from '../hooks/use-atprotocol';
 export default function PublicProfile() {
   const [, params] = useRoute('/:handle');
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [settings, setSettings] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const { user } = useAuth(); // Only get user for conditional rendering
   const { toast } = useToast();
+  const { setTheme } = useTheme();
 
   const handleLogout = async () => {
     try {
@@ -81,6 +85,23 @@ export default function PublicProfile() {
         };
         
         setProfile(userProfile);
+        
+        // Load and apply theme settings
+        try {
+          console.log('Loading settings for DID:', did);
+          const settingsData = await atprotocol.getPublicSettings(did);
+          console.log('Loaded public settings:', settingsData);
+          setSettings(settingsData?.settings || null);
+          
+          if (settingsData && settingsData.settings && settingsData.settings.theme) {
+            console.log('Applying public profile theme:', settingsData.settings.theme);
+            setTheme(settingsData.settings.theme);
+          }
+        } catch (settingsErr: any) {
+          console.error('Failed to load settings:', settingsErr);
+          setSettings(null);
+          // Settings loading failure shouldn't break the profile page
+        }
       } catch (err: any) {
         console.error('Failed to load profile:', err);
         setError(err.message || 'Failed to load profile');
@@ -211,6 +232,19 @@ export default function PublicProfile() {
           <PublicProfileHeader 
             profile={profile}
           />
+          
+          {/* Social Icons - above sections placement */}
+          {settings?.socialIconsConfig?.placement === 'above-sections' && settings?.socialLinks && settings.socialLinks.length > 0 && (
+            <div className="mb-8">
+              <div className="flex items-center justify-center">
+                <SocialIconsRow 
+                  socialLinks={settings.socialLinks} 
+                  config={settings.socialIconsConfig}
+                  isEditMode={false}
+                />
+              </div>
+            </div>
+          )}
           
           {/* Public Content */}
           <div className="space-y-6">

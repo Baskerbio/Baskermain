@@ -15,12 +15,13 @@ interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onDragEnd?: (result: any) => void;
+  scrollToSection?: string; // Section ID to scroll to when opened
 }
 
 // Default values
 const DEFAULT_SECTIONS: ('widgets' | 'notes' | 'links')[] = ['widgets', 'notes', 'links'];
 
-// Theme definitions
+// Theme definitions with comprehensive color options
 const THEMES: Record<string, Theme> = {
   light: {
     name: 'light' as const,
@@ -28,6 +29,11 @@ const THEMES: Record<string, Theme> = {
     accentColor: '#10b981',
     backgroundColor: '#ffffff',
     textColor: '#1f2937',
+    cardBackground: '#f9fafb',
+    cardText: '#1f2937',
+    headingColor: '#111827',
+    mutedTextColor: '#6b7280',
+    borderColor: '#e5e7eb',
     fontFamily: 'Inter',
     layout: 'default',
   },
@@ -37,6 +43,11 @@ const THEMES: Record<string, Theme> = {
     accentColor: '#22c55e',
     backgroundColor: '#0f0f14',
     textColor: '#fafafa',
+    cardBackground: '#1a1a1f',
+    cardText: '#fafafa',
+    headingColor: '#ffffff',
+    mutedTextColor: '#a1a1aa',
+    borderColor: '#27272a',
     fontFamily: 'Inter',
     layout: 'default',
   },
@@ -46,6 +57,11 @@ const THEMES: Record<string, Theme> = {
     accentColor: '#ec4899',
     backgroundColor: '#1e1b4b',
     textColor: '#ffffff',
+    cardBackground: '#312e81',
+    cardText: '#ffffff',
+    headingColor: '#fae8ff',
+    mutedTextColor: '#c4b5fd',
+    borderColor: '#4c1d95',
     fontFamily: 'Inter',
     layout: 'default',
   },
@@ -55,6 +71,11 @@ const THEMES: Record<string, Theme> = {
     accentColor: '#ef4444',
     backgroundColor: '#0f0f0f',
     textColor: '#fbbf24',
+    cardBackground: '#1c1c1c',
+    cardText: '#fbbf24',
+    headingColor: '#fb923c',
+    mutedTextColor: '#a16207',
+    borderColor: '#422006',
     fontFamily: 'Inter',
     layout: 'default',
   },
@@ -64,6 +85,11 @@ const THEMES: Record<string, Theme> = {
     accentColor: '#16a34a',
     backgroundColor: '#1e293b',
     textColor: '#f8fafc',
+    cardBackground: '#334155',
+    cardText: '#f8fafc',
+    headingColor: '#fecaca',
+    mutedTextColor: '#cbd5e1',
+    borderColor: '#475569',
     fontFamily: 'Inter',
     layout: 'default',
   },
@@ -73,6 +99,11 @@ const THEMES: Record<string, Theme> = {
     accentColor: '#06b6d4',
     backgroundColor: '#0f172a',
     textColor: '#e0f2fe',
+    cardBackground: '#1e293b',
+    cardText: '#e0f2fe',
+    headingColor: '#bae6fd',
+    mutedTextColor: '#7dd3fc',
+    borderColor: '#334155',
     fontFamily: 'Inter',
     layout: 'default',
   },
@@ -82,6 +113,11 @@ const THEMES: Record<string, Theme> = {
     accentColor: '#ef4444',
     backgroundColor: '#1c1917',
     textColor: '#fef3c7',
+    cardBackground: '#292524',
+    cardText: '#fef3c7',
+    headingColor: '#fde68a',
+    mutedTextColor: '#fcd34d',
+    borderColor: '#44403c',
     fontFamily: 'Inter',
     layout: 'default',
   },
@@ -91,6 +127,11 @@ const THEMES: Record<string, Theme> = {
     accentColor: '#84cc16',
     backgroundColor: '#0f1419',
     textColor: '#f0fdf4',
+    cardBackground: '#1a2328',
+    cardText: '#f0fdf4',
+    headingColor: '#bbf7d0',
+    mutedTextColor: '#86efac',
+    borderColor: '#14532d',
     fontFamily: 'Inter',
     layout: 'default',
   },
@@ -100,6 +141,11 @@ const THEMES: Record<string, Theme> = {
     accentColor: '#ec4899',
     backgroundColor: '#0f0b1f',
     textColor: '#f3f4f6',
+    cardBackground: '#1e1535',
+    cardText: '#f3f4f6',
+    headingColor: '#e9d5ff',
+    mutedTextColor: '#d8b4fe',
+    borderColor: '#4c1d95',
     fontFamily: 'Inter',
     layout: 'default',
   },
@@ -109,6 +155,11 @@ const THEMES: Record<string, Theme> = {
     accentColor: '#ff0080',
     backgroundColor: '#000000',
     textColor: '#ffffff',
+    cardBackground: '#0a0a0a',
+    cardText: '#ffffff',
+    headingColor: '#00ff88',
+    mutedTextColor: '#cccccc',
+    borderColor: '#00ff8844',
     fontFamily: 'Inter',
     layout: 'default',
   },
@@ -118,6 +169,11 @@ const THEMES: Record<string, Theme> = {
     accentColor: '#d97706',
     backgroundColor: '#fef3c7',
     textColor: '#451a03',
+    cardBackground: '#fef9e7',
+    cardText: '#451a03',
+    headingColor: '#78350f',
+    mutedTextColor: '#92400e',
+    borderColor: '#fde047',
     fontFamily: 'Inter',
     layout: 'default',
   },
@@ -127,6 +183,11 @@ const THEMES: Record<string, Theme> = {
     accentColor: '#6b7280',
     backgroundColor: '#ffffff',
     textColor: '#111827',
+    cardBackground: '#f9fafb',
+    cardText: '#111827',
+    headingColor: '#000000',
+    mutedTextColor: '#9ca3af',
+    borderColor: '#e5e7eb',
     fontFamily: 'Inter',
     layout: 'default',
   },
@@ -136,6 +197,11 @@ const THEMES: Record<string, Theme> = {
     accentColor: '#3b82f6',
     backgroundColor: '#fef3c7',
     textColor: '#1f2937',
+    cardBackground: '#fff7ed',
+    cardText: '#1f2937',
+    headingColor: '#dc2626',
+    mutedTextColor: '#6b7280',
+    borderColor: '#fed7aa',
     fontFamily: 'Inter',
     layout: 'default',
   },
@@ -145,6 +211,11 @@ const THEMES: Record<string, Theme> = {
     accentColor: '#8b5cf6',
     backgroundColor: '#0f172a',
     textColor: '#f1f5f9',
+    cardBackground: '#1e293b',
+    cardText: '#f1f5f9',
+    headingColor: '#e0e7ff',
+    mutedTextColor: '#cbd5e1',
+    borderColor: '#334155',
     fontFamily: 'Inter',
     layout: 'default',
   },
@@ -161,7 +232,7 @@ const DEFAULT_FORM_DATA: Partial<Settings> = {
   sectionOrder: DEFAULT_SECTIONS,
 };
 
-export function SettingsModal({ isOpen, onClose, onDragEnd }: SettingsModalProps) {
+export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: SettingsModalProps) {
   const { data: settings } = useSettings();
   const { mutate: saveSettings } = useSaveSettings();
   const { theme, setTheme } = useTheme();
@@ -204,6 +275,19 @@ export function SettingsModal({ isOpen, onClose, onDragEnd }: SettingsModalProps
 
     setFormData(mergedForm);
   }, [settings]);
+
+  // Scroll to section when modal opens
+  useEffect(() => {
+    if (isOpen && scrollToSection) {
+      // Wait for modal to render
+      setTimeout(() => {
+        const element = document.getElementById(scrollToSection);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  }, [isOpen, scrollToSection]);
 
   console.log('🔍 SettingsModal - formData:', formData);
   console.log('🔍 SettingsModal - sectionOrder:', formData.sectionOrder);
@@ -319,7 +403,7 @@ export function SettingsModal({ isOpen, onClose, onDragEnd }: SettingsModalProps
           
           {/* Color Customization */}
           <div>
-            <h3 className="text-lg font-medium text-foreground mb-4">Colors</h3>
+            <h3 className="text-lg font-medium text-foreground mb-4">Basic Colors</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="block text-sm font-medium text-foreground mb-2">
@@ -357,46 +441,6 @@ export function SettingsModal({ isOpen, onClose, onDragEnd }: SettingsModalProps
                 </div>
               </div>
               
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const resetTheme: Theme = {
-                      name: 'dark' as const,
-                      primaryColor: '#fbbf24',
-                      accentColor: '#22c55e',
-                      backgroundColor: '#0f0f14',
-                      textColor: '#fafafa',
-                      fontFamily: 'Inter',
-                      layout: 'default',
-                    };
-                    setTheme(resetTheme);
-                    setFormData(prev => ({ ...prev, theme: resetTheme }));
-                    toast({
-                      title: 'Theme reset!',
-                      description: 'Colors reset to new yellow default',
-                    });
-                  }}
-                  className="flex-1"
-                >
-                  Reset to Default
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    localStorage.removeItem('basker_theme');
-                    window.location.reload();
-                  }}
-                  className="flex-1"
-                >
-                  Clear Cache & Reload
-                </Button>
-              </div>
-              
               <div>
                 <Label className="block text-sm font-medium text-foreground mb-2">
                   Background Color
@@ -431,6 +475,214 @@ export function SettingsModal({ isOpen, onClose, onDragEnd }: SettingsModalProps
                     {formData.theme?.textColor || '#fafafa'}
                   </span>
                 </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Advanced Color Customization */}
+          <div>
+            <h3 className="text-lg font-medium text-foreground mb-4">Advanced Colors</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="block text-sm font-medium text-foreground mb-2">
+                  Card Background
+                </Label>
+                <div className="flex items-center gap-3">
+                  <Input
+                    type="color"
+                    value={formData.theme?.cardBackground || '#1a1a1f'}
+                    onChange={(e) => updateThemeProperty({ cardBackground: e.target.value })}
+                    className="w-12 h-10 p-0 border cursor-pointer"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {formData.theme?.cardBackground || '#1a1a1f'}
+                  </span>
+                </div>
+              </div>
+              
+              <div>
+                <Label className="block text-sm font-medium text-foreground mb-2">
+                  Card Text
+                </Label>
+                <div className="flex items-center gap-3">
+                  <Input
+                    type="color"
+                    value={formData.theme?.cardText || '#fafafa'}
+                    onChange={(e) => updateThemeProperty({ cardText: e.target.value })}
+                    className="w-12 h-10 p-0 border cursor-pointer"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {formData.theme?.cardText || '#fafafa'}
+                  </span>
+                </div>
+              </div>
+              
+              <div>
+                <Label className="block text-sm font-medium text-foreground mb-2">
+                  Heading Color
+                </Label>
+                <div className="flex items-center gap-3">
+                  <Input
+                    type="color"
+                    value={formData.theme?.headingColor || '#ffffff'}
+                    onChange={(e) => updateThemeProperty({ headingColor: e.target.value })}
+                    className="w-12 h-10 p-0 border cursor-pointer"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {formData.theme?.headingColor || '#ffffff'}
+                  </span>
+                </div>
+              </div>
+              
+              <div>
+                <Label className="block text-sm font-medium text-foreground mb-2">
+                  Muted Text Color
+                </Label>
+                <div className="flex items-center gap-3">
+                  <Input
+                    type="color"
+                    value={formData.theme?.mutedTextColor || '#a1a1aa'}
+                    onChange={(e) => updateThemeProperty({ mutedTextColor: e.target.value })}
+                    className="w-12 h-10 p-0 border cursor-pointer"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {formData.theme?.mutedTextColor || '#a1a1aa'}
+                  </span>
+                </div>
+              </div>
+              
+              <div>
+                <Label className="block text-sm font-medium text-foreground mb-2">
+                  Link Color
+                </Label>
+                <div className="flex items-center gap-3">
+                  <Input
+                    type="color"
+                    value={formData.theme?.linkColor || formData.theme?.primaryColor || '#8b5cf6'}
+                    onChange={(e) => updateThemeProperty({ linkColor: e.target.value })}
+                    className="w-12 h-10 p-0 border cursor-pointer"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {formData.theme?.linkColor || formData.theme?.primaryColor || '#8b5cf6'}
+                  </span>
+                </div>
+              </div>
+              
+              <div>
+                <Label className="block text-sm font-medium text-foreground mb-2">
+                  Link Hover Color
+                </Label>
+                <div className="flex items-center gap-3">
+                  <Input
+                    type="color"
+                    value={formData.theme?.linkHoverColor || formData.theme?.accentColor || '#22c55e'}
+                    onChange={(e) => updateThemeProperty({ linkHoverColor: e.target.value })}
+                    className="w-12 h-10 p-0 border cursor-pointer"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {formData.theme?.linkHoverColor || formData.theme?.accentColor || '#22c55e'}
+                  </span>
+                </div>
+              </div>
+              
+              <div>
+                <Label className="block text-sm font-medium text-foreground mb-2">
+                  Border Color
+                </Label>
+                <div className="flex items-center gap-3">
+                  <Input
+                    type="color"
+                    value={formData.theme?.borderColor || '#27272a'}
+                    onChange={(e) => updateThemeProperty({ borderColor: e.target.value })}
+                    className="w-12 h-10 p-0 border cursor-pointer"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {formData.theme?.borderColor || '#27272a'}
+                  </span>
+                </div>
+              </div>
+              
+              <div>
+                <Label className="block text-sm font-medium text-foreground mb-2">
+                  Button Background
+                </Label>
+                <div className="flex items-center gap-3">
+                  <Input
+                    type="color"
+                    value={formData.theme?.buttonBackground || formData.theme?.primaryColor || '#8b5cf6'}
+                    onChange={(e) => updateThemeProperty({ buttonBackground: e.target.value })}
+                    className="w-12 h-10 p-0 border cursor-pointer"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {formData.theme?.buttonBackground || formData.theme?.primaryColor || '#8b5cf6'}
+                  </span>
+                </div>
+              </div>
+              
+              <div>
+                <Label className="block text-sm font-medium text-foreground mb-2">
+                  Button Text
+                </Label>
+                <div className="flex items-center gap-3">
+                  <Input
+                    type="color"
+                    value={formData.theme?.buttonText || '#ffffff'}
+                    onChange={(e) => updateThemeProperty({ buttonText: e.target.value })}
+                    className="w-12 h-10 p-0 border cursor-pointer"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {formData.theme?.buttonText || '#ffffff'}
+                  </span>
+                </div>
+              </div>
+              
+              <div>
+                <Label className="block text-sm font-medium text-foreground mb-2">
+                  Input Background
+                </Label>
+                <div className="flex items-center gap-3">
+                  <Input
+                    type="color"
+                    value={formData.theme?.inputBackground || '#27272a'}
+                    onChange={(e) => updateThemeProperty({ inputBackground: e.target.value })}
+                    className="w-12 h-10 p-0 border cursor-pointer"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {formData.theme?.inputBackground || '#27272a'}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="col-span-2 flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const resetTheme: Theme = THEMES.dark;
+                    setTheme(resetTheme);
+                    setFormData(prev => ({ ...prev, theme: resetTheme }));
+                    toast({
+                      title: 'Theme reset!',
+                      description: 'All colors reset to dark theme defaults',
+                    });
+                  }}
+                  className="flex-1"
+                >
+                  Reset All Colors
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    localStorage.removeItem('basker_theme');
+                    window.location.reload();
+                  }}
+                  className="flex-1"
+                >
+                  Clear Cache & Reload
+                </Button>
               </div>
             </div>
           </div>
@@ -640,6 +892,343 @@ export function SettingsModal({ isOpen, onClose, onDragEnd }: SettingsModalProps
                 </div>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* Social Icons Row */}
+        <div id="social-icons-section">
+          <h3 className="text-lg font-medium text-foreground mb-4">Social Icons Row</h3>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-sm font-medium text-foreground">Enable Social Icons</Label>
+                <p className="text-xs text-muted-foreground">Display social media icons under your bio</p>
+              </div>
+              <Switch
+                checked={Boolean((formData as any).socialIconsConfig?.enabled || false)}
+                onCheckedChange={(checked) => setFormData(prev => ({
+                  ...prev,
+                  socialIconsConfig: {
+                    ...(prev as any).socialIconsConfig,
+                    enabled: checked,
+                  }
+                } as any))}
+              />
+            </div>
+
+            {(formData as any).socialIconsConfig?.enabled && (
+              <>
+                {/* Icon Placement */}
+                <div>
+                  <Label className="block text-sm font-medium text-foreground mb-2">
+                    Placement
+                  </Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { value: 'under-bio', label: 'Under Bio' },
+                      { value: 'under-avatar', label: 'Under Avatar' },
+                      { value: 'above-sections', label: 'Above Sections' },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setFormData(prev => ({
+                          ...prev,
+                          socialIconsConfig: {
+                            ...(prev as any).socialIconsConfig,
+                            placement: option.value,
+                          }
+                        } as any))}
+                        className={`
+                          px-3 py-2 text-sm rounded-md border transition-colors
+                          ${(formData as any).socialIconsConfig?.placement === option.value
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'bg-background text-foreground border-border hover:bg-muted'
+                          }
+                        `}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Icon Style */}
+                <div>
+                  <Label className="block text-sm font-medium text-foreground mb-2">
+                    Icon Style
+                  </Label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      { value: 'default', label: 'Default' },
+                      { value: 'rounded', label: 'Rounded' },
+                      { value: 'square', label: 'Square' },
+                      { value: 'minimal', label: 'Minimal' },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setFormData(prev => ({
+                          ...prev,
+                          socialIconsConfig: {
+                            ...(prev as any).socialIconsConfig,
+                            style: option.value,
+                          }
+                        } as any))}
+                        className={`
+                          px-3 py-2 text-sm rounded-md border transition-colors
+                          ${(formData as any).socialIconsConfig?.style === option.value
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'bg-background text-foreground border-border hover:bg-muted'
+                          }
+                        `}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Icon Size */}
+                <div>
+                  <Label className="block text-sm font-medium text-foreground mb-2">
+                    Icon Size
+                  </Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { value: 'small', label: 'Small' },
+                      { value: 'medium', label: 'Medium' },
+                      { value: 'large', label: 'Large' },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setFormData(prev => ({
+                          ...prev,
+                          socialIconsConfig: {
+                            ...(prev as any).socialIconsConfig,
+                            size: option.value,
+                          }
+                        } as any))}
+                        className={`
+                          px-3 py-2 text-sm rounded-md border transition-colors
+                          ${(formData as any).socialIconsConfig?.size === option.value
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'bg-background text-foreground border-border hover:bg-muted'
+                          }
+                        `}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Custom Colors */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label className="block text-sm font-medium text-foreground mb-2">
+                      Background
+                    </Label>
+                    <Input
+                      type="color"
+                      value={(formData as any).socialIconsConfig?.backgroundColor || '#ffffff'}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        socialIconsConfig: {
+                          ...(prev as any).socialIconsConfig,
+                          backgroundColor: e.target.value,
+                        }
+                      } as any))}
+                      className="w-full h-10 p-0 border cursor-pointer"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label className="block text-sm font-medium text-foreground mb-2">
+                      Icon Color
+                    </Label>
+                    <Input
+                      type="color"
+                      value={(formData as any).socialIconsConfig?.iconColor || '#000000'}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        socialIconsConfig: {
+                          ...(prev as any).socialIconsConfig,
+                          iconColor: e.target.value,
+                        }
+                      } as any))}
+                      className="w-full h-10 p-0 border cursor-pointer"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label className="block text-sm font-medium text-foreground mb-2">
+                      Hover Color
+                    </Label>
+                    <Input
+                      type="color"
+                      value={(formData as any).socialIconsConfig?.hoverColor || '#6366f1'}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        socialIconsConfig: {
+                          ...(prev as any).socialIconsConfig,
+                          hoverColor: e.target.value,
+                        }
+                      } as any))}
+                      className="w-full h-10 p-0 border cursor-pointer"
+                    />
+                  </div>
+                </div>
+
+                {/* Social Links Manager */}
+                <div className="border-t pt-4 mt-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <Label className="text-sm font-medium text-foreground">
+                      Social Links (Max 8)
+                    </Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const currentLinks = (formData as any).socialLinks || [];
+                        if (currentLinks.length >= 8) {
+                          toast({
+                            title: 'Limit reached',
+                            description: 'You can add maximum 8 social links',
+                            variant: 'destructive',
+                          });
+                          return;
+                        }
+                        setFormData(prev => ({
+                          ...prev,
+                          socialLinks: [
+                            ...currentLinks,
+                            {
+                              id: Date.now().toString(),
+                              platform: 'twitter',
+                              url: '',
+                              order: currentLinks.length,
+                              enabled: true,
+                            }
+                          ]
+                        } as any));
+                      }}
+                      disabled={((formData as any).socialLinks || []).length >= 8}
+                    >
+                      + Add Social Link
+                    </Button>
+                  </div>
+
+                  <div className="space-y-3">
+                    {((formData as any).socialLinks || []).map((link: any, index: number) => (
+                      <div key={link.id} className="flex items-start gap-2 p-3 border rounded-lg bg-muted/30">
+                        <div className="flex-1 space-y-2">
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <Label className="text-xs text-muted-foreground mb-1">Platform</Label>
+                              <select
+                                value={link.platform}
+                                onChange={(e) => {
+                                  const newLinks = [...((formData as any).socialLinks || [])];
+                                  newLinks[index] = { ...newLinks[index], platform: e.target.value };
+                                  setFormData(prev => ({ ...prev, socialLinks: newLinks } as any));
+                                }}
+                                className="w-full p-2 text-sm border border-border rounded-md bg-background"
+                              >
+                                <option value="twitter">Twitter</option>
+                                <option value="instagram">Instagram</option>
+                                <option value="facebook">Facebook</option>
+                                <option value="linkedin">LinkedIn</option>
+                                <option value="youtube">YouTube</option>
+                                <option value="tiktok">TikTok</option>
+                                <option value="github">GitHub</option>
+                                <option value="twitch">Twitch</option>
+                                <option value="discord">Discord</option>
+                                <option value="telegram">Telegram</option>
+                                <option value="whatsapp">WhatsApp</option>
+                                <option value="snapchat">Snapchat</option>
+                                <option value="reddit">Reddit</option>
+                                <option value="pinterest">Pinterest</option>
+                                <option value="spotify">Spotify</option>
+                                <option value="soundcloud">SoundCloud</option>
+                                <option value="bandcamp">Bandcamp</option>
+                                <option value="patreon">Patreon</option>
+                                <option value="kofi">Ko-fi</option>
+                                <option value="buymeacoffee">Buy Me a Coffee</option>
+                                <option value="venmo">Venmo</option>
+                                <option value="cashapp">Cash App</option>
+                                <option value="paypal">PayPal</option>
+                                <option value="email">Email</option>
+                                <option value="website">Website</option>
+                                <option value="custom">Custom</option>
+                              </select>
+                            </div>
+                            
+                            <div className="flex items-end gap-2">
+                              <div className="flex-1">
+                                <Label className="text-xs text-muted-foreground mb-1">Enabled</Label>
+                                <Switch
+                                  checked={link.enabled}
+                                  onCheckedChange={(checked) => {
+                                    const newLinks = [...((formData as any).socialLinks || [])];
+                                    newLinks[index] = { ...newLinks[index], enabled: checked };
+                                    setFormData(prev => ({ ...prev, socialLinks: newLinks } as any));
+                                  }}
+                                />
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  const newLinks = ((formData as any).socialLinks || []).filter((_: any, i: number) => i !== index);
+                                  setFormData(prev => ({ ...prev, socialLinks: newLinks } as any));
+                                }}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                Remove
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          <Input
+                            placeholder="https://..."
+                            value={link.url}
+                            onChange={(e) => {
+                              const newLinks = [...((formData as any).socialLinks || [])];
+                              newLinks[index] = { ...newLinks[index], url: e.target.value };
+                              setFormData(prev => ({ ...prev, socialLinks: newLinks } as any));
+                            }}
+                            className="text-sm"
+                          />
+                          
+                          {link.platform === 'custom' && (
+                            <Input
+                              placeholder="Custom label (optional)"
+                              value={link.label || ''}
+                              onChange={(e) => {
+                                const newLinks = [...((formData as any).socialLinks || [])];
+                                newLinks[index] = { ...newLinks[index], label: e.target.value };
+                                setFormData(prev => ({ ...prev, socialLinks: newLinks } as any));
+                              }}
+                              className="text-sm"
+                            />
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {((formData as any).socialLinks || []).length === 0 && (
+                      <div className="text-center py-6 text-sm text-muted-foreground">
+                        No social links added yet. Click "Add Social Link" to get started.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
 

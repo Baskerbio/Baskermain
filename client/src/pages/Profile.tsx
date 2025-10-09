@@ -8,6 +8,8 @@ import { LinksList } from '../components/LinksList';
 import { Widgets } from '../components/Widgets';
 import { SettingsModal } from '../components/SettingsModal';
 import { DragDropProvider } from '../components/DragDropProvider';
+import { SocialIconsRow } from '../components/SocialIconsRow';
+import { SocialIconsEditor } from '../components/SocialIconsEditor';
 import { useAuth } from '../contexts/AuthContext';
 import { useEditMode } from '../components/EditModeProvider';
 import { useLinks, useSaveLinks, useSettings, useSaveSettings } from '../hooks/use-atprotocol';
@@ -24,6 +26,7 @@ export default function Profile() {
   const { toast } = useToast();
   const [showSettings, setShowSettings] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [settingsScrollTo, setSettingsScrollTo] = useState<string | undefined>(undefined);
 
   const handleLogout = async () => {
     try {
@@ -254,7 +257,52 @@ export default function Profile() {
         </header>
 
         <main className="max-w-2xl mx-auto px-4 py-8">
-          <ProfileHeader />
+          <ProfileHeader onOpenSettings={() => {
+            setSettingsScrollTo('social-icons-section');
+            setShowSettings(true);
+          }} />
+          
+          {/* Social Icons - above sections placement */}
+          {settings?.socialIconsConfig?.placement === 'above-sections' && (
+            <div className="mb-8">
+              {/* Show editor in edit mode */}
+              {isEditMode ? (
+                <SocialIconsEditor
+                  socialLinks={settings?.socialLinks || []}
+                  config={settings?.socialIconsConfig}
+                  onSave={(links, config) => {
+                    if (!settings) return;
+                    const updatedSettings = {
+                      ...settings,
+                      socialLinks: links,
+                      socialIconsConfig: {
+                        ...(settings.socialIconsConfig || {}),
+                        ...config,
+                        enabled: links.length > 0,
+                      },
+                    };
+                    saveSettings(updatedSettings);
+                  }}
+                  onOpenSettings={() => {
+                    setSettingsScrollTo('social-icons-section');
+                    setShowSettings(true);
+                  }}
+                />
+              ) : (
+                /* Show preview for non-edit mode */
+                settings?.socialLinks && settings.socialLinks.length > 0 && (
+                  <div className="flex items-center justify-center">
+                    <SocialIconsRow 
+                      socialLinks={settings.socialLinks} 
+                      config={settings.socialIconsConfig}
+                      isEditMode={false}
+                    />
+                  </div>
+                )
+              )}
+            </div>
+          )}
+          
           {(() => {
             const sectionOrder = settings?.sectionOrder || ['widgets', 'notes', 'links'];
             console.log('🔍 Current section order:', sectionOrder);
@@ -371,8 +419,12 @@ export default function Profile() {
 
             <SettingsModal 
               isOpen={showSettings} 
-              onClose={() => setShowSettings(false)} 
+              onClose={() => {
+                setShowSettings(false);
+                setSettingsScrollTo(undefined);
+              }} 
               onDragEnd={onDragEnd}
+              scrollToSection={settingsScrollTo}
             />
       </div>
     </DragDropProvider>
