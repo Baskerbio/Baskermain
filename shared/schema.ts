@@ -270,6 +270,14 @@ export const socialIconsConfigSchema = z.object({
   hoverColor: z.string().optional(),
 });
 
+// Banner adjustment settings
+export const bannerAdjustmentSchema = z.object({
+  scale: z.number().default(100),
+  positionX: z.number().default(50),
+  positionY: z.number().default(50),
+  rotation: z.number().default(0),
+});
+
 // Settings schema
 export const settingsSchema = z.object({
   theme: themeSchema,
@@ -289,6 +297,8 @@ export const settingsSchema = z.object({
   // Custom Profile Overrides
   customBio: z.string().optional(),
   customAvatar: z.string().optional(),
+  // Banner adjustments
+  bannerAdjustment: bannerAdjustmentSchema.optional(),
   // SEO Settings
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
@@ -397,6 +407,7 @@ export type Settings = z.infer<typeof settingsSchema>;
 export type Widget = z.infer<typeof widgetSchema>;
 export type SocialLink = z.infer<typeof socialLinkSchema>;
 export type SocialIconsConfig = z.infer<typeof socialIconsConfigSchema>;
+export type BannerAdjustment = z.infer<typeof bannerAdjustmentSchema>;
 
 export type LinksRecord = z.infer<typeof linksRecordSchema>;
 export type NotesRecord = z.infer<typeof notesRecordSchema>;

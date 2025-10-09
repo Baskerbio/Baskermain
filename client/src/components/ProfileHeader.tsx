@@ -186,7 +186,11 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
               <img 
                 src={profile.banner} 
                 alt="Profile banner" 
-                className="w-full h-full object-cover rounded-xl"
+                className="w-full h-full object-cover rounded-xl transition-transform"
+                style={effectiveSettings?.bannerAdjustment ? {
+                  transform: `scale(${effectiveSettings.bannerAdjustment.scale / 100}) rotate(${effectiveSettings.bannerAdjustment.rotation}deg)`,
+                  objectPosition: `${effectiveSettings.bannerAdjustment.positionX}% ${effectiveSettings.bannerAdjustment.positionY}%`,
+                } : undefined}
                 data-testid="img-banner"
               />
             )}
