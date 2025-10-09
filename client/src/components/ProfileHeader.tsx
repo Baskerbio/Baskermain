@@ -292,16 +292,33 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
               socialLinks={effectiveSettings?.socialLinks || []}
               config={effectiveSettings?.socialIconsConfig}
               onSave={(links, config) => {
-                if (!ownSettings) return;
+                // Create settings object if it doesn't exist
+                const baseSettings = ownSettings || {
+                  theme: {
+                    name: 'dark',
+                    primaryColor: '#8b5cf6',
+                    accentColor: '#22c55e',
+                    backgroundColor: '#0f0f14',
+                    textColor: '#fafafa',
+                    fontFamily: 'Inter',
+                    layout: 'default',
+                  },
+                  showStories: true,
+                  showNotes: true,
+                  isPublic: true,
+                  enableAnalytics: true,
+                  sectionOrder: ['widgets', 'notes', 'links'],
+                };
+                
                 const updatedSettings = {
-                  ...ownSettings,
+                  ...baseSettings,
                   socialLinks: links,
                   socialIconsConfig: {
                     enabled: false,
                     placement: 'under-bio',
                     style: 'default',
                     size: 'medium',
-                    ...(ownSettings.socialIconsConfig || {}),
+                    ...(baseSettings.socialIconsConfig || {}),
                     ...config,
                     enabled: links.length > 0,
                   },
@@ -355,16 +372,33 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
               socialLinks={effectiveSettings?.socialLinks || []}
               config={effectiveSettings?.socialIconsConfig}
               onSave={(links, config) => {
-                if (!ownSettings) return;
+                // Create settings object if it doesn't exist
+                const baseSettings = ownSettings || {
+                  theme: {
+                    name: 'dark',
+                    primaryColor: '#8b5cf6',
+                    accentColor: '#22c55e',
+                    backgroundColor: '#0f0f14',
+                    textColor: '#fafafa',
+                    fontFamily: 'Inter',
+                    layout: 'default',
+                  },
+                  showStories: true,
+                  showNotes: true,
+                  isPublic: true,
+                  enableAnalytics: true,
+                  sectionOrder: ['widgets', 'notes', 'links'],
+                };
+                
                 const updatedSettings = {
-                  ...ownSettings,
+                  ...baseSettings,
                   socialLinks: links,
                   socialIconsConfig: {
                     enabled: false,
                     placement: 'under-bio',
                     style: 'default',
                     size: 'medium',
-                    ...(ownSettings.socialIconsConfig || {}),
+                    ...(baseSettings.socialIconsConfig || {}),
                     ...config,
                     enabled: links.length > 0, // Auto-enable if links exist
                   },

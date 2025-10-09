@@ -271,16 +271,33 @@ export default function Profile() {
                   socialLinks={settings?.socialLinks || []}
                   config={settings?.socialIconsConfig}
                   onSave={(links, config) => {
-                    if (!settings) return;
+                    // Create settings object if it doesn't exist
+                    const baseSettings = settings || {
+                      theme: {
+                        name: 'dark',
+                        primaryColor: '#8b5cf6',
+                        accentColor: '#22c55e',
+                        backgroundColor: '#0f0f14',
+                        textColor: '#fafafa',
+                        fontFamily: 'Inter',
+                        layout: 'default',
+                      },
+                      showStories: true,
+                      showNotes: true,
+                      isPublic: true,
+                      enableAnalytics: true,
+                      sectionOrder: ['widgets', 'notes', 'links'],
+                    };
+                    
                     const updatedSettings = {
-                      ...settings,
+                      ...baseSettings,
                       socialLinks: links,
                       socialIconsConfig: {
                         enabled: false,
                         placement: 'above-sections',
                         style: 'default',
                         size: 'medium',
-                        ...(settings.socialIconsConfig || {}),
+                        ...(baseSettings.socialIconsConfig || {}),
                         ...config,
                         enabled: links.length > 0,
                       },
