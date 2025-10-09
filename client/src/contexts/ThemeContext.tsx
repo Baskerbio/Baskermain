@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { Theme } from '@shared/schema';
+import { useLocation } from 'wouter';
 
 interface ThemeContextType {
   theme: Theme;
@@ -26,15 +27,25 @@ interface ThemeProviderProps {
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>(defaultTheme);
+  const [location] = useLocation();
 
   const isDark = theme.name === 'dark';
+  
+  // Check if we're on a profile page (own profile or public profile)
+  const isProfilePage = location === '/profile' || (location.startsWith('/') && location !== '/' && !location.startsWith('/about') && !location.startsWith('/faq') && !location.startsWith('/pricing') && !location.startsWith('/support') && !location.startsWith('/info') && !location.startsWith('/privacy') && !location.startsWith('/terms') && !location.startsWith('/eula') && !location.startsWith('/examples') && !location.startsWith('/starter-packs') && !location.startsWith('/moderation') && !location.startsWith('/login'));
 
   useEffect(() => {
+    // Only apply custom themes on profile pages
+    // For other pages, use default theme
+    const activeTheme = isProfilePage ? theme : defaultTheme;
+    
     // Apply theme to document
     const root = document.documentElement;
     const body = document.body;
     
-    if (isDark) {
+    const themeIsDark = activeTheme.name === 'dark';
+    
+    if (themeIsDark) {
       root.classList.add('dark');
       root.classList.remove('light');
     } else {
@@ -43,61 +54,61 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     }
 
     // Apply core colors
-    root.style.setProperty('--primary', theme.primaryColor);
-    root.style.setProperty('--accent', theme.accentColor);
-    root.style.setProperty('--background', theme.backgroundColor);
-    root.style.setProperty('--foreground', theme.textColor);
+    root.style.setProperty('--primary', activeTheme.primaryColor);
+    root.style.setProperty('--accent', activeTheme.accentColor);
+    root.style.setProperty('--background', activeTheme.backgroundColor);
+    root.style.setProperty('--foreground', activeTheme.textColor);
     
     // Apply card colors
-    if (theme.cardBackground) {
-      root.style.setProperty('--card', theme.cardBackground);
+    if (activeTheme.cardBackground) {
+      root.style.setProperty('--card', activeTheme.cardBackground);
     }
-    if (theme.cardText) {
-      root.style.setProperty('--card-foreground', theme.cardText);
+    if (activeTheme.cardText) {
+      root.style.setProperty('--card-foreground', activeTheme.cardText);
     }
     
     // Apply text variations
-    if (theme.headingColor) {
-      root.style.setProperty('--heading', theme.headingColor);
+    if (activeTheme.headingColor) {
+      root.style.setProperty('--heading', activeTheme.headingColor);
     }
-    if (theme.mutedTextColor) {
-      root.style.setProperty('--muted-foreground', theme.mutedTextColor);
+    if (activeTheme.mutedTextColor) {
+      root.style.setProperty('--muted-foreground', activeTheme.mutedTextColor);
     }
-    if (theme.linkColor) {
-      root.style.setProperty('--link-color', theme.linkColor);
+    if (activeTheme.linkColor) {
+      root.style.setProperty('--link-color', activeTheme.linkColor);
     }
-    if (theme.linkHoverColor) {
-      root.style.setProperty('--link-hover-color', theme.linkHoverColor);
+    if (activeTheme.linkHoverColor) {
+      root.style.setProperty('--link-hover-color', activeTheme.linkHoverColor);
     }
     
     // Apply UI element colors
-    if (theme.borderColor) {
-      root.style.setProperty('--border', theme.borderColor);
+    if (activeTheme.borderColor) {
+      root.style.setProperty('--border', activeTheme.borderColor);
     }
-    if (theme.buttonBackground) {
-      root.style.setProperty('--button-bg', theme.buttonBackground);
+    if (activeTheme.buttonBackground) {
+      root.style.setProperty('--button-bg', activeTheme.buttonBackground);
     }
-    if (theme.buttonText) {
-      root.style.setProperty('--button-text', theme.buttonText);
+    if (activeTheme.buttonText) {
+      root.style.setProperty('--button-text', activeTheme.buttonText);
     }
-    if (theme.buttonHoverBackground) {
-      root.style.setProperty('--button-hover-bg', theme.buttonHoverBackground);
+    if (activeTheme.buttonHoverBackground) {
+      root.style.setProperty('--button-hover-bg', activeTheme.buttonHoverBackground);
     }
     
     // Apply input colors
-    if (theme.inputBackground) {
-      root.style.setProperty('--input', theme.inputBackground);
+    if (activeTheme.inputBackground) {
+      root.style.setProperty('--input', activeTheme.inputBackground);
     }
-    if (theme.inputText) {
-      root.style.setProperty('--input-text', theme.inputText);
+    if (activeTheme.inputText) {
+      root.style.setProperty('--input-text', activeTheme.inputText);
     }
-    if (theme.inputBorder) {
-      root.style.setProperty('--input-border', theme.inputBorder);
+    if (activeTheme.inputBorder) {
+      root.style.setProperty('--input-border', activeTheme.inputBorder);
     }
     
-    // Apply background image
-    if (theme.backgroundImage) {
-      body.style.backgroundImage = `url(${theme.backgroundImage})`;
+    // Apply background image ONLY on profile pages
+    if (isProfilePage && activeTheme.backgroundImage) {
+      body.style.backgroundImage = `url(${activeTheme.backgroundImage})`;
       body.style.backgroundSize = 'cover';
       body.style.backgroundPosition = 'center';
       body.style.backgroundRepeat = 'no-repeat';
@@ -107,11 +118,11 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     }
     
     // Apply font family
-    if (theme.fontFamily) {
-      body.style.fontFamily = theme.fontFamily;
+    if (activeTheme.fontFamily) {
+      body.style.fontFamily = activeTheme.fontFamily;
     }
     
-  }, [theme, isDark]);
+  }, [theme, isDark, isProfilePage, location]);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
@@ -126,8 +137,14 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     setTheme(newTheme);
   };
 
-  // Load theme from localStorage on mount
+  // Load theme from localStorage on mount, but only apply on profile pages
   useEffect(() => {
+    if (!isProfilePage) {
+      // Reset to default theme when not on profile page
+      setThemeState(defaultTheme);
+      return;
+    }
+    
     const savedTheme = localStorage.getItem('basker_theme');
     console.log('🔍 Loading saved theme from localStorage:', savedTheme);
     if (savedTheme) {
@@ -137,11 +154,13 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
         setThemeState(parsedTheme);
       } catch (error) {
         console.error('Failed to parse saved theme:', error);
+        setThemeState(defaultTheme);
       }
     } else {
       console.log('🔍 No saved theme found, using default theme:', defaultTheme);
+      setThemeState(defaultTheme);
     }
-  }, []);
+  }, [isProfilePage]);
 
   return (
     <ThemeContext.Provider value={{
