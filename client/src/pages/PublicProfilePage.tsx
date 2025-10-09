@@ -76,10 +76,13 @@ export default function PublicProfilePage() {
         
         // Load settings for this user
         try {
-          console.log('Loading settings for DID:', did);
+          console.log('📥 Loading settings for DID:', did);
           const settingsData = await atprotocol.getPublicSettings(did);
-          console.log('Loaded public settings:', settingsData);
+          console.log('📥 Loaded public settings data:', settingsData);
           const loadedSettings = settingsData?.settings || null;
+          console.log('📥 Loaded settings object:', loadedSettings);
+          console.log('📥 Social links:', loadedSettings?.socialLinks);
+          console.log('📥 Social icons config:', loadedSettings?.socialIconsConfig);
           setSettings(loadedSettings);
           
           // Apply theme from loaded settings

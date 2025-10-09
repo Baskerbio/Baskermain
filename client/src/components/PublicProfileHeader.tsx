@@ -11,6 +11,10 @@ interface PublicProfileHeaderProps {
 export function PublicProfileHeader({ profile }: PublicProfileHeaderProps) {
   const { data: settings } = usePublicSettings(profile.did);
   
+  console.log('🔍 PublicProfileHeader - settings:', settings);
+  console.log('🔍 PublicProfileHeader - socialLinks:', settings?.socialLinks);
+  console.log('🔍 PublicProfileHeader - socialIconsConfig:', settings?.socialIconsConfig);
+  
   if (!profile) return null;
 
   return (
@@ -32,12 +36,14 @@ export function PublicProfileHeader({ profile }: PublicProfileHeaderProps) {
       </p>
       
       {/* Social Icons - under avatar placement */}
-      {settings?.socialIconsConfig?.placement === 'under-avatar' && settings?.socialLinks && settings.socialLinks.length > 0 && (
-        <SocialIconsRow 
-          socialLinks={settings.socialLinks} 
-          config={settings.socialIconsConfig}
-          isEditMode={false}
-        />
+      {settings?.socialIconsConfig?.placement === 'under-avatar' && settings?.socialLinks && settings.socialLinks.filter(l => l.enabled).length > 0 && (
+        <div className="mb-4">
+          <SocialIconsRow 
+            socialLinks={settings.socialLinks} 
+            config={settings.socialIconsConfig}
+            isEditMode={false}
+          />
+        </div>
       )}
       
       {(settings?.customBio || profile.description) && (
@@ -47,12 +53,14 @@ export function PublicProfileHeader({ profile }: PublicProfileHeaderProps) {
       )}
       
       {/* Social Icons - under bio placement (default) */}
-      {(!settings?.socialIconsConfig?.placement || settings?.socialIconsConfig?.placement === 'under-bio') && settings?.socialLinks && settings.socialLinks.length > 0 && (
-        <SocialIconsRow 
-          socialLinks={settings.socialLinks} 
-          config={settings.socialIconsConfig}
-          isEditMode={false}
-        />
+      {(!settings?.socialIconsConfig?.placement || settings?.socialIconsConfig?.placement === 'under-bio') && settings?.socialLinks && settings.socialLinks.filter(l => l.enabled).length > 0 && (
+        <div className="mb-4">
+          <SocialIconsRow 
+            socialLinks={settings.socialLinks} 
+            config={settings.socialIconsConfig}
+            isEditMode={false}
+          />
+        </div>
       )}
     </div>
   );
