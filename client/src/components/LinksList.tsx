@@ -10,7 +10,7 @@ import { useLinks, useSaveLinks, useGroups, useSaveGroups } from '../hooks/use-a
 import { useToast } from '@/hooks/use-toast';
 import { Link, Group } from '@shared/schema';
 import { getContrastColor, getShapeClasses, getLinkStyling } from '../lib/link-utils';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
@@ -24,6 +24,10 @@ const linkFormSchema = z.object({
   description: z.string().optional(),
   icon: z.string().optional(),
   group: z.string().optional(),
+  // Scheduling options
+  isScheduled: z.boolean().optional(),
+  scheduledStart: z.string().optional(),
+  scheduledEnd: z.string().optional(),
   // Customization options
   backgroundColor: z.string().optional(),
   textColor: z.string().optional(),
@@ -184,6 +188,9 @@ export function LinksList({ isEditMode }: LinksListProps) {
       description: '',
       icon: '',
       group: '',
+      isScheduled: false,
+      scheduledStart: '',
+      scheduledEnd: '',
       backgroundColor: '',
       textColor: '',
       fontFamily: 'system',
@@ -225,6 +232,9 @@ export function LinksList({ isEditMode }: LinksListProps) {
         group: values.group || '',
         order: links.length,
         enabled: true,
+        isScheduled: values.isScheduled || false,
+        scheduledStart: values.scheduledStart,
+        scheduledEnd: values.scheduledEnd,
         backgroundColor: values.backgroundColor || '',
         textColor: values.textColor || '',
         fontFamily: values.fontFamily || 'system',
@@ -250,6 +260,9 @@ export function LinksList({ isEditMode }: LinksListProps) {
           description: '',
           icon: '',
           group: '',
+          isScheduled: false,
+          scheduledStart: '',
+          scheduledEnd: '',
           backgroundColor: '',
           textColor: '',
           fontFamily: 'system',
@@ -293,6 +306,9 @@ export function LinksList({ isEditMode }: LinksListProps) {
     form.setValue('description', link.description || '');
     form.setValue('icon', link.icon || 'none');
     form.setValue('group', link.group || '');
+    form.setValue('isScheduled', link.isScheduled || false);
+    form.setValue('scheduledStart', link.scheduledStart || '');
+    form.setValue('scheduledEnd', link.scheduledEnd || '');
     form.setValue('backgroundColor', link.backgroundColor || '');
     form.setValue('textColor', link.textColor || '');
     form.setValue('fontFamily', link.fontFamily || 'system');
@@ -380,6 +396,9 @@ export function LinksList({ isEditMode }: LinksListProps) {
                 description: '',
                 icon: '',
                 group: '',
+                isScheduled: false,
+                scheduledStart: '',
+                scheduledEnd: '',
                 backgroundColor: '',
                 textColor: '',
                 fontFamily: 'system',
@@ -566,6 +585,78 @@ export function LinksList({ isEditMode }: LinksListProps) {
                       );
                     }}
                   />
+                  
+                  {/* Scheduling Section */}
+                  <div className="border-t pt-6 mt-6">
+                    <h4 className="text-lg font-medium text-foreground mb-4">
+                      ⏰ Link Scheduling (optional)
+                    </h4>
+                    
+                    <FormField
+                      control={form.control}
+                      name="isScheduled"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 mb-4">
+                          <div className="space-y-0.5">
+                            <FormLabel>Enable Scheduling</FormLabel>
+                            <FormDescription className="text-sm text-muted-foreground">
+                              Show this link only during specific dates
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    {form.watch('isScheduled') && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="scheduledStart"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Start Date & Time</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="datetime-local"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormDescription className="text-xs">
+                                Link appears after this time
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="scheduledEnd"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>End Date & Time (optional)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="datetime-local"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormDescription className="text-xs">
+                                Link hides after this time
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    )}
+                  </div>
                   
                   {/* Customization Section */}
                   <div className="border-t pt-6 mt-6">
