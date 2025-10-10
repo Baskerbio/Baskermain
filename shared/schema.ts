@@ -352,6 +352,12 @@ export const widgetSchema = z.object({
     "portfolio_gallery", // Portfolio image gallery
     "product_showcase",  // Product showcase (coming soon)
     "work_history",    // Work history and experience
+    "github_activity", // GitHub stats and activity
+    "kofi_support",    // Ko-fi/Buy Me a Coffee support
+    "reaction_bar",    // Emoji reaction bar
+    "spinning_wheel",  // Prize wheel spinner
+    "before_after_slider", // Before/after image comparison
+    "mini_game",       // Mini browser games
   ]),
   title: z.string().optional(),
   enabled: z.boolean().default(true),
