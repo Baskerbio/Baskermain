@@ -7,12 +7,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useWorkHistory, useCompanies, useSaveWorkHistory, useSaveCompanies, useCompanySearch, usePublicWorkHistory } from '../hooks/use-atprotocol';
+import { useWorkHistory, useCompanies, useSaveWorkHistory, useSaveCompanies, useCompanySearch, usePublicWorkHistory, useSettings, useSaveSettings } from '../hooks/use-atprotocol';
 import { atprotocol } from '../lib/atprotocol';
 import { useEditMode } from './EditModeProvider';
-import { Plus, Edit, Trash2, Building2, Calendar, MapPin, Briefcase, CheckCircle, Clock, AlertCircle, ChevronDown, ChevronUp, GripVertical } from 'lucide-react';
+import { Plus, Edit, Trash2, Building2, Calendar, MapPin, Briefcase, CheckCircle, Clock, AlertCircle, ChevronDown, ChevronUp, GripVertical, Link as LinkIcon, X } from 'lucide-react';
 import { WorkHistory, Company } from '@shared/schema';
 import { useToast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
 
 interface WorkHistoryWidgetProps {
   isPublic?: boolean;
@@ -48,6 +49,14 @@ export function WorkHistoryWidget({ isPublic = false, targetDid }: WorkHistoryWi
   const { data: searchResults = [] } = useCompanySearch(searchQuery);
   const { mutate: saveWorkHistory } = useSaveWorkHistory();
   const { mutate: saveCompanies } = useSaveCompanies();
+  
+  // Professional profile settings
+  const { data: settings } = useSettings();
+  const { mutate: saveSettings } = useSaveSettings();
+  
+  // Professional profile state
+  const [showProfessionalSettings, setShowProfessionalSettings] = useState(false);
+  const [skillInput, setSkillInput] = useState('');
 
   // Use appropriate work history data
   const effectiveWorkHistory = isPublic ? publicWorkHistory : workHistory;
@@ -311,6 +320,81 @@ export function WorkHistoryWidget({ isPublic = false, targetDid }: WorkHistoryWi
     });
   };
 
+  // Professional profile handlers
+  const handleAddSkill = () => {
+    if (skillInput.trim() && settings) {
+      const newSkills = [...(settings.skills || []), skillInput.trim()];
+      saveSettings({
+        ...settings,
+        skills: newSkills
+      });
+      setSkillInput('');
+    }
+  };
+
+  const handleRemoveSkill = (skill: string) => {
+    if (settings) {
+      saveSettings({
+        ...settings,
+        skills: (settings.skills || []).filter(s => s !== skill)
+      });
+    }
+  };
+
+  const handleUpdateAvailability = (status: 'available' | 'busy' | 'unavailable', message?: string) => {
+    if (settings) {
+      saveSettings({
+        ...settings,
+        availabilityStatus: status,
+        availabilityMessage: message || settings.availabilityMessage
+      });
+      toast({
+        title: 'Availability updated',
+        description: 'Your availability status has been updated',
+      });
+    }
+  };
+
+  const handleUpdateMeetingLink = (link: string, enabled: boolean) => {
+    if (settings) {
+      saveSettings({
+        ...settings,
+        meetingLink: link,
+        meetingEnabled: enabled
+      });
+      toast({
+        title: 'Meeting link updated',
+        description: 'Your meeting scheduler link has been updated',
+      });
+    }
+  };
+
+  const getAvailabilityColor = (status?: string) => {
+    switch (status) {
+      case 'available':
+        return 'bg-green-500';
+      case 'busy':
+        return 'bg-yellow-500';
+      case 'unavailable':
+        return 'bg-red-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  const getAvailabilityLabel = (status?: string) => {
+    switch (status) {
+      case 'available':
+        return 'Available for work';
+      case 'busy':
+        return 'Busy';
+      case 'unavailable':
+        return 'Unavailable';
+      default:
+        return 'Not set';
+    }
+  };
+
   if (isPublic) {
     return (
       <Card>
@@ -343,6 +427,49 @@ export function WorkHistoryWidget({ isPublic = false, targetDid }: WorkHistoryWi
           </CardTitle>
         </CardHeader>
         <CardContent>
+          {/* Professional Profile Section */}
+          {(settings?.availabilityStatus || (settings?.skills && settings.skills.length > 0) || (settings?.meetingEnabled && settings?.meetingLink)) && (
+            <div className="mb-6 p-4 border rounded-lg space-y-4 bg-muted/30">
+              {/* Availability Status */}
+              {settings?.availabilityStatus && (
+                <div className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full ${getAvailabilityColor(settings.availabilityStatus)}`} />
+                  <span className="font-medium">{getAvailabilityLabel(settings.availabilityStatus)}</span>
+                  {settings.availabilityMessage && (
+                    <span className="text-sm text-muted-foreground">• {settings.availabilityMessage}</span>
+                  )}
+                </div>
+              )}
+
+              {/* Skills */}
+              {settings?.skills && settings.skills.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-semibold mb-2">Skills & Expertise</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {settings.skills.map((skill, index) => (
+                      <Badge key={index} variant="secondary">{skill}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Meeting Link */}
+              {settings?.meetingEnabled && settings?.meetingLink && (
+                <div>
+                  <a
+                    href={settings.meetingLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-primary hover:underline"
+                  >
+                    <Calendar className="w-4 h-4" />
+                    Schedule a meeting
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
+          
           {sortedWorkHistory.length === 0 ? (
             <p className="text-muted-foreground text-center py-4">No work history available</p>
           ) : (

@@ -17,7 +17,13 @@ import { HeatMapWidget } from './widgets/HeatMapWidget';
 import PortfolioGalleryWidget from './widgets/PortfolioGalleryWidget';
 import ProductShowcaseWidget from './widgets/ProductShowcaseWidget';
 import { WorkHistoryWidget } from './WorkHistoryWidget';
-import { Plus, Settings, Trash2, Clock, Code, Users, Cloud, Quote, TrendingUp, Calendar, Music, Heart, Mail, Youtube, Type, Image, BarChart3, Megaphone, X, CheckSquare, Timer, QrCode, Share2, Star, DollarSign, Bell, FileText, Maximize2, Minimize2, MessageCircle, ShoppingBag, Briefcase, ExternalLink } from 'lucide-react';
+import { GitHubActivityWidget } from './widgets/GitHubActivityWidget';
+import { KofiSupportWidget } from './widgets/KofiSupportWidget';
+import { ReactionBarWidget } from './widgets/ReactionBarWidget';
+import { SpinningWheelWidget } from './widgets/SpinningWheelWidget';
+import { BeforeAfterSliderWidget } from './widgets/BeforeAfterSliderWidget';
+import { MiniGameWidget } from './widgets/MiniGameWidget';
+import { Plus, Settings, Trash2, Clock, Code, Users, Cloud, Quote, TrendingUp, Calendar, Music, Heart, Mail, Youtube, Type, Image, BarChart3, Megaphone, X, CheckSquare, Timer, QrCode, Share2, Star, DollarSign, Bell, FileText, Maximize2, Minimize2, MessageCircle, ShoppingBag, Briefcase, ExternalLink, Github, Coffee, Smile, Sparkles, FlipHorizontal, Gamepad2 } from 'lucide-react';
 
 interface WidgetsProps {
   isEditMode: boolean;
@@ -55,6 +61,12 @@ const WIDGET_TYPES = [
   { value: 'portfolio_gallery', label: 'Portfolio Gallery', icon: Image, description: 'Showcase your work with images' },
   { value: 'product_showcase', label: 'Product Showcase', icon: ShoppingBag, description: 'Display and sell products (Coming Soon)' },
   { value: 'work_history', label: 'Work History', icon: Briefcase, description: 'Professional work experience and employment history' },
+  { value: 'github_activity', label: 'GitHub Activity', icon: Github, description: 'Show GitHub stats and contribution graph' },
+  { value: 'kofi_support', label: 'Ko-fi/Coffee Support', icon: Coffee, description: 'Accept tips and donations via Ko-fi or Buy Me a Coffee' },
+  { value: 'reaction_bar', label: 'Reaction Bar', icon: Smile, description: 'Let visitors react with emojis' },
+  { value: 'spinning_wheel', label: 'Spinning Wheel', icon: Sparkles, description: 'Gamified prize wheel for giveaways' },
+  { value: 'before_after_slider', label: 'Before/After Slider', icon: FlipHorizontal, description: 'Image comparison slider' },
+  { value: 'mini_game', label: 'Mini Game', icon: Gamepad2, description: 'Fun browser games for visitors' },
 ];
 
 export function Widgets({ isEditMode }: WidgetsProps) {
@@ -265,6 +277,65 @@ export function Widgets({ isEditMode }: WidgetsProps) {
           showCompanyLogos: true,
           showEmploymentType: true
         };
+      case 'github_activity':
+        return {
+          username: '',
+          showStats: true,
+          showContributions: true,
+          showRepos: true,
+          repoCount: 3,
+          theme: 'light'
+        };
+      case 'kofi_support':
+        return {
+          username: '',
+          platform: 'kofi',
+          supporterCount: 0,
+          showSupporters: true,
+          customMessage: 'Support me!',
+          buttonStyle: 'default',
+          showGoal: false,
+          goalAmount: 1000,
+          currentAmount: 0
+        };
+      case 'reaction_bar':
+        return {
+          reactions: ['👍', '❤️', '🎉', '🔥', '😍'],
+          allowCustom: false,
+          showCounts: true,
+          allowMultiple: false,
+          title: 'React to this page'
+        };
+      case 'spinning_wheel':
+        return {
+          title: 'Spin to Win!',
+          prizes: ['Prize 1', 'Prize 2', 'Prize 3', 'Prize 4', 'Prize 5', 'Prize 6'],
+          colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F'],
+          spinDuration: 4000,
+          allowSpin: true,
+          spinsPerUser: 1,
+          showResult: true
+        };
+      case 'before_after_slider':
+        return {
+          title: 'Before & After',
+          beforeImage: '',
+          afterImage: '',
+          beforeLabel: 'Before',
+          afterLabel: 'After',
+          startPosition: 50,
+          showLabels: true,
+          orientation: 'vertical'
+        };
+      case 'mini_game':
+        return {
+          game: 'snake',
+          title: 'Play a Game!',
+          highScoreEnabled: true,
+          showLeaderboard: false,
+          difficulty: 'medium',
+          theme: 'classic'
+        };
       default:
         return {};
     }
@@ -338,6 +409,18 @@ export function Widgets({ isEditMode }: WidgetsProps) {
         return <ProductShowcaseWidget config={config} isEditMode={isEditMode} onConfigChange={(newConfig) => handleUpdateWidget({ ...widget, config: newConfig })} />;
       case 'work_history':
         return <WorkHistoryWidget />;
+      case 'github_activity':
+        return <GitHubActivityWidget config={config} />;
+      case 'kofi_support':
+        return <KofiSupportWidget config={config} />;
+      case 'reaction_bar':
+        return <ReactionBarWidget config={config} widgetId={widget.id} />;
+      case 'spinning_wheel':
+        return <SpinningWheelWidget config={config} widgetId={widget.id} />;
+      case 'before_after_slider':
+        return <BeforeAfterSliderWidget config={config} />;
+      case 'mini_game':
+        return <MiniGameWidget config={config} />;
       default:
         return <div className="p-4 bg-muted rounded-lg">Unknown widget type: {widget.type}</div>;
     }
@@ -3471,6 +3554,370 @@ function WidgetEditor({
                 />
                 <Label htmlFor="showEmploymentType">Show employment type</Label>
               </div>
+            </div>
+          </div>
+        );
+      
+      case 'github_activity':
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label>GitHub Username</Label>
+              <Input
+                value={editedWidget.config?.username || ''}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, username: e.target.value }
+                  }))
+                }
+                placeholder="Enter GitHub username"
+              />
+            </div>
+            <div className="space-y-3">
+              <Label>Display Options</Label>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showStats"
+                  checked={editedWidget.config?.showStats !== false}
+                  onCheckedChange={(checked) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, showStats: checked }
+                    }))
+                  }
+                />
+                <Label htmlFor="showStats">Show statistics</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showContributions"
+                  checked={editedWidget.config?.showContributions !== false}
+                  onCheckedChange={(checked) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, showContributions: checked }
+                    }))
+                  }
+                />
+                <Label htmlFor="showContributions">Show contribution graph</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showRepos"
+                  checked={editedWidget.config?.showRepos !== false}
+                  onCheckedChange={(checked) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, showRepos: checked }
+                    }))
+                  }
+                />
+                <Label htmlFor="showRepos">Show top repositories</Label>
+              </div>
+            </div>
+            <div>
+              <Label>Number of Repositories</Label>
+              <Input
+                type="number"
+                value={editedWidget.config?.repoCount || 3}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, repoCount: parseInt(e.target.value) || 3 }
+                  }))
+                }
+                min="1"
+                max="10"
+              />
+            </div>
+          </div>
+        );
+      
+      case 'kofi_support':
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label>Platform</Label>
+              <Select
+                value={editedWidget.config?.platform || 'kofi'}
+                onValueChange={(value) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, platform: value }
+                  }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="kofi">Ko-fi</SelectItem>
+                  <SelectItem value="buymeacoffee">Buy Me a Coffee</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Username</Label>
+              <Input
+                value={editedWidget.config?.username || ''}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, username: e.target.value }
+                  }))
+                }
+                placeholder="Your username"
+              />
+            </div>
+            <div>
+              <Label>Custom Message</Label>
+              <Textarea
+                value={editedWidget.config?.customMessage || ''}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, customMessage: e.target.value }
+                  }))
+                }
+                placeholder="Support me!"
+              />
+            </div>
+          </div>
+        );
+      
+      case 'reaction_bar':
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label>Title</Label>
+              <Input
+                value={editedWidget.config?.title || ''}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, title: e.target.value }
+                  }))
+                }
+                placeholder="React to this page"
+              />
+            </div>
+            <div>
+              <Label>Reactions (comma separated emojis)</Label>
+              <Input
+                value={editedWidget.config?.reactions?.join(', ') || '👍, ❤️, 🎉, 🔥, 😍'}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, reactions: e.target.value.split(',').map(r => r.trim()) }
+                  }))
+                }
+                placeholder="👍, ❤️, 🎉, 🔥, 😍"
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="showCounts"
+                checked={editedWidget.config?.showCounts !== false}
+                onCheckedChange={(checked) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, showCounts: checked }
+                  }))
+                }
+              />
+              <Label htmlFor="showCounts">Show reaction counts</Label>
+            </div>
+          </div>
+        );
+      
+      case 'spinning_wheel':
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label>Title</Label>
+              <Input
+                value={editedWidget.config?.title || ''}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, title: e.target.value }
+                  }))
+                }
+                placeholder="Spin to Win!"
+              />
+            </div>
+            <div>
+              <Label>Prizes (one per line)</Label>
+              <Textarea
+                value={editedWidget.config?.prizes?.join('\n') || ''}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, prizes: e.target.value.split('\n').filter(p => p.trim()) }
+                  }))
+                }
+                placeholder="Prize 1&#10;Prize 2&#10;Prize 3"
+                rows={6}
+              />
+            </div>
+            <div>
+              <Label>Spins Per User</Label>
+              <Input
+                type="number"
+                value={editedWidget.config?.spinsPerUser || 1}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, spinsPerUser: parseInt(e.target.value) || 1 }
+                  }))
+                }
+                min="1"
+              />
+            </div>
+          </div>
+        );
+      
+      case 'before_after_slider':
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label>Title</Label>
+              <Input
+                value={editedWidget.config?.title || ''}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, title: e.target.value }
+                  }))
+                }
+                placeholder="Before & After"
+              />
+            </div>
+            <div>
+              <Label>Before Image URL</Label>
+              <Input
+                value={editedWidget.config?.beforeImage || ''}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, beforeImage: e.target.value }
+                  }))
+                }
+                placeholder="https://example.com/before.jpg"
+              />
+            </div>
+            <div>
+              <Label>After Image URL</Label>
+              <Input
+                value={editedWidget.config?.afterImage || ''}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, afterImage: e.target.value }
+                  }))
+                }
+                placeholder="https://example.com/after.jpg"
+              />
+            </div>
+            <div>
+              <Label>Before Label</Label>
+              <Input
+                value={editedWidget.config?.beforeLabel || 'Before'}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, beforeLabel: e.target.value }
+                  }))
+                }
+              />
+            </div>
+            <div>
+              <Label>After Label</Label>
+              <Input
+                value={editedWidget.config?.afterLabel || 'After'}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, afterLabel: e.target.value }
+                  }))
+                }
+              />
+            </div>
+          </div>
+        );
+      
+      case 'mini_game':
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label>Title</Label>
+              <Input
+                value={editedWidget.config?.title || ''}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, title: e.target.value }
+                  }))
+                }
+                placeholder="Play a Game!"
+              />
+            </div>
+            <div>
+              <Label>Game</Label>
+              <Select
+                value={editedWidget.config?.game || 'snake'}
+                onValueChange={(value) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, game: value }
+                  }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="snake">Snake</SelectItem>
+                  <SelectItem value="memory">Memory Match</SelectItem>
+                  <SelectItem value="2048">2048</SelectItem>
+                  <SelectItem value="tetris">Tetris</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Difficulty</Label>
+              <Select
+                value={editedWidget.config?.difficulty || 'medium'}
+                onValueChange={(value) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, difficulty: value }
+                  }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="easy">Easy</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="hard">Hard</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="highScoreEnabled"
+                checked={editedWidget.config?.highScoreEnabled !== false}
+                onCheckedChange={(checked) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, highScoreEnabled: checked }
+                  }))
+                }
+              />
+              <Label htmlFor="highScoreEnabled">Enable high score tracking</Label>
             </div>
           </div>
         );

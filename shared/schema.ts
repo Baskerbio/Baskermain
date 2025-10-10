@@ -300,6 +300,12 @@ export const settingsSchema = z.object({
   customBanner: z.string().optional(), // Custom banner URL
   // Banner adjustments
   bannerAdjustment: bannerAdjustmentSchema.optional(),
+  // Professional Profile Fields
+  availabilityStatus: z.enum(['available', 'busy', 'unavailable']).default('available').optional(),
+  availabilityMessage: z.string().optional(),
+  skills: z.array(z.string()).default([]).optional(),
+  meetingLink: z.string().optional(), // Calendly, Cal.com, etc.
+  meetingEnabled: z.boolean().default(false).optional(),
   // SEO Settings
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
