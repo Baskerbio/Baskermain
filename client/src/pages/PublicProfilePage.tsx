@@ -18,6 +18,12 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { WorkHistoryWidget } from '../components/WorkHistoryWidget';
 import { SocialIconsRow } from '../components/SocialIconsRow';
+import { GitHubActivityWidget } from '../components/widgets/GitHubActivityWidget';
+import { KofiSupportWidget } from '../components/widgets/KofiSupportWidget';
+import { ReactionBarWidget } from '../components/widgets/ReactionBarWidget';
+import { SpinningWheelWidget } from '../components/widgets/SpinningWheelWidget';
+import { BeforeAfterSliderWidget } from '../components/widgets/BeforeAfterSliderWidget';
+import { MiniGameWidget } from '../components/widgets/MiniGameWidget';
 
 export default function PublicProfilePage() {
   const [, params] = useRoute('/:handle');
@@ -664,6 +670,18 @@ function PublicWidgets({ did }: { did: string }) {
         return <WorkHistoryWidget isPublic={true} targetDid={did} />;
       case 'product_showcase':
         return <PublicProductShowcaseWidget config={config} />;
+      case 'github_activity':
+        return <GitHubActivityWidget config={config} />;
+      case 'kofi_support':
+        return <KofiSupportWidget config={config} />;
+      case 'reaction_bar':
+        return <ReactionBarWidget config={config} widgetId={widget.id} />;
+      case 'spinning_wheel':
+        return <SpinningWheelWidget config={config} widgetId={widget.id} />;
+      case 'before_after_slider':
+        return <BeforeAfterSliderWidget config={config} />;
+      case 'mini_game':
+        return <MiniGameWidget config={config} />;
       default:
         return <div className="p-4 bg-muted rounded-lg">Unknown widget type: {widget.type}</div>;
     }

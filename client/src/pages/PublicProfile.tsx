@@ -18,6 +18,12 @@ import { WorkHistoryWidget } from '../components/WorkHistoryWidget';
 import ProductShowcaseWidget from '../components/widgets/ProductShowcaseWidget';
 import { SocialBadgeWidget } from '../components/widgets/SocialBadgeWidget';
 import { WeatherWidget } from '../components/widgets/WeatherWidget';
+import { GitHubActivityWidget } from '../components/widgets/GitHubActivityWidget';
+import { KofiSupportWidget } from '../components/widgets/KofiSupportWidget';
+import { ReactionBarWidget } from '../components/widgets/ReactionBarWidget';
+import { SpinningWheelWidget } from '../components/widgets/SpinningWheelWidget';
+import { BeforeAfterSliderWidget } from '../components/widgets/BeforeAfterSliderWidget';
+import { MiniGameWidget } from '../components/widgets/MiniGameWidget';
 import { useToast } from '@/hooks/use-toast';
 import { usePublicWidgets } from '../hooks/use-atprotocol';
 
@@ -491,6 +497,18 @@ function PublicWidgets({ did }: { did: string }) {
               return <SocialBadgeWidget key={widget.id} config={widget.config} />;
             case 'weather':
               return <WeatherWidget key={widget.id} config={widget.config} />;
+            case 'github_activity':
+              return <GitHubActivityWidget key={widget.id} config={widget.config} />;
+            case 'kofi_support':
+              return <KofiSupportWidget key={widget.id} config={widget.config} />;
+            case 'reaction_bar':
+              return <ReactionBarWidget key={widget.id} config={widget.config} widgetId={widget.id} />;
+            case 'spinning_wheel':
+              return <SpinningWheelWidget key={widget.id} config={widget.config} widgetId={widget.id} />;
+            case 'before_after_slider':
+              return <BeforeAfterSliderWidget key={widget.id} config={widget.config} />;
+            case 'mini_game':
+              return <MiniGameWidget key={widget.id} config={widget.config} />;
             default:
               console.log('🔍 Unknown widget type:', widget.type);
               return (
