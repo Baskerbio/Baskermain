@@ -13,7 +13,6 @@ import { useEditMode } from './EditModeProvider';
 import { Plus, Edit, Trash2, Building2, Calendar, MapPin, Briefcase, CheckCircle, Clock, AlertCircle, ChevronDown, ChevronUp, GripVertical, Link as LinkIcon, X } from 'lucide-react';
 import { WorkHistory, Company } from '@shared/schema';
 import { useToast } from '@/hooks/use-toast';
-import { Badge } from '@/components/ui/badge';
 
 interface WorkHistoryWidgetProps {
   isPublic?: boolean;

@@ -293,7 +293,6 @@ export default function Profile() {
                       ...baseSettings,
                       socialLinks: links,
                       socialIconsConfig: {
-                        enabled: false,
                         placement: 'above-sections',
                         style: 'default',
                         size: 'medium',
