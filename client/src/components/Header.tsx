@@ -40,6 +40,16 @@ export function Header() {
             <Link href="/info" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors">
               Info Center
             </Link>
+            {isAuthenticated && user && (
+              <>
+                <Link href="/analytics" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors">
+                  Analytics
+                </Link>
+                <Link href="/import" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors">
+                  Import
+                </Link>
+              </>
+            )}
           </div>
           
           {isAuthenticated && user ? (

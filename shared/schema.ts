@@ -20,6 +20,10 @@ export const linkSchema = z.object({
   group: z.string().optional(), // Group name for organizing links
   order: z.number().int().min(0),
   enabled: z.boolean().default(true),
+  // Scheduling options
+  scheduledStart: z.string().optional(), // ISO date string - when link becomes visible
+  scheduledEnd: z.string().optional(), // ISO date string - when link becomes hidden
+  isScheduled: z.boolean().default(false),
   // Customization options
   backgroundColor: z.string().optional(),
   textColor: z.string().optional(),
