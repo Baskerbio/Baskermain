@@ -8,6 +8,28 @@ export const userProfileSchema = z.object({
   description: z.string().optional(),
   avatar: z.string().optional(),
   banner: z.string().optional(),
+  associated: z.object({
+    lists: z.number().optional(),
+    feedgens: z.number().optional(),
+    starterPacks: z.number().optional(),
+    labeler: z.boolean().optional(),
+    chat: z.object({
+      allowIncoming: z.string().optional(),
+    }).optional(),
+  }).optional(),
+  labels: z.array(z.object({
+    src: z.string(),
+    uri: z.string(),
+    cid: z.string().optional(),
+    val: z.string(),
+    cts: z.string(),
+    exp: z.string().optional(),
+    sig: z.any().optional(),
+  })).optional(),
+  followersCount: z.number().optional(),
+  followsCount: z.number().optional(),
+  postsCount: z.number().optional(),
+  createdAt: z.string().optional(),
 });
 
 // Link schema
@@ -28,8 +50,19 @@ export const linkSchema = z.object({
   backgroundColor: z.string().optional(),
   textColor: z.string().optional(),
   fontFamily: z.string().optional(),
-  containerShape: z.enum(['rounded', 'square', 'pill', 'circle']).default('rounded'),
+  containerShape: z.enum(['rounded', 'square', 'pill', 'circle', 'ridged', 'wavy']).default('rounded'),
   autoTextColor: z.boolean().default(true), // Auto-detect text color based on background
+  iconColor: z.string().optional(), // Custom icon color
+  borderColor: z.string().optional(), // Border color
+  borderWidth: z.number().min(0).max(10).optional(), // Border width in pixels
+  borderStyle: z.enum(['solid', 'dashed', 'dotted', 'double']).optional(), // Border style
+  pattern: z.enum(['none', 'dots', 'lines', 'grid', 'diagonal', 'waves']).optional(), // Background pattern
+  patternColor: z.string().optional(), // Pattern color
+  pixelTransition: z.boolean().default(false), // Enable pixel transition effect
+  pixelTransitionText: z.string().optional(), // Text to reveal during pixel transition
+  pixelTransitionColor: z.string().optional(), // Color for pixel transition
+  pixelTransitionGridSize: z.number().min(3).max(15).default(7), // Grid size for pixel transition
+  pixelTransitionDuration: z.number().min(0.1).max(2.0).default(0.3), // Duration of pixel transition
   createdAt: z.string(),
   updatedAt: z.string(),
 });
@@ -198,6 +231,7 @@ export const groupSchema = z.object({
   name: z.string().min(1, "Group name is required"),
   isOpen: z.boolean().default(true),
   order: z.number().int().min(0),
+  titleTextColor: z.string().optional(), // Text color for group title
   createdAt: z.string(),
   updatedAt: z.string(),
 });

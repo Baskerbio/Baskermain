@@ -1,0 +1,22 @@
+.light-rays-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  pointer-events: none;
+  z-index: 3;
+  overflow: hidden;
+}
+
+/* Mobile fallback */
+@media (max-width: 768px) {
+  .light-rays-container {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, transparent 50%, rgba(251, 191, 36, 0.05) 100%);
+    opacity: 0.4;
+  }
+}
+
+/* WebGL not supported fallback */
+.no-webgl .light-rays-container {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, transparent 50%, rgba(251, 191, 36, 0.1) 100%);
+  opacity: 0.3;
+}

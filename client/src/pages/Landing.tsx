@@ -10,6 +10,8 @@ import { Header } from '../components/Header';
 import { ArrowRight, Link as LinkIcon, Globe, Users, Zap, Star, Sparkles, Heart, Share2, Palette, StickyNote, Link2, Settings, Image as ImageIcon, ChevronDown, ChevronUp, Info, ExternalLink } from 'lucide-react';
 import { atprotocol } from '../lib/atprotocol';
 import { createPortal } from 'react-dom';
+import DecryptedText from '../components/DecryptedText';
+import LightRays from '../components/LightRays';
 
 export default function Landing() {
   const { isAuthenticated, user } = useAuth();
@@ -25,6 +27,7 @@ export default function Landing() {
   const [openFAQ, setOpenFAQ] = useState<number | null>(null);
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isScrolled, setIsScrolled] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
@@ -209,6 +212,35 @@ export default function Landing() {
       window.removeEventListener('resize', handleScroll);
     };
   }, [searchHandle, showSuggestions]);
+
+  // Handle light rays sticky behavior
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const headerHeight = 80; // Approximate header height
+      setIsScrolled(scrollY > headerHeight);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Check WebGL support and add fallback class
+  useEffect(() => {
+    const checkWebGL = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (!gl) {
+          document.body.classList.add('no-webgl');
+        }
+      } catch (e) {
+        document.body.classList.add('no-webgl');
+      }
+    };
+
+    checkWebGL();
+  }, []);
 
   const handleSearch = () => {
     if (searchHandle.trim()) {
@@ -470,6 +502,29 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
       <Header />
+      
+      {/* Light Rays Effect - Attached to Header, then Fixed */}
+      <div 
+        className={`w-full h-screen z-5 pointer-events-none transition-all duration-300 ${
+          isScrolled ? 'fixed top-0 left-0' : 'absolute top-0 left-0'
+        }`}
+        style={{ 
+          transform: 'translateZ(0)' // Force hardware acceleration
+        }}
+      >
+        <LightRays
+          raysOrigin="top-center"
+          raysColor="#fbbf24"
+          raysSpeed={1.5}
+          lightSpread={0.8}
+          rayLength={2.0}
+          followMouse={true}
+          mouseInfluence={0.1}
+          noiseAmount={0.1}
+          distortion={0.05}
+          className="custom-rays"
+        />
+      </div>
 
       <main>
         {/* Hero Section */}
@@ -541,6 +596,7 @@ export default function Landing() {
             </svg>
             </div>
           
+          
           {/* Additional floating elements */}
           <div className="absolute inset-0 opacity-5 dark:opacity-10">
             <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full blur-3xl"></div>
@@ -567,13 +623,44 @@ export default function Landing() {
                   
                   {/* Modern typography */}
                   <h1 className={`text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 dark:text-white leading-[1.1] tracking-tight transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-              Your Link-in-Bio,
-                    <span className="block bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 bg-clip-text text-transparent animate-gradient">Decentralized</span>
+                    <DecryptedText
+                      text="Your Link-in-Bio,"
+                      animateOn="view"
+                      speed={150}
+                      maxIterations={20}
+                      sequential={true}
+                      revealDirection="start"
+                      className="text-gray-900 dark:text-white"
+                      encryptedClassName="text-yellow-500 font-extrabold"
+                      parentClassName="block"
+                      useOriginalCharsOnly={true}
+                    />
+                    <DecryptedText
+                      text="Decentralized"
+                      animateOn="view"
+                      speed={120}
+                      maxIterations={25}
+                      sequential={true}
+                      revealDirection="center"
+                      className="bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 bg-clip-text text-transparent animate-gradient"
+                      encryptedClassName="text-orange-400 font-extrabold"
+                      parentClassName="inline-block"
+                      useOriginalCharsOnly={true}
+                    />
             </h1>
                   
                   <p className={`text-xl sm:text-2xl text-gray-600 dark:text-gray-300 max-w-2xl leading-relaxed transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                    Create stunning, personalized link-in-bio pages with unlimited customization. 
-                    Share your digital presence with the world.
+                    <DecryptedText
+                      text="Create stunning, personalized link-in-bio pages with unlimited customization. Share your digital presence with the world."
+                      animateOn="view"
+                      speed={30}
+                      maxIterations={8}
+                      sequential={true}
+                      revealDirection="start"
+                      className="text-gray-600 dark:text-gray-300"
+                      encryptedClassName="text-gray-400"
+                      parentClassName="block"
+                    />
             </p>
                 </div>
             
@@ -774,6 +861,8 @@ export default function Landing() {
             </div>
           </div>
         </section>
+
+        {/* Scroll Velocity Text Section */}
 
         {/* Modern Features Showcase Section */}
         <section 

@@ -108,16 +108,6 @@ export default function PublicProfile() {
             console.log('🎨 Theme has background image:', settingsData.settings.theme.backgroundImage);
             console.log('🎨 Theme background color:', settingsData.settings.theme.backgroundColor);
             setTheme(settingsData.settings.theme);
-            
-            // Force apply background image to body
-            if (settingsData.settings.theme.backgroundImage) {
-              console.log('🎨 Forcing background image application');
-              document.body.style.backgroundImage = `url(${settingsData.settings.theme.backgroundImage})`;
-              document.body.style.backgroundSize = 'cover';
-              document.body.style.backgroundPosition = 'center';
-              document.body.style.backgroundRepeat = 'no-repeat';
-              document.body.style.backgroundAttachment = 'fixed';
-            }
           }
         } catch (settingsErr: any) {
           console.error('Failed to load settings:', settingsErr);
@@ -134,6 +124,45 @@ export default function PublicProfile() {
 
     loadProfile();
   }, [params?.handle]);
+
+  // Apply background image when settings change
+  useEffect(() => {
+    console.log('🎨 PublicProfile: Background image effect triggered');
+    console.log('🎨 PublicProfile: Settings:', settings);
+    console.log('🎨 PublicProfile: Theme:', settings?.theme);
+    console.log('🎨 PublicProfile: Background image URL:', settings?.theme?.backgroundImage);
+    
+    if (settings?.theme?.backgroundImage) {
+      console.log('🎨 PublicProfile: ✅ APPLYING background image:', settings.theme.backgroundImage);
+      const body = document.body;
+      body.style.setProperty('background-image', `url(${settings.theme.backgroundImage})`, 'important');
+      body.style.setProperty('background-size', 'cover', 'important');
+      body.style.setProperty('background-position', 'center', 'important');
+      body.style.setProperty('background-repeat', 'no-repeat', 'important');
+      body.style.setProperty('background-attachment', 'fixed', 'important');
+      body.style.setProperty('background-color', 'transparent', 'important');
+      
+      // Log final computed styles
+      console.log('🎨 PublicProfile: Body background-image:', window.getComputedStyle(body).backgroundImage);
+      console.log('🎨 PublicProfile: Body background-color:', window.getComputedStyle(body).backgroundColor);
+    } else {
+      console.log('🎨 PublicProfile: ❌ No background image to apply');
+    }
+    
+    // Cleanup when leaving the page
+    return () => {
+      if (settings?.theme?.backgroundImage) {
+        console.log('🎨 PublicProfile: Cleaning up background image');
+        const body = document.body;
+        body.style.removeProperty('background-image');
+        body.style.removeProperty('background-size');
+        body.style.removeProperty('background-position');
+        body.style.removeProperty('background-repeat');
+        body.style.removeProperty('background-attachment');
+        body.style.removeProperty('background-color');
+      }
+    };
+  }, [settings?.theme?.backgroundImage]);
 
   if (loading) {
     return (
@@ -189,9 +218,9 @@ export default function PublicProfile() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`min-h-screen ${settings?.theme?.backgroundImage ? 'bg-transparent' : 'bg-background'}`}>
       {/* Header */}
-      <header className="bg-card border-b border-border sticky top-0 z-50" data-testid="header">
+      <header className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-50" data-testid="header">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/">
@@ -370,17 +399,16 @@ function PublicLinksList({ did }: { did: string }) {
             <Card
               key={link.id}
               className={`card-hover group relative cursor-pointer ${getLinkStyling(link).shapeClasses}`}
-              style={{
-                backgroundColor: getLinkStyling(link).backgroundColor,
-                color: getLinkStyling(link).color,
-                fontFamily: getLinkStyling(link).fontFamily,
-              }}
+              style={getLinkStyling(link)}
               onClick={() => openLink(link.url)}
             >
               <CardContent className="p-4">
                 <div className="flex items-center gap-4">
                   <div className="flex-shrink-0">
-                    <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center text-primary">
+                    <div 
+                      className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center"
+                      style={{ color: getLinkStyling(link).iconColor || undefined }}
+                    >
                       {getIconComponent(link.icon || 'fas fa-link')}
                     </div>
                   </div>

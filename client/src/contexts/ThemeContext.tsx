@@ -111,13 +111,22 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     
     // Apply background image ONLY on profile pages
     if (isProfilePage && activeTheme.backgroundImage) {
-      body.style.backgroundImage = `url(${activeTheme.backgroundImage})`;
-      body.style.backgroundSize = 'cover';
-      body.style.backgroundPosition = 'center';
-      body.style.backgroundRepeat = 'no-repeat';
-      body.style.backgroundAttachment = 'fixed';
-    } else {
-      body.style.backgroundImage = 'none';
+      console.log('🎨 ThemeContext: Applying background image:', activeTheme.backgroundImage);
+      body.style.setProperty('background-image', `url(${activeTheme.backgroundImage})`, 'important');
+      body.style.setProperty('background-size', 'cover', 'important');
+      body.style.setProperty('background-position', 'center', 'important');
+      body.style.setProperty('background-repeat', 'no-repeat', 'important');
+      body.style.setProperty('background-attachment', 'fixed', 'important');
+      body.style.setProperty('background-color', 'transparent', 'important');
+    } else if (!isProfilePage) {
+      // Only clear background image when NOT on profile pages
+      console.log('🎨 ThemeContext: Clearing background image (not profile page)');
+      body.style.removeProperty('background-image');
+      body.style.removeProperty('background-size');
+      body.style.removeProperty('background-position');
+      body.style.removeProperty('background-repeat');
+      body.style.removeProperty('background-attachment');
+      body.style.removeProperty('background-color');
     }
     
     // Apply font family

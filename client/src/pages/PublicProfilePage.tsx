@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { atprotocol } from '../lib/atprotocol';
 import { getLinkStyling } from '../lib/link-utils';
+import PixelTransition from '../components/PixelTransition';
+import GlareHover from '../components/GlareHover';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Skeleton } from '../components/ui/skeleton';
@@ -13,7 +15,7 @@ import { Textarea } from '../components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog';
 import { Label } from '../components/ui/label';
 import { UserProfile } from '@shared/schema';
-import { ArrowLeft, Users, Cloud, Music, Heart, Image, Megaphone, Mail, X } from 'lucide-react';
+import { ArrowLeft, Users, Cloud, Music, Heart, Image, Megaphone, Mail, X, ExternalLink } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { WorkHistoryWidget } from '../components/WorkHistoryWidget';
@@ -21,6 +23,7 @@ import { SocialIconsRow } from '../components/SocialIconsRow';
 import { GitHubActivityWidget } from '../components/widgets/GitHubActivityWidget';
 import { KofiSupportWidget } from '../components/widgets/KofiSupportWidget';
 import { ReactionBarWidget } from '../components/widgets/ReactionBarWidget';
+import { PollWidget } from '../components/widgets/PollWidget';
 import { SpinningWheelWidget } from '../components/widgets/SpinningWheelWidget';
 import { BeforeAfterSliderWidget } from '../components/widgets/BeforeAfterSliderWidget';
 import { MiniGameWidget } from '../components/widgets/MiniGameWidget';
@@ -72,6 +75,8 @@ export default function PublicProfilePage() {
           description: profileData.description || '',
           avatar: profileData.avatar || '',
           banner: profileData.banner || '',
+          associated: profileData.associated,
+          labels: profileData.labels,
           followersCount: profileData.followersCount || 0,
           followsCount: profileData.followsCount || 0,
           postsCount: profileData.postsCount || 0,
@@ -97,16 +102,6 @@ export default function PublicProfilePage() {
             console.log('🎨 Theme has background image:', loadedSettings.theme.backgroundImage);
             console.log('🎨 Theme background color:', loadedSettings.theme.backgroundColor);
             setTheme(loadedSettings.theme);
-            
-            // Force apply background image to body
-            if (loadedSettings.theme.backgroundImage) {
-              console.log('🎨 Forcing background image application');
-              document.body.style.backgroundImage = `url(${loadedSettings.theme.backgroundImage})`;
-              document.body.style.backgroundSize = 'cover';
-              document.body.style.backgroundPosition = 'center';
-              document.body.style.backgroundRepeat = 'no-repeat';
-              document.body.style.backgroundAttachment = 'fixed';
-            }
           }
         } catch (settingsErr: any) {
           console.error('Failed to load settings:', settingsErr);
@@ -124,11 +119,50 @@ export default function PublicProfilePage() {
     loadProfile();
   }, [params?.handle]);
 
+  // Apply background image when settings change
+  useEffect(() => {
+    console.log('🎨 Background image effect triggered');
+    console.log('🎨 Settings:', settings);
+    console.log('🎨 Theme:', settings?.theme);
+    console.log('🎨 Background image URL:', settings?.theme?.backgroundImage);
+    
+    if (settings?.theme?.backgroundImage) {
+      console.log('🎨 ✅ APPLYING background image:', settings.theme.backgroundImage);
+      const body = document.body;
+      body.style.setProperty('background-image', `url(${settings.theme.backgroundImage})`, 'important');
+      body.style.setProperty('background-size', 'cover', 'important');
+      body.style.setProperty('background-position', 'center', 'important');
+      body.style.setProperty('background-repeat', 'no-repeat', 'important');
+      body.style.setProperty('background-attachment', 'fixed', 'important');
+      body.style.setProperty('background-color', 'transparent', 'important');
+      
+      // Log final computed styles
+      console.log('🎨 Body background-image:', window.getComputedStyle(body).backgroundImage);
+      console.log('🎨 Body background-color:', window.getComputedStyle(body).backgroundColor);
+    } else {
+      console.log('🎨 ❌ No background image to apply');
+    }
+    
+    // Cleanup when leaving the page
+    return () => {
+      if (settings?.theme?.backgroundImage) {
+        console.log('🎨 Cleaning up background image');
+        const body = document.body;
+        body.style.removeProperty('background-image');
+        body.style.removeProperty('background-size');
+        body.style.removeProperty('background-position');
+        body.style.removeProperty('background-repeat');
+        body.style.removeProperty('background-attachment');
+        body.style.removeProperty('background-color');
+      }
+    };
+  }, [settings?.theme?.backgroundImage]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
         {/* Header */}
-        <header className="bg-card border-b border-border sticky top-0 z-50" data-testid="header">
+        <header className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-50" data-testid="header">
           <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Link href="/">
@@ -162,7 +196,7 @@ export default function PublicProfilePage() {
     return (
       <div className="min-h-screen bg-background">
         {/* Header */}
-        <header className="bg-card border-b border-border sticky top-0 z-50" data-testid="header">
+        <header className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-50" data-testid="header">
           <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Link href="/">
@@ -197,7 +231,7 @@ export default function PublicProfilePage() {
     return (
       <div className="min-h-screen bg-background">
         {/* Header */}
-        <header className="bg-card border-b border-border sticky top-0 z-50" data-testid="header">
+        <header className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-50" data-testid="header">
           <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Link href="/">
@@ -229,9 +263,9 @@ export default function PublicProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`min-h-screen ${settings?.theme?.backgroundImage ? 'bg-transparent' : 'bg-background'}`}>
       {/* Header */}
-      <header className="bg-card border-b border-border sticky top-0 z-50" data-testid="header">
+      <header className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-50" data-testid="header">
         <div className="max-w-4xl mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
             <Link href="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity">
@@ -369,6 +403,97 @@ function PublicLinksList({ did }: { did: string }) {
     return iconMap[iconClass] || <ExternalLink className="w-5 h-5" />;
   };
 
+  const renderLinkCard = (link: any, isGrouped: boolean = false) => {
+    const linkStyling = getLinkStyling(link);
+    const linkContent = (
+      <div className="relative">
+        <Card
+          className={`hover:shadow-md transition-shadow cursor-pointer ${linkStyling.shapeClasses}`}
+          style={linkStyling}
+        >
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div
+                className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center"
+                style={{ color: linkStyling.iconColor || undefined }}
+              >
+                {getIconComponent(link.icon || 'fas fa-link')}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-medium text-foreground truncate">{link.title}</h4>
+                {link.description && (
+                  <p className="text-sm text-muted-foreground truncate">{link.description}</p>
+                )}
+                <p className="text-[10px] sm:text-xs truncate max-w-[180px] sm:max-w-none">
+                  {link.url}
+                </p>
+              </div>
+              <div className="flex-shrink-0">
+                <i className="fas fa-external-link-alt text-xs text-muted-foreground"></i>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <GlareHover
+          width="100%"
+          height="100%"
+          background="transparent"
+          borderRadius="inherit"
+          borderColor="transparent"
+          glareColor="#ffffff"
+          glareOpacity={0.3}
+          glareAngle={-45}
+          glareSize={200}
+          transitionDuration={600}
+          className="absolute inset-0"
+        />
+      </div>
+    );
+
+    // If pixel transition is enabled, add it as an overlay
+    if (linkStyling.pixelTransition) {
+      const revealText = linkStyling.pixelTransitionText || link.title;
+      return (
+        <div className="relative w-full">
+          {linkContent}
+          <div className="absolute inset-0 pointer-events-none">
+            <PixelTransition
+              firstContent={
+                <div 
+                  className="w-full h-full opacity-0"
+                  style={{ backgroundColor: linkStyling.backgroundColor || 'var(--background)' }}
+                >
+                  {/* Transparent by default, but will show link's background when active */}
+                </div>
+              }
+              secondContent={
+                <div 
+                  className="w-full h-full flex items-center justify-center p-4 rounded-lg"
+                  style={{ backgroundColor: linkStyling.backgroundColor || 'var(--background)' }}
+                >
+                  <div className="text-center">
+                    <h4 
+                      className="font-medium"
+                      style={{ color: linkStyling.color || 'var(--foreground)' }}
+                    >
+                      {revealText}
+                    </h4>
+                  </div>
+                </div>
+              }
+              gridSize={linkStyling.pixelTransitionGridSize}
+              pixelColor={linkStyling.pixelTransitionColor}
+              animationStepDuration={linkStyling.pixelTransitionDuration}
+              className="w-full h-full"
+            />
+          </div>
+        </div>
+      );
+    }
+
+    return linkContent;
+  };
+
   if (loading) return <Skeleton className="h-32 w-full" />;
   if (links.length === 0) return null;
 
@@ -411,36 +536,7 @@ function PublicLinksList({ did }: { did: string }) {
                 rel="noopener noreferrer"
                 className="block"
               >
-                <Card 
-                  className={`hover:shadow-md transition-shadow cursor-pointer ${getLinkStyling(link).shapeClasses}`}
-                  style={{
-                    backgroundColor: getLinkStyling(link).backgroundColor,
-                    color: getLinkStyling(link).color,
-                    fontFamily: getLinkStyling(link).fontFamily,
-                  }}
-                >
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      {getIconComponent(link.icon || 'fas fa-link')}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-foreground truncate">{link.title}</h4>
-                      {link.description && (
-                        <p className="text-sm text-muted-foreground truncate">{link.description}</p>
-                      )}
-                      <p className="text-[10px] sm:text-xs text-muted-foreground truncate max-w-[180px] sm:max-w-none">
-                        {link.url}
-                      </p>
-                    </div>
-                    <div className="text-primary">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                      </svg>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                {renderLinkCard(link)}
               </a>
             ))}
           </div>
@@ -457,7 +553,8 @@ function PublicLinksList({ did }: { did: string }) {
           return (
             <div key={groupName} className="space-y-2">
               <h4 
-                className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2 cursor-pointer hover:text-foreground transition-colors"
+                className="text-sm font-medium uppercase tracking-wide flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                style={{ color: groupData?.titleTextColor || '#ffffff' }}
                 onClick={() => {
                   // Toggle group visibility by updating the groups state
                   setGroups(prevGroups => 
@@ -484,36 +581,7 @@ function PublicLinksList({ did }: { did: string }) {
                       rel="noopener noreferrer"
                       className="block"
                     >
-                      <Card 
-                        className={`hover:shadow-md transition-shadow cursor-pointer ${getLinkStyling(link).shapeClasses}`}
-                        style={{
-                          backgroundColor: getLinkStyling(link).backgroundColor,
-                          color: getLinkStyling(link).color,
-                          fontFamily: getLinkStyling(link).fontFamily,
-                        }}
-                      >
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                                {getIconComponent(link.icon || 'fas fa-link')}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-foreground truncate">{link.title}</h4>
-                            {link.description && (
-                              <p className="text-sm text-muted-foreground truncate">{link.description}</p>
-                            )}
-                            <p className="text-[10px] sm:text-xs text-muted-foreground truncate max-w-[180px] sm:max-w-none">
-                              {link.url}
-                            </p>
-                          </div>
-                          <div className="text-primary">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                      {renderLinkCard(link)}
                     </a>
                   ))}
                 </div>
@@ -659,7 +727,7 @@ function PublicWidgets({ did }: { did: string }) {
       case 'recent_posts':
         return <PublicRecentPostsWidget config={config} />;
       case 'poll':
-        return <PublicPollWidget config={config} />;
+        return <PollWidget config={config} isEditMode={false} />;
       case 'live_chat':
         return <PublicLiveChatWidget config={config} />;
       case 'blog_posts':
@@ -1024,19 +1092,140 @@ function PublicCalendarWidget({ config }: { config: any }) {
 }
 
 function PublicMusicPlayerWidget({ config }: { config: any }) {
-  return (
-    <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-      <Music className="w-6 h-6 text-primary" />
-      <div className="flex-1">
-        <div className="font-medium">Now Playing</div>
-        <div className="text-sm text-muted-foreground">
-          {config.trackId ? 'Track Name' : 'Connect your music account'}
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const audioRef = React.useRef<HTMLAudioElement>(null);
+  
+  const platform = config.platform || 'spotify';
+  const trackId = config.trackId || '';
+  const trackName = config.trackName || '';
+  const artistName = config.artistName || '';
+  const audioUrl = config.audioUrl || '';
+  
+  // For audio files, use HTML5 audio player
+  const isAudioFile = audioUrl && (audioUrl.endsWith('.mp3') || audioUrl.endsWith('.wav') || audioUrl.endsWith('.ogg'));
+  
+  React.useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    
+    const updateProgress = () => {
+      if (audio.duration) {
+        setProgress((audio.currentTime / audio.duration) * 100);
+      }
+    };
+    
+    audio.addEventListener('timeupdate', updateProgress);
+    audio.addEventListener('ended', () => setIsPlaying(false));
+    
+    return () => {
+      audio.removeEventListener('timeupdate', updateProgress);
+      audio.removeEventListener('ended', () => setIsPlaying(false));
+    };
+  }, []);
+  
+  const togglePlay = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    
+    if (isPlaying) {
+      audio.pause();
+    } else {
+      audio.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+  
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    
+    const value = parseFloat(e.target.value);
+    audio.currentTime = (value / 100) * audio.duration;
+    setProgress(value);
+  };
+  
+  // If it's an audio file URL, show custom player
+  if (isAudioFile) {
+    return (
+      <div className="bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl p-4 text-white shadow-lg">
+        <audio ref={audioRef} src={audioUrl} />
+        <div className="flex items-center gap-3 mb-3">
+          <Button
+            size="sm"
+            variant="secondary"
+            className="rounded-full w-10 h-10 p-0 flex items-center justify-center"
+            onClick={togglePlay}
+          >
+            {isPlaying ? '⏸' : '▶'}
+          </Button>
+          <div className="flex-1">
+            <div className="font-semibold text-sm">{trackName}</div>
+            <div className="text-xs opacity-90">{artistName}</div>
+          </div>
+          <Music className="w-6 h-6 opacity-75" />
+        </div>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value={progress}
+          onChange={handleSeek}
+          className="w-full h-1 bg-white/30 rounded-lg appearance-none cursor-pointer"
+          style={{
+            background: `linear-gradient(to right, white ${progress}%, rgba(255,255,255,0.3) ${progress}%)`
+          }}
+        />
+      </div>
+    );
+  }
+  
+  // Check if configuration is incomplete
+  if (!trackId && !audioUrl) {
+    return (
+      <div className="flex items-center gap-3 p-4 bg-muted rounded-lg border-2 border-dashed">
+        <Music className="w-6 h-6 text-muted-foreground" />
+        <div className="flex-1 text-center">
+          <div className="font-medium text-muted-foreground">No music configured</div>
         </div>
       </div>
-      <Button size="sm" variant="outline">
-        Play
-      </Button>
-    </div>
+    );
+  }
+  
+  // If there's a trackId but no track name/artist, show incomplete state
+  if (trackId && (!trackName || !artistName)) {
+    return (
+      <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-950 rounded-lg border-2 border-amber-200 dark:border-amber-800">
+        <Music className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+        <div className="flex-1 text-center">
+          <div className="font-medium text-amber-900 dark:text-amber-100 text-sm">Music player configuration incomplete</div>
+        </div>
+      </div>
+    );
+  }
+  
+  // Show clickable music card that opens the platform
+  return (
+    <a
+      href={trackId}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl p-4 text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+    >
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+          <Music className="w-6 h-6" />
+        </div>
+        <div className="flex-1">
+          <div className="font-semibold">{trackName}</div>
+          <div className="text-sm opacity-90">{artistName}</div>
+          <div className="text-xs opacity-75 mt-1">
+            Play on {platform === 'spotify' ? 'Spotify' : platform === 'apple_music' ? 'Apple Music' : platform === 'soundcloud' ? 'SoundCloud' : 'YouTube'}
+          </div>
+        </div>
+        <ExternalLink className="w-5 h-5 opacity-75" />
+      </div>
+    </a>
   );
 }
 
@@ -1388,115 +1577,6 @@ function PublicRecentPostsWidget({ config }: { config: any }) {
   );
 }
 
-function PublicPollWidget({ config }: { config: any }) {
-  const [hasVoted, setHasVoted] = useState(false);
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [isVoting, setIsVoting] = useState(false);
-  const [pollData, setPollData] = useState(config);
-
-  const handleVote = async (optionId: string) => {
-    if (hasVoted || isVoting) return;
-
-    setIsVoting(true);
-    try {
-      // Get current polls data
-      const currentPolls = await atprotocol.getPolls();
-      const polls = currentPolls?.polls || [];
-      
-      // Find the poll by ID
-      const pollIndex = polls.findIndex((poll: any) => poll.id === config.id);
-      
-      if (pollIndex !== -1) {
-        // Update the specific poll
-        const updatedPolls = [...polls];
-        const poll = updatedPolls[pollIndex];
-        
-        // Update the option votes
-        const updatedOptions = poll.options.map((option: any) => {
-          if (option.id === optionId) {
-            return { ...option, votes: option.votes + 1 };
-          }
-          return option;
-        });
-        
-        updatedPolls[pollIndex] = {
-          ...poll,
-          options: updatedOptions,
-          totalVotes: poll.totalVotes + 1,
-        };
-        
-        // Save updated polls
-        await atprotocol.savePolls(updatedPolls);
-        
-        // Update local state
-        setPollData(updatedPolls[pollIndex]);
-        setSelectedOption(optionId);
-        setHasVoted(true);
-      }
-    } catch (error) {
-      console.error('Failed to vote:', error);
-      // Still show the vote locally even if saving fails
-      setSelectedOption(optionId);
-      setHasVoted(true);
-    } finally {
-      setIsVoting(false);
-    }
-  };
-
-  if (!config.isActive) {
-    return (
-      <div className="text-center p-4">
-        <p className="text-muted-foreground">This poll is not active</p>
-      </div>
-    );
-  }
-
-  const currentConfig = pollData || config;
-
-  return (
-    <div className="space-y-4">
-      <h3 className="font-semibold text-lg">{currentConfig.question || 'What do you think?'}</h3>
-      <div className="space-y-2">
-        {(currentConfig.options || []).map((option: any) => (
-          <button
-            key={option.id}
-            onClick={() => handleVote(option.id)}
-            className={`w-full p-3 text-left rounded-lg border transition-colors ${
-              selectedOption === option.id
-                ? 'border-primary bg-primary/5'
-                : 'border-border hover:bg-muted/50'
-            }`}
-            disabled={hasVoted || isVoting}
-          >
-            <div className="flex items-center gap-2">
-              <div className={`w-4 h-4 rounded-full border-2 ${
-                selectedOption === option.id
-                  ? 'border-primary bg-primary'
-                  : 'border-muted-foreground'
-              }`} />
-              <span>{option.text || 'Option'}</span>
-              {hasVoted && (
-                <span className="ml-auto text-sm text-muted-foreground">
-                  {option.votes || 0} votes
-                </span>
-              )}
-            </div>
-          </button>
-        ))}
-      </div>
-      {isVoting && (
-        <div className="text-center text-sm text-muted-foreground">
-          Recording your vote...
-        </div>
-      )}
-      {hasVoted && !isVoting && (
-        <div className="text-center text-sm text-muted-foreground">
-          Thank you for voting!
-        </div>
-      )}
-    </div>
-  );
-}
 
 function PublicLiveChatWidget({ config }: { config: any }) {
   if (!config.isActive) {

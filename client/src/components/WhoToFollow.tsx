@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ExternalLink, UserPlus, Users } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { ExternalLink, UserPlus, Users, BadgeCheck, CheckCircle2 } from 'lucide-react';
 import { atprotocol } from '../lib/atprotocol';
+import { isVerifiedAccount, isTrustedVerifier, getVerificationTooltip } from '../lib/verification-utils';
 
 interface SuggestedUser {
   did: string;
@@ -11,6 +13,24 @@ interface SuggestedUser {
   displayName: string;
   description?: string;
   avatar?: string;
+  associated?: {
+    lists?: number;
+    feedgens?: number;
+    starterPacks?: number;
+    labeler?: boolean;
+    chat?: {
+      allowIncoming?: string;
+    };
+  };
+  labels?: Array<{
+    src: string;
+    uri: string;
+    cid?: string;
+    val: string;
+    cts: string;
+    exp?: string;
+    sig?: any;
+  }>;
   viewer?: {
     following?: string;
     followedBy?: string;
@@ -137,9 +157,75 @@ export function WhoToFollow({
             </Avatar>
             
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm text-gray-900 truncate">
-                {user.displayName || user.handle}
-              </p>
+              <div className="flex items-center gap-1">
+                <p className="font-semibold text-sm text-gray-900 truncate">
+                  {user.displayName || user.handle}
+                </p>
+                {isVerifiedAccount(user) && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex items-center">
+                          {isTrustedVerifier(user) ? (
+                            // 7-scalloped badge for trusted verifiers/labelers
+                            <svg 
+                              width="16" 
+                              height="16" 
+                              viewBox="0 0 22 22" 
+                              fill="none" 
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="flex-shrink-0"
+                              aria-label="Verified organization"
+                            >
+                              {/* 7-scalloped outer shape */}
+                              <path 
+                                d="M11 2 L12.5 5 L15.5 5.5 L14.5 8 L16 10.5 L13.5 12 L13 15 L11 13.5 L9 15 L8.5 12 L6 10.5 L7.5 8 L6.5 5.5 L9.5 5 Z" 
+                                fill="#3B82F6"
+                                transform="translate(0, 2.5) scale(1.15)"
+                              />
+                              {/* Main circle */}
+                              <circle cx="11" cy="11" r="6.5" fill="#3B82F6" />
+                              {/* Checkmark */}
+                              <path 
+                                d="M8 11L10 13L14 9" 
+                                stroke="white" 
+                                strokeWidth="1.8" 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          ) : (
+                            // Simple circle for regular verified users
+                            <svg 
+                              width="16" 
+                              height="16" 
+                              viewBox="0 0 22 22" 
+                              fill="none" 
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="flex-shrink-0"
+                              aria-label="Verified account"
+                            >
+                              {/* Simple circle */}
+                              <circle cx="11" cy="11" r="9" fill="#3B82F6" />
+                              {/* Checkmark */}
+                              <path 
+                                d="M8 11L10 13L14 9" 
+                                stroke="white" 
+                                strokeWidth="1.8" 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          )}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{getVerificationTooltip(user)}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </div>
               <p className="text-xs text-gray-500 truncate">
                 @{user.handle}
               </p>

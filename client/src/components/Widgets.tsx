@@ -23,7 +23,8 @@ import { ReactionBarWidget } from './widgets/ReactionBarWidget';
 import { SpinningWheelWidget } from './widgets/SpinningWheelWidget';
 import { BeforeAfterSliderWidget } from './widgets/BeforeAfterSliderWidget';
 import { MiniGameWidget } from './widgets/MiniGameWidget';
-import { Plus, Settings, Trash2, Clock, Code, Users, Cloud, Quote, TrendingUp, Calendar, Music, Heart, Mail, Youtube, Type, Image, BarChart3, Megaphone, X, CheckSquare, Timer, QrCode, Share2, Star, DollarSign, Bell, FileText, Maximize2, Minimize2, MessageCircle, ShoppingBag, Briefcase, ExternalLink, Github, Coffee, Smile, Sparkles, FlipHorizontal, Gamepad2 } from 'lucide-react';
+import { Plus, Settings, Trash2, Clock, Code, Users, Cloud, Quote, TrendingUp, Calendar, Music, Heart, Mail, Youtube, Type, Image, BarChart3, Megaphone, X, CheckSquare, Timer, QrCode, Share2, Star, DollarSign, Bell, FileText, Maximize2, Minimize2, MessageCircle, ShoppingBag, Briefcase, ExternalLink, Github, Coffee, Smile, Sparkles, FlipHorizontal, Gamepad2, GripVertical } from 'lucide-react';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 interface WidgetsProps {
   isEditMode: boolean;
@@ -127,6 +128,30 @@ export function Widgets({ isEditMode }: WidgetsProps) {
     });
   };
 
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return;
+
+    const items = Array.from(widgets);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    // Update order property
+    const updatedWidgets = items.map((item, index) => ({
+      ...item,
+      order: index,
+      updatedAt: new Date().toISOString(),
+    }));
+
+    saveWidgets(updatedWidgets, {
+      onSuccess: () => {
+        toast({
+          title: 'Widgets reordered',
+          description: 'Your widgets have been reordered successfully',
+        });
+      },
+    });
+  };
+
   const getSizeClass = (size: string) => {
     switch (size) {
       case 'small': return 'w-64'; // 256px
@@ -175,7 +200,14 @@ export function Widgets({ isEditMode }: WidgetsProps) {
       case 'calendar':
         return { view: 'month', showEvents: true, events: [] };
       case 'music_player':
-        return { platform: 'spotify', trackId: '' };
+        return { 
+          platform: 'spotify', 
+          trackId: '', 
+          trackName: 'Track Name',
+          artistName: 'Artist Name',
+          audioUrl: '',
+          title: 'Music Player' 
+        };
       case 'donation':
         return { platform: 'paypal', amount: '', message: '' };
       case 'contact_form':
@@ -427,17 +459,18 @@ export function Widgets({ isEditMode }: WidgetsProps) {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-foreground">Widgets</h2>
-        {isEditMode && (
-          <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-            <DialogTrigger asChild>
-              <Button size="sm" className="flex items-center gap-2">
-                <Plus className="w-4 h-4" />
-                Add Widget
-              </Button>
-            </DialogTrigger>
+    <DragDropContext onDragEnd={handleDragEnd}>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-foreground">Widgets</h2>
+          {isEditMode && (
+            <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="flex items-center gap-2">
+                  <Plus className="w-4 h-4" />
+                  Add Widget
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Add New Widget</DialogTitle>
@@ -482,109 +515,145 @@ export function Widgets({ isEditMode }: WidgetsProps) {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-6">
-          {widgets
-            .filter(w => w.enabled)
-            .sort((a, b) => a.order - b.order)
-            .reduce((acc: Widget[], widget, index) => {
-              // Group widgets for side-by-side layout
-              if (widget.width === 'half' && index > 0 && widgets[index - 1]?.width === 'half') {
-                // This widget should be paired with the previous one
-                return acc;
-              }
-              
-              if (widget.width === 'half' && index < widgets.length - 1 && widgets[index + 1]?.width === 'half') {
-                // This widget should be paired with the next one
-                acc.push(widget);
-                return acc;
-              }
-              
-              acc.push(widget);
-              return acc;
-            }, [])
-            .map((widget, index) => {
-              const nextWidget = widgets.find(w => w.order === widget.order + 1);
-              const isSideBySide = widget.width === 'half' && nextWidget?.width === 'half';
-              
-              return (
-                <div key={widget.id} className={`relative group ${isSideBySide ? 'flex flex-col md:flex-row gap-6' : ''}`}>
-                  {/* First widget */}
-                  <div className="relative group flex-1">
-                    {isEditMode && (
-                      <div className="absolute -top-2 -right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => setEditingWidget(widget)}
-                          className="h-8 w-8 p-0"
-                        >
-                          <Settings className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => handleDeleteWidget(widget.id)}
-                          className="h-8 w-8 p-0"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    )}
-                    <div className={`${getSizeClass(widget.size)} mx-auto h-full`}>
-                      <Card className="w-full h-full flex flex-col">
-                        <CardContent className="pt-8 flex-1">
-                          {renderWidget(widget)}
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </div>
+        <Droppable droppableId="widgets">
+          {(provided) => (
+            <div 
+              className="flex flex-col gap-6"
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+            >
+              {widgets
+                .filter(w => w.enabled)
+                .sort((a, b) => a.order - b.order)
+                .map((widget, index) => {
+                  // Check if this widget should be paired with the next one
+                  const nextWidget = widgets
+                    .filter(w => w.enabled)
+                    .sort((a, b) => a.order - b.order)[index + 1];
+                  const shouldPair = widget.width === 'half' && nextWidget?.width === 'half';
                   
-                  {/* Second widget (if side-by-side) */}
-                  {isSideBySide && nextWidget && (
-                    <div className="relative group flex-1">
-                      {isEditMode && (
-                        <div className="absolute -top-2 -right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            onClick={() => setEditingWidget(nextWidget)}
-                            className="h-8 w-8 p-0"
-                          >
-                            <Settings className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => handleDeleteWidget(nextWidget.id)}
-                            className="h-8 w-8 p-0"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                  // Skip rendering if this is the second widget in a pair
+                  const prevWidget = index > 0 ? widgets
+                    .filter(w => w.enabled)
+                    .sort((a, b) => a.order - b.order)[index - 1] : null;
+                  const isSecondInPair = widget.width === 'half' && prevWidget?.width === 'half';
+                  
+                  if (isSecondInPair) {
+                    return null; // Skip, already rendered as part of previous pair
+                  }
+                  
+                  return (
+                    <Draggable key={widget.id} draggableId={widget.id} index={index}>
+                      {(provided, snapshot) => (
+                        <div 
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          className={`${snapshot.isDragging ? 'opacity-50 z-50' : ''}`}
+                        >
+                          {shouldPair ? (
+                            // Render paired half-width widgets
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              {/* First widget */}
+                              <div className="relative group">
+                                {isEditMode && (
+                                  <div className="absolute -top-2 -left-2 -right-2 flex gap-1 justify-between z-10">
+                                    <div 
+                                      {...provided.dragHandleProps}
+                                      className="flex items-center justify-center w-8 h-8 rounded-md bg-muted hover:bg-muted/80 cursor-grab active:cursor-grabbing transition-colors shadow-sm"
+                                    >
+                                      <GripVertical className="w-4 h-4 text-muted-foreground" />
+                                    </div>
+                                    <div className="flex gap-1">
+                                      <Button size="sm" variant="secondary" onClick={() => setEditingWidget(widget)} className="h-8 w-8 p-0">
+                                        <Settings className="w-4 h-4" />
+                                      </Button>
+                                      <Button size="sm" variant="destructive" onClick={() => handleDeleteWidget(widget.id)} className="h-8 w-8 p-0">
+                                        <Trash2 className="w-4 h-4" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
+                                <Card className="w-full h-full flex flex-col">
+                                  <CardContent className="pt-8 flex-1">
+                                    {renderWidget(widget)}
+                                  </CardContent>
+                                </Card>
+                              </div>
+                              
+                              {/* Second widget */}
+                              <div className="relative group">
+                                {isEditMode && (
+                                  <div className="absolute -top-2 -left-2 -right-2 flex gap-1 justify-between z-10">
+                                    <div className="flex items-center justify-center w-8 h-8 rounded-md bg-muted hover:bg-muted/80 cursor-grab transition-colors shadow-sm">
+                                      <GripVertical className="w-4 h-4 text-muted-foreground opacity-50" />
+                                    </div>
+                                    <div className="flex gap-1">
+                                      <Button size="sm" variant="secondary" onClick={() => setEditingWidget(nextWidget)} className="h-8 w-8 p-0">
+                                        <Settings className="w-4 h-4" />
+                                      </Button>
+                                      <Button size="sm" variant="destructive" onClick={() => handleDeleteWidget(nextWidget.id)} className="h-8 w-8 p-0">
+                                        <Trash2 className="w-4 h-4" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
+                                <Card className="w-full h-full flex flex-col">
+                                  <CardContent className="pt-8 flex-1">
+                                    {renderWidget(nextWidget)}
+                                  </CardContent>
+                                </Card>
+                              </div>
+                            </div>
+                          ) : (
+                            // Render single widget
+                            <div className={`relative group ${widget.width === 'half' ? 'max-w-md mx-auto' : ''}`}>
+                              {isEditMode && (
+                                <div className="absolute -top-2 -left-2 -right-2 flex gap-1 justify-between z-10">
+                                  <div 
+                                    {...provided.dragHandleProps}
+                                    className="flex items-center justify-center w-8 h-8 rounded-md bg-muted hover:bg-muted/80 cursor-grab active:cursor-grabbing transition-colors shadow-sm"
+                                  >
+                                    <GripVertical className="w-4 h-4 text-muted-foreground" />
+                                  </div>
+                                  <div className="flex gap-1">
+                                    <Button size="sm" variant="secondary" onClick={() => setEditingWidget(widget)} className="h-8 w-8 p-0">
+                                      <Settings className="w-4 h-4" />
+                                    </Button>
+                                    <Button size="sm" variant="destructive" onClick={() => handleDeleteWidget(widget.id)} className="h-8 w-8 p-0">
+                                      <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                              <div className={`${getSizeClass(widget.size)} mx-auto h-full`}>
+                                <Card className="w-full h-full flex flex-col">
+                                  <CardContent className="pt-8 flex-1">
+                                    {renderWidget(widget)}
+                                  </CardContent>
+                                </Card>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
-                      <div className={`${getSizeClass(nextWidget.size)} mx-auto h-full`}>
-                        <Card className="w-full h-full flex flex-col">
-                          <CardContent className="pt-8 flex-1">
-                            {renderWidget(nextWidget)}
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-        </div>
+                    </Draggable>
+                  );
+                })}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
       )}
 
-      {editingWidget && (
-        <WidgetEditor
-          widget={editingWidget}
-          onSave={handleUpdateWidget}
-          onClose={() => setEditingWidget(null)}
-        />
-      )}
-    </div>
+        {editingWidget && (
+          <WidgetEditor
+            widget={editingWidget}
+            onSave={handleUpdateWidget}
+            onClose={() => setEditingWidget(null)}
+          />
+        )}
+      </div>
+    </DragDropContext>
   );
 }
 
@@ -1090,19 +1159,146 @@ function CalendarWidget({ config }: { config: any }) {
 }
 
 function MusicPlayerWidget({ config }: { config: any }) {
-  return (
-    <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-      <Music className="w-6 h-6 text-primary" />
-      <div className="flex-1">
-        <div className="font-medium">Now Playing</div>
-        <div className="text-sm text-muted-foreground">
-          {config.trackId ? 'Track Name' : 'Connect your music account'}
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const audioRef = React.useRef<HTMLAudioElement>(null);
+  
+  const platform = config.platform || 'spotify';
+  const trackId = config.trackId || '';
+  const trackName = config.trackName || '';
+  const artistName = config.artistName || '';
+  const audioUrl = config.audioUrl || '';
+  
+  // For audio files, use HTML5 audio player
+  const isAudioFile = audioUrl && (audioUrl.endsWith('.mp3') || audioUrl.endsWith('.wav') || audioUrl.endsWith('.ogg'));
+  
+  React.useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    
+    const updateProgress = () => {
+      if (audio.duration) {
+        setProgress((audio.currentTime / audio.duration) * 100);
+      }
+    };
+    
+    audio.addEventListener('timeupdate', updateProgress);
+    audio.addEventListener('ended', () => setIsPlaying(false));
+    
+    return () => {
+      audio.removeEventListener('timeupdate', updateProgress);
+      audio.removeEventListener('ended', () => setIsPlaying(false));
+    };
+  }, []);
+  
+  const togglePlay = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    
+    if (isPlaying) {
+      audio.pause();
+    } else {
+      audio.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+  
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    
+    const value = parseFloat(e.target.value);
+    audio.currentTime = (value / 100) * audio.duration;
+    setProgress(value);
+  };
+  
+  // If it's an audio file URL, show custom player
+  if (isAudioFile) {
+    return (
+      <div className="bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl p-4 text-white shadow-lg">
+        <audio ref={audioRef} src={audioUrl} />
+        <div className="flex items-center gap-3 mb-3">
+          <Button
+            size="sm"
+            variant="secondary"
+            className="rounded-full w-10 h-10 p-0 flex items-center justify-center"
+            onClick={togglePlay}
+          >
+            {isPlaying ? '⏸' : '▶'}
+          </Button>
+          <div className="flex-1">
+            <div className="font-semibold text-sm">{trackName}</div>
+            <div className="text-xs opacity-90">{artistName}</div>
+          </div>
+          <Music className="w-6 h-6 opacity-75" />
+        </div>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value={progress}
+          onChange={handleSeek}
+          className="w-full h-1 bg-white/30 rounded-lg appearance-none cursor-pointer"
+          style={{
+            background: `linear-gradient(to right, white ${progress}%, rgba(255,255,255,0.3) ${progress}%)`
+          }}
+        />
+      </div>
+    );
+  }
+  
+  // Check if configuration is incomplete
+  if (!trackId && !audioUrl) {
+    return (
+      <div className="flex items-center gap-3 p-4 bg-muted rounded-lg border-2 border-dashed">
+        <Music className="w-6 h-6 text-muted-foreground" />
+        <div className="flex-1 text-center">
+          <div className="font-medium text-muted-foreground">No music configured</div>
+          <div className="text-xs text-muted-foreground mt-1">
+            Add track details in edit mode
+          </div>
         </div>
       </div>
-      <Button size="sm" variant="outline">
-        Play
-      </Button>
-    </div>
+    );
+  }
+  
+  // If there's a trackId but no track name/artist, show incomplete state
+  if (trackId && (!trackName || !artistName)) {
+    return (
+      <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-950 rounded-lg border-2 border-amber-200 dark:border-amber-800">
+        <Music className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+        <div className="flex-1">
+          <div className="font-medium text-amber-900 dark:text-amber-100">Music player needs configuration</div>
+          <div className="text-xs text-amber-700 dark:text-amber-300 mt-1">
+            Please add track name and artist name in edit mode
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  // Show clickable music card that opens the platform
+  return (
+    <a
+      href={trackId}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl p-4 text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+    >
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+          <Music className="w-6 h-6" />
+        </div>
+        <div className="flex-1">
+          <div className="font-semibold">{trackName}</div>
+          <div className="text-sm opacity-90">{artistName}</div>
+          <div className="text-xs opacity-75 mt-1">
+            Play on {platform === 'spotify' ? 'Spotify' : platform === 'apple_music' ? 'Apple Music' : platform === 'soundcloud' ? 'SoundCloud' : 'YouTube'}
+          </div>
+        </div>
+        <ExternalLink className="w-5 h-5 opacity-75" />
+      </div>
+    </a>
   );
 }
 
@@ -2072,28 +2268,33 @@ function WidgetEditor({
         return (
           <div className="space-y-4">
             <div>
-              <Label>Platform</Label>
-              <Select 
-                value={editedWidget.config?.platform || 'spotify'} 
-                onValueChange={(value) => 
+              <Label>Track Name</Label>
+              <Input
+                value={editedWidget.config?.trackName || ''}
+                onChange={(e) => 
                   setEditedWidget(prev => ({
                     ...prev,
-                    config: { ...prev.config, platform: value }
+                    config: { ...prev.config, trackName: e.target.value }
                   }))
                 }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="spotify">Spotify</SelectItem>
-                  <SelectItem value="apple_music">Apple Music</SelectItem>
-                  <SelectItem value="youtube">YouTube Music</SelectItem>
-                </SelectContent>
-              </Select>
+                placeholder="Enter track name"
+              />
             </div>
             <div>
-              <Label>Track ID or URL</Label>
+              <Label>Artist Name</Label>
+              <Input
+                value={editedWidget.config?.artistName || ''}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, artistName: e.target.value }
+                  }))
+                }
+                placeholder="Enter artist name"
+              />
+            </div>
+            <div>
+              <Label>Link URL (Spotify, YouTube, etc.)</Label>
               <Input
                 value={editedWidget.config?.trackId || ''}
                 onChange={(e) => 
@@ -2102,8 +2303,27 @@ function WidgetEditor({
                     config: { ...prev.config, trackId: e.target.value }
                   }))
                 }
-                placeholder="Track ID or URL"
+                placeholder="https://open.spotify.com/track/..."
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                Link to the track on streaming platform (opens in new tab when clicked)
+              </p>
+            </div>
+            <div>
+              <Label>Audio File URL (Optional)</Label>
+              <Input
+                value={editedWidget.config?.audioUrl || ''}
+                onChange={(e) => 
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, audioUrl: e.target.value }
+                  }))
+                }
+                placeholder="https://example.com/audio.mp3"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Direct link to .mp3, .wav, or .ogg file for built-in player with controls
+              </p>
             </div>
           </div>
         );

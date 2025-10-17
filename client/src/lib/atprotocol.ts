@@ -120,6 +120,8 @@ export class ATProtocolClient {
       if (response.ok) {
         const profileData = await response.json();
         console.log('Successfully got public profile data from Bluesky AppView:', profileData);
+        console.log('Profile associated data:', profileData.associated);
+        console.log('Profile labels:', profileData.labels);
         return profileData;
       } else {
         throw new Error(`Failed to fetch profile: ${response.status} ${response.statusText}`);
@@ -259,12 +261,26 @@ export class ATProtocolClient {
         group: record.value.group || '',
         order: record.value.order || 0,
         enabled: record.value.enabled !== false,
+        isScheduled: record.value.isScheduled || false,
+        scheduledStart: record.value.scheduledStart || '',
+        scheduledEnd: record.value.scheduledEnd || '',
         // Customization options
         backgroundColor: record.value.backgroundColor || '',
         textColor: record.value.textColor || '',
         fontFamily: record.value.fontFamily || 'system',
         containerShape: record.value.containerShape || 'rounded',
         autoTextColor: record.value.autoTextColor !== undefined ? record.value.autoTextColor : true,
+        iconColor: record.value.iconColor || '',
+        borderColor: record.value.borderColor || '',
+        borderWidth: record.value.borderWidth || 0,
+        borderStyle: record.value.borderStyle || 'solid',
+        pattern: record.value.pattern || 'none',
+        patternColor: record.value.patternColor || '',
+        pixelTransition: record.value.pixelTransition || false,
+        pixelTransitionText: record.value.pixelTransitionText || '',
+        pixelTransitionColor: record.value.pixelTransitionColor || '#000000',
+        pixelTransitionGridSize: record.value.pixelTransitionGridSize || 7,
+        pixelTransitionDuration: record.value.pixelTransitionDuration || 0.3,
         createdAt: record.value.createdAt,
         updatedAt: record.value.updatedAt,
       }));
@@ -318,7 +334,18 @@ export class ATProtocolClient {
           textColor: link.textColor || '',
           fontFamily: link.fontFamily || 'system',
           containerShape: link.containerShape || 'rounded',
-          autoTextColor: link.autoTextColor !== undefined ? link.autoTextColor : true,
+        autoTextColor: link.autoTextColor !== undefined ? link.autoTextColor : true,
+        iconColor: link.iconColor || '',
+        borderColor: link.borderColor || '',
+        borderWidth: link.borderWidth || 0,
+        borderStyle: link.borderStyle || 'solid',
+      pattern: link.pattern || 'none',
+      patternColor: link.patternColor || '',
+      pixelTransition: link.pixelTransition || false,
+      pixelTransitionText: link.pixelTransitionText || '',
+      pixelTransitionColor: link.pixelTransitionColor || '#000000',
+      pixelTransitionGridSize: link.pixelTransitionGridSize || 7,
+      pixelTransitionDuration: link.pixelTransitionDuration || 0.3,
           createdAt: link.createdAt || new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
@@ -719,6 +746,9 @@ export class ATProtocolClient {
         config: record.value.config || {},
         order: record.value.order || 0,
         enabled: record.value.enabled !== false,
+        isScheduled: record.value.isScheduled || false,
+        scheduledStart: record.value.scheduledStart || '',
+        scheduledEnd: record.value.scheduledEnd || '',
         size: record.value.size || 'default',
         width: record.value.width || 'full',
         createdAt: record.value.createdAt,
@@ -830,12 +860,26 @@ export class ATProtocolClient {
         group: record.value.group || '',
         order: record.value.order || 0,
         enabled: record.value.enabled !== false,
+        isScheduled: record.value.isScheduled || false,
+        scheduledStart: record.value.scheduledStart || '',
+        scheduledEnd: record.value.scheduledEnd || '',
         // Customization options
         backgroundColor: record.value.backgroundColor || '',
         textColor: record.value.textColor || '',
         fontFamily: record.value.fontFamily || 'system',
         containerShape: record.value.containerShape || 'rounded',
         autoTextColor: record.value.autoTextColor !== undefined ? record.value.autoTextColor : true,
+        iconColor: record.value.iconColor || '',
+        borderColor: record.value.borderColor || '',
+        borderWidth: record.value.borderWidth || 0,
+        borderStyle: record.value.borderStyle || 'solid',
+        pattern: record.value.pattern || 'none',
+        patternColor: record.value.patternColor || '',
+        pixelTransition: record.value.pixelTransition || false,
+        pixelTransitionText: record.value.pixelTransitionText || '',
+        pixelTransitionColor: record.value.pixelTransitionColor || '#000000',
+        pixelTransitionGridSize: record.value.pixelTransitionGridSize || 7,
+        pixelTransitionDuration: record.value.pixelTransitionDuration || 0.3,
         createdAt: record.value.createdAt,
         updatedAt: record.value.updatedAt,
       }));
@@ -949,6 +993,9 @@ export class ATProtocolClient {
         config: record.value.config || {},
         order: record.value.order || 0,
         enabled: record.value.enabled !== false,
+        isScheduled: record.value.isScheduled || false,
+        scheduledStart: record.value.scheduledStart || '',
+        scheduledEnd: record.value.scheduledEnd || '',
         size: record.value.size || 'default',
         width: record.value.width || 'full',
         createdAt: record.value.createdAt,
@@ -1016,6 +1063,7 @@ export class ATProtocolClient {
             name: group.name,
             isOpen: group.isOpen,
             order: group.order,
+            titleTextColor: group.titleTextColor || '#ffffff',
             createdAt: group.createdAt,
             updatedAt: group.updatedAt,
           }),
@@ -1538,7 +1586,8 @@ export class ATProtocolClient {
   async getFollowStatus(targetDid: string) {
     try {
       // Get the current user's follows to check if they're following the target
-      const follows = await this.getFollows(this.session?.handle || '', 1000);
+      // Note: API limit is 100, so this only checks the first 100 follows
+      const follows = await this.getFollows(this.session?.handle || '', 100);
       const isFollowing = follows.follows.some((follow: any) => follow.did === targetDid);
       
       return {

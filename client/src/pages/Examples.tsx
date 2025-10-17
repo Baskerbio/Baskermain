@@ -7,6 +7,7 @@ import { Link } from 'wouter';
 import { atprotocol } from '../lib/atprotocol';
 import { getLinkStyling } from '../lib/link-utils';
 import { Header } from '../components/Header';
+import GlareHover from '../components/GlareHover';
 
 export default function Examples() {
   const [profiles, setProfiles] = useState<any[]>([]);
@@ -211,28 +212,39 @@ export default function Examples() {
                               className="block"
                               onClick={(e) => e.stopPropagation()}
                             >
-                              <Card 
-                                className={`hover:shadow-md transition-shadow cursor-pointer ${getLinkStyling(link).shapeClasses} scale-75 origin-left`}
-                                style={{
-                                  backgroundColor: getLinkStyling(link).backgroundColor,
-                                  color: getLinkStyling(link).color,
-                                  fontFamily: getLinkStyling(link).fontFamily,
-                                }}
-                              >
-                                <CardContent className="p-3">
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
-                                      {getLinkIcon(link.url || link.href || '')}
+                              <div className="relative scale-75 origin-left">
+                                <Card 
+                                  className={`hover:shadow-md transition-shadow cursor-pointer ${getLinkStyling(link).shapeClasses}`}
+                                  style={getLinkStyling(link)}
+                                >
+                                  <CardContent className="p-3">
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+                                        {getLinkIcon(link.url || link.href || '')}
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <h4 className="font-medium text-foreground truncate text-sm">{link.title}</h4>
+                                        {link.description && (
+                                          <p className="text-xs text-muted-foreground truncate">{link.description}</p>
+                                        )}
+                                      </div>
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                      <h4 className="font-medium text-foreground truncate text-sm">{link.title}</h4>
-                                      {link.description && (
-                                        <p className="text-xs text-muted-foreground truncate">{link.description}</p>
-                                      )}
-                                    </div>
-                                  </div>
-                                </CardContent>
-                              </Card>
+                                  </CardContent>
+                                </Card>
+                                <GlareHover
+                                  width="100%"
+                                  height="100%"
+                                  background="transparent"
+                                  borderRadius="inherit"
+                                  borderColor="transparent"
+                                  glareColor="#ffffff"
+                                  glareOpacity={0.3}
+                                  glareAngle={-45}
+                                  glareSize={200}
+                                  transitionDuration={600}
+                                  className="absolute inset-0"
+                                />
+                              </div>
                             </a>
                           ))}
                           {profile.links.length > 2 && (
