@@ -293,26 +293,542 @@
     animation: gradient 3s ease infinite;
   }
 
-  /* Floating particles animation */
-  @keyframes float {
-    0%, 100% {
-      transform: translateY(0px) translateX(0px);
-      opacity: 0.7;
-    }
-    25% {
-      transform: translateY(-20px) translateX(10px);
-      opacity: 1;
-    }
-    50% {
-      transform: translateY(-10px) translateX(-5px);
-      opacity: 0.8;
-    }
-    75% {
-      transform: translateY(-15px) translateX(8px);
-      opacity: 0.9;
-    }
+/* Floating particles animation */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+    opacity: 0.7;
+  }
+  25% {
+    transform: translateY(-20px) translateX(10px);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-10px) translateX(-5px);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translateY(-15px) translateX(8px);
+    opacity: 0.9;
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Physical Card Examples - From Uiverse.io by mihocsaszilard */
+.physical-card-container {
+  font-family: "Trebuchet MS", sans-serif;
+  position: relative;
+  height: 203px;
+  aspect-ratio: 1.579;
+  border-radius: 1em;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 300ms ease-in;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .physical-card-container {
+    height: 200px;
+    max-width: 320px;
+    margin: 0 auto;
   }
   
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
+  .physical-card {
+    height: 12em;
   }
+  
+  .physical-card-container:nth-child(1),
+  .physical-card-container:nth-child(2),
+  .physical-card-container:nth-child(3),
+  .physical-card-container:nth-child(4) {
+    transform: rotate(0deg);
+  }
+  
+  .physical-card-container:hover {
+    transform: scale(1.05);
+  }
+}
+
+/* Individual card rotations */
+.physical-card-container:nth-child(1) {
+  transform: rotate(-2deg);
+}
+
+.physical-card-container:nth-child(2) {
+  transform: rotate(3deg);
+}
+
+.physical-card-container:nth-child(3) {
+  transform: rotate(-1deg);
+}
+
+.physical-card-container:nth-child(4) {
+  transform: rotate(2deg);
+}
+
+.physical-card-container:hover {
+  transform: rotateZ(1deg) rotateY(10deg) scale(1.1);
+  box-shadow: 0 2em 1em rgba(0, 0, 0, 0.3);
+}
+
+.physical-card-border {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1em;
+  background: transparent;
+}
+
+/* Disabled problematic hover effect */
+/* .physical-card-border:hover:after {
+  position: absolute;
+  content: " ";
+  height: 50em;
+  aspect-ratio: 1.58;
+  border-radius: 1em;
+  background: linear-gradient(
+    115deg,
+    rgba(0, 0, 0, 1) 42%,
+    rgba(255, 255, 255, 1) 47%,
+    rgba(255, 255, 255, 1) 51%,
+    rgba(0, 0, 0, 1) 52%
+  );
+  animation: card-rotate 4s linear infinite;
+  z-index: 1;
+  opacity: 0.05;
+} */
+
+.physical-card {
+  height: 12.5em;
+  aspect-ratio: 1.586;
+  border-radius: 1em;
+  opacity: 1;
+}
+
+.physical-card-shadow {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 0.85em;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  box-sizing: border-box;
+}
+
+.physical-card-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 0.6em;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translate(-50%, -50%);
+  height: 12em;
+  aspect-ratio: 1.604;
+  background: transparent;
+  backdrop-filter: none;
+}
+
+.physical-card-rev {
+  top: 0.5em;
+  left: 0.75em;
+  color: #ffffff9f;
+  font-size: 1.25em;
+}
+
+.physical-card-master {
+  position: absolute;
+  bottom: 1.25em;
+  right: 0.5em;
+  background: linear-gradient(
+    90deg,
+    rgba(75, 75, 75, 0.25) 0%,
+    rgba(121, 121, 121, 1) 100%
+  );
+  color: #fff;
+  height: 2.5em;
+  width: 2.5em;
+  border: 1px solid #bbb;
+  border-radius: 50%;
+}
+
+.physical-card-master.one {
+  right: 2em;
+}
+
+.physical-card-master-text {
+  bottom: 0.25em;
+  right: 0.8em;
+  font-size: 0.75em;
+}
+
+.physical-card-ultra-text {
+  top: -4px;
+  right: 1.75em;
+  font-size: 0.5em;
+  color: rgba(255, 255, 255, 0.66);
+}
+
+.physical-card-ultra-text,
+.physical-card-master-text,
+.physical-card-rev {
+  position: absolute;
+  text-shadow: -1px -1px #333;
+  color: #fff;
+  opacity: 0.75;
+}
+
+.physical-card-chip {
+  position: absolute;
+  top: 27.5%;
+  left: 8.25%;
+}
+
+@keyframes card-rotate {
+  0% {
+    transform: translate(-25em, -15em);
+  }
+  20% {
+    transform: translate(25em, 15em);
+  }
+  100% {
+    transform: translate(25em, 15em);
+  }
+}
+
+/* Card variants - Digital Business Card Styles with Unique Designs */
+
+/* Professional Blue Card - Clean Corporate Design */
+.physical-card-blue {
+  background: #1e3a8a;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(30, 58, 138, 0.3);
+}
+
+.physical-card-blue::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 100px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transform: rotate(45deg);
+}
+
+.physical-card-blue::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -10%;
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  transform: rotate(-30deg);
+}
+
+/* Creative Purple Card - Artistic Design */
+.physical-card-purple {
+  background: #7c3aed;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(124, 58, 237, 0.3);
+}
+
+.physical-card-purple::before {
+  content: '';
+  position: absolute;
+  top: 20%;
+  right: 10%;
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  transform: rotate(45deg);
+}
+
+.physical-card-purple::after {
+  content: '';
+  position: absolute;
+  bottom: 20%;
+  left: 20%;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transform: rotate(-45deg);
+}
+
+/* Tech Green Card - Geometric Design */
+.physical-card-green {
+  background: #059669;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(5, 150, 105, 0.3);
+}
+
+.physical-card-green::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  right: 15%;
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.2);
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  transform: rotate(30deg);
+}
+
+.physical-card-green::after {
+  content: '';
+  position: absolute;
+  bottom: 15%;
+  left: 10%;
+  width: 30px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.15);
+  clip-path: polygon(25% 0%, 0% 25%, 25% 50%, 0% 75%, 25% 100%, 75% 100%, 100% 75%, 75% 50%, 100% 25%, 75% 0%);
+  transform: rotate(-30deg);
+}
+
+/* Wellness Orange Card - Organic Design */
+.physical-card-orange {
+  background: #ea580c;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(234, 88, 12, 0.3);
+}
+
+.physical-card-orange::before {
+  content: '';
+  position: absolute;
+  top: 15%;
+  right: 20%;
+  width: 70px;
+  height: 70px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50% 20% 50% 20%;
+  transform: rotate(60deg);
+}
+
+.physical-card-orange::after {
+  content: '';
+  position: absolute;
+  bottom: 10%;
+  left: 15%;
+  width: 45px;
+  height: 45px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  transform: rotate(-60deg);
+}
+
+/* Enhanced card text styling for business cards */
+.physical-card-content .card-name {
+  font-family: "Inter", "Helvetica", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.physical-card-content .card-title {
+  font-family: "Inter", "Helvetica", sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+
+.physical-card-content .card-handle {
+  font-family: "Inter", "Helvetica", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.1px;
+}
+
+.physical-card-content .card-theme {
+  font-family: "Inter", "Helvetica", sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* Unique Signature and Doodle Styles for Each Card */
+
+/* Professional Blue Card - Clean Signature */
+.physical-card-blue .card-signature {
+  position: absolute;
+  bottom: 1.5em;
+  left: 0.75em;
+  right: 0.75em;
+  height: 1.5em;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 30%, rgba(255,255,255,0.1) 70%, transparent 100%);
+  border-radius: 2px;
+  position: relative;
+}
+
+.physical-card-blue .card-signature::before {
+  content: 'A. Chen';
+  position: absolute;
+  bottom: 0.2em;
+  left: 0.5em;
+  font-family: "Brush Script MT", cursive;
+  font-size: 0.6em;
+  color: rgba(255,255,255,0.8);
+  font-style: italic;
+}
+
+/* Creative Purple Card - Artistic Doodle */
+.physical-card-purple .card-signature {
+  position: absolute;
+  bottom: 1.5em;
+  left: 0.75em;
+  right: 0.75em;
+  height: 1.5em;
+  background: linear-gradient(45deg, transparent 0%, rgba(255,255,255,0.15) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.15) 75%, transparent 100%);
+  border-radius: 2px;
+  position: relative;
+}
+
+.physical-card-purple .card-signature::before {
+  content: '~ Sarah ~';
+  position: absolute;
+  bottom: 0.2em;
+  left: 0.5em;
+  font-family: "Comic Sans MS", cursive;
+  font-size: 0.6em;
+  color: rgba(255,255,255,0.9);
+  font-weight: bold;
+}
+
+.physical-card-purple .card-signature::after {
+  content: '';
+  position: absolute;
+  bottom: 0.5em;
+  right: 0.5em;
+  width: 20px;
+  height: 20px;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  transform: rotate(45deg);
+}
+
+/* Tech Green Card - Geometric Signature */
+.physical-card-green .card-signature {
+  position: absolute;
+  bottom: 1.5em;
+  left: 0.75em;
+  right: 0.75em;
+  height: 1.5em;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 20%, rgba(255,255,255,0.2) 40%, rgba(255,255,255,0.1) 60%, rgba(255,255,255,0.2) 80%, transparent 100%);
+  border-radius: 2px;
+  position: relative;
+}
+
+.physical-card-green .card-signature::before {
+  content: 'D.Kim';
+  position: absolute;
+  bottom: 0.2em;
+  left: 0.5em;
+  font-family: "Courier New", monospace;
+  font-size: 0.6em;
+  color: rgba(255,255,255,0.8);
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.physical-card-green .card-signature::after {
+  content: '';
+  position: absolute;
+  bottom: 0.3em;
+  right: 0.5em;
+  width: 15px;
+  height: 15px;
+  background: rgba(255,255,255,0.2);
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  transform: rotate(180deg);
+}
+
+/* Wellness Orange Card - Organic Signature */
+.physical-card-orange .card-signature {
+  position: absolute;
+  bottom: 1.5em;
+  left: 0.75em;
+  right: 0.75em;
+  height: 1.5em;
+  background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.1) 30%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.1) 70%, transparent 100%);
+  border-radius: 2px;
+  position: relative;
+}
+
+.physical-card-orange .card-signature::before {
+  content: 'E.Wilson';
+  position: absolute;
+  bottom: 0.2em;
+  left: 0.5em;
+  font-family: "Georgia", serif;
+  font-size: 0.6em;
+  color: rgba(255,255,255,0.8);
+  font-style: italic;
+}
+
+.physical-card-orange .card-signature::after {
+  content: '🌱';
+  position: absolute;
+  bottom: 0.2em;
+  right: 0.5em;
+  font-size: 0.8em;
+  opacity: 0.7;
+}
+
+/* Additional Doodle Elements */
+.physical-card-blue .card-doodle {
+  position: absolute;
+  top: 2em;
+  right: 1em;
+  width: 30px;
+  height: 30px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.2);
+}
+
+.physical-card-purple .card-doodle {
+  position: absolute;
+  top: 2em;
+  right: 1em;
+  width: 25px;
+  height: 25px;
+  background: linear-gradient(45deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+  clip-path: polygon(50% 0%, 0% 50%, 50% 100%, 100% 50%);
+  transform: rotate(45deg);
+}
+
+.physical-card-green .card-doodle {
+  position: absolute;
+  top: 2em;
+  right: 1em;
+  width: 20px;
+  height: 20px;
+  background: rgba(255,255,255,0.15);
+  clip-path: polygon(25% 0%, 0% 25%, 25% 50%, 0% 75%, 25% 100%, 75% 100%, 100% 75%, 75% 50%, 100% 25%, 75% 0%);
+}
+
+.physical-card-orange .card-doodle {
+  position: absolute;
+  top: 2em;
+  right: 1em;
+  width: 28px;
+  height: 28px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50% 20% 50% 20%;
+  transform: rotate(30deg);
+}

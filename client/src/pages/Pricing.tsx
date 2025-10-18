@@ -104,7 +104,7 @@ export default function Pricing() {
                   <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
                     <Check className="w-5 h-5 text-white" />
                   </div>
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{feature}</h3>
+                  <h3 className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{feature}</h3>
                 </div>
               ))}
             </div>
@@ -134,17 +134,17 @@ export default function Pricing() {
         {/* Physical Card Section */}
         <section className="pt-8 pb-16 px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Physical Basker Card</h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">Physical Basker Card</h2>
+            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 mb-8">
               Take your digital presence offline with a physical card
             </p>
-            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-2xl border border-blue-200/50 dark:border-blue-800/50 rounded-2xl p-8 shadow-lg">
-              <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-2xl border border-blue-200/50 dark:border-blue-800/50 rounded-2xl p-4 sm:p-8 shadow-lg">
+              <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-8">
                 <div className="flex-1 text-left">
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Scan & Connect</h3>
                   <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    A sleek, physical card with QR code and NFC technology that instantly connects people to your Basker profile. 
-                    Perfect for networking events, business meetings, or casual encounters.
+                    A sleek physical card with QR/NFC that instantly connects to your Basker profile. 
+                    Choose from icons, patterns, emojis, or simple colors.
                   </p>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
@@ -174,15 +174,123 @@ export default function Pricing() {
                   </div>
                 </div>
                 <div className="flex-1">
-                  <div className="relative">
-                    <div className="w-64 h-40 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-2xl border-2 border-dashed border-blue-300/50 flex items-center justify-center mx-auto">
-                      <div className="text-center">
-                        <QrCode className="w-16 h-16 text-blue-500/50 mx-auto mb-2" />
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Card Preview</p>
+                  <div className="relative mt-8">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 text-center">Coming Soon</h3>
+                    
+                    {/* Card Examples Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 justify-items-center">
+                      {/* Text Example Card - Professional Layout */}
+                      <div className="physical-card-container">
+                        <div className="physical-card-border">
+                          <div className="physical-card physical-card-blue">
+                            {/* Top right corner branding */}
+                            <div className="absolute top-3 right-3 text-white/80 text-xs font-mono">BASKER</div>
+                            
+                            {/* Large name in center */}
+                            <div className="absolute top-10 left-1/2 transform -translate-x-1/2 text-white text-lg sm:text-2xl font-bold text-center">ALEX CHEN</div>
+                            
+                            {/* Title below name */}
+                            <div className="absolute top-16 left-1/2 transform -translate-x-1/2 text-white/90 text-xs sm:text-sm text-center">Software Engineer</div>
+                            
+                            {/* Contact info */}
+                            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/80 text-xs sm:text-sm text-center">
+                              <div>alex@company.com</div>
+                              <div className="text-[10px] sm:text-xs mt-1">+1 (555) 123-4567</div>
+                            </div>
+                            
+                            {/* User handle in top left */}
+                            <div className="absolute top-2 left-2 text-white/80 text-[10px] sm:text-xs font-mono">@MaxParsons.bsky.social</div>
+                            
+                            <div className="card-signature"></div>
+                            <div className="card-doodle"></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Icons Example Card - Visual Only */}
+                      <div className="physical-card-container">
+                        <div className="physical-card-border">
+                          <div className="physical-card physical-card-purple">
+                            {/* Large decorative elements - centered */}
+                            <div className="absolute top-10 left-1/2 transform -translate-x-1/2 text-white/90 text-2xl sm:text-4xl text-center">
+                              ✨ 🎨 ✨
+                            </div>
+                            
+                            {/* User handle in top left corner */}
+                            <div className="absolute top-2 left-2 text-white/80 text-[10px] sm:text-xs font-mono">@CreativeStudio.bsky.social</div>
+                            
+                            {/* Decorative elements in corners */}
+                            <div className="absolute top-2 right-2 text-white/60 text-sm sm:text-lg">🎨</div>
+                            <div className="absolute bottom-2 left-2 text-white/60 text-sm sm:text-lg">🖌️</div>
+                            <div className="absolute bottom-2 right-2 text-white/60 text-sm sm:text-lg">🎭</div>
+                            
+                            <div className="card-signature"></div>
+                            <div className="card-doodle"></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Custom Wallpaper Card - Minimal Design */}
+                      <div className="physical-card-container">
+                        <div className="physical-card-border">
+                          <div className="physical-card" style={{
+                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            backgroundImage: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
+                            borderRadius: '12px',
+                            boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)'
+                          }}>
+                            {/* Nature pattern overlay */}
+                            <div className="absolute inset-0 opacity-20" style={{
+                              backgroundImage: 'url("data:image/svg+xml,%3Csvg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="%23ffffff" fill-opacity="0.1"%3E%3Cpath d="M20 20c0-5.5-4.5-10-10-10s-10 4.5-10 10 4.5 10 10 10 10-4.5 10-10zm10 0c0-5.5-4.5-10-10-10s-10 4.5-10 10 4.5 10 10 10 10-4.5 10-10z"/%3E%3C/g%3E%3C/svg%3E")'
+                            }}></div>
+                            
+                            {/* Minimal text in center */}
+                            <div className="absolute top-10 left-1/2 transform -translate-x-1/2 text-white text-lg sm:text-2xl font-bold text-center">
+                              Emma Wilson
+                            </div>
+                            
+                            {/* User handle in top right corner */}
+                            <div className="absolute top-2 right-2 text-white/80 text-[10px] sm:text-xs font-mono">@WellnessJourney.bsky.social</div>
+                            
+                            {/* Simple decorative line */}
+                            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-white/30"></div>
+                            
+                            <div className="card-signature"></div>
+                            <div className="card-doodle"></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Full Color Card - Solid Color Only */}
+                      <div className="physical-card-container">
+                        <div className="physical-card-border">
+                          <div className="physical-card" style={{
+                            background: 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57)',
+                            backgroundSize: '400% 400%',
+                            animation: 'gradient 3s ease infinite',
+                            borderRadius: '12px',
+                            boxShadow: '0 8px 32px rgba(255, 107, 107, 0.3)'
+                          }}>
+                            {/* User handle in bottom right corner - NO NAME */}
+                            <div className="absolute bottom-2 right-2 text-white/80 text-[10px] sm:text-xs font-mono drop-shadow-lg">@TechNewsSite.com</div>
+                            
+                            {/* Simple decorative elements */}
+                            <div className="absolute top-2 left-2 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white/40 rounded-full drop-shadow-lg"></div>
+                            <div className="absolute top-2 right-2 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white/40 rounded-full drop-shadow-lg"></div>
+                            <div className="absolute bottom-2 left-2 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white/40 rounded-full drop-shadow-lg"></div>
+                            
+                            <div className="card-signature"></div>
+                            <div className="card-doodle"></div>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div className="absolute -top-2 -right-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                      Might be coming soon 👀
+
+                    <div className="mt-6 text-center">
+                      <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg">
+                        <QrCode className="w-3 h-3" />
+                        Interactive Examples - Hover to see 3D effect
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -226,9 +334,9 @@ export default function Pricing() {
               <div className="flex items-center gap-3 mb-4">
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-sm opacity-60"></div>
-                  <img 
-                    src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
-                    alt="Basker"
+              <img 
+                src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
+                alt="Basker"
                     className="relative w-8 h-8 rounded-full ring-2 ring-white/50 dark:ring-gray-700/50"
                   />
                 </div>
@@ -259,7 +367,7 @@ export default function Pricing() {
                 <li><Link href="/info" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Info Center</Link></li>
               </ul>
             </div>
-
+            
             {/* Support Links */}
             <div>
               <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Support</h4>
