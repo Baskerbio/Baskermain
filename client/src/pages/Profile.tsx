@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Edit, Settings, LogOut, Copy, Menu, X } from 'lucide-react';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { Notes } from '../components/Notes';
@@ -131,7 +132,7 @@ export default function Profile() {
                 variant="secondary"
                 size="sm"
                 onClick={handleCopyProfileURL}
-                className="flex items-center gap-2 text-sm px-3"
+                className="flex items-center gap-2 text-sm px-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
                 data-testid="button-copy-url"
               >
                 <Copy className="w-4 h-4" />
@@ -142,32 +143,33 @@ export default function Profile() {
                 variant="secondary"
                 size="sm"
                 onClick={toggleEditMode}
-                className="flex items-center gap-2 text-sm px-3"
+                className="flex items-center gap-2 text-sm px-3 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
                 data-testid="button-edit-mode"
               >
                 <Edit className="w-4 h-4" />
                 {isEditMode ? 'Done' : 'Edit'}
               </Button>
               
-              
               <Button
                 variant="secondary"
                 size="sm"
                 onClick={() => setShowSettings(true)}
-                className="px-3"
+                className="flex items-center gap-2 text-sm px-3 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
                 data-testid="button-settings"
               >
                 <Settings className="w-4 h-4" />
+                Settings
               </Button>
               
               <Button
                 variant="destructive"
                 size="sm"
                 onClick={handleLogout}
-                className="px-3"
+                className="flex items-center gap-2 text-sm px-3 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                 data-testid="button-logout"
               >
                 <LogOut className="w-4 h-4" />
+                Logout
               </Button>
             </div>
 

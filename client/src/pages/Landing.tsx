@@ -500,8 +500,39 @@ export default function Landing() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 relative overflow-hidden">
       <Header />
+      
+      {/* Enhanced Animated Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        {/* Floating particles */}
+        {[...Array(15)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-gradient-to-r from-blue-400/40 to-purple-400/40 rounded-full animate-float"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 5}s`,
+              animationDuration: `${4 + Math.random() * 6}s`
+            }}
+          ></div>
+        ))}
+        
+        {/* Animated gradient orbs */}
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-r from-pink-400/20 to-rose-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-gradient-to-r from-cyan-400/15 to-blue-400/15 rounded-full blur-2xl animate-pulse"></div>
+        
+        {/* Animated grid pattern */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, rgba(59, 130, 246, 0.3) 1px, transparent 0)`,
+            backgroundSize: '40px 40px',
+            animation: 'gridMove 20s linear infinite'
+          }}></div>
+        </div>
+      </div>
       
       {/* Light Rays Effect - Attached to Header, then Fixed */}
       <div 
@@ -534,8 +565,15 @@ export default function Landing() {
           data-section="hero"
           className="relative overflow-hidden min-h-screen flex items-center"
         >
-          {/* Warm sun-colored gradient background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50 dark:from-yellow-900/20 dark:via-orange-900/20 dark:to-red-900/20"></div>
+          {/* Modern gradient background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20"></div>
+          
+          {/* Animated gradient orbs */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-20 right-20 w-80 h-80 bg-gradient-to-r from-pink-400/20 to-rose-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-cyan-400/15 to-blue-400/15 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '4s' }}></div>
+          </div>
           
           {/* Sun rays background */}
           <div className="absolute inset-0 overflow-hidden">
@@ -615,14 +653,15 @@ export default function Landing() {
               {/* Left Content */}
               <div className={`space-y-10 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 <div className="space-y-6">
-                  {/* Warm badge */}
-                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/30 dark:to-orange-900/30 border border-yellow-200/50 dark:border-yellow-800/50 transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
-                    <div className="w-2 h-2 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Powered by AT Protocol</span>
+                  {/* Modern badge */}
+                  <div className={`inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-blue-50/80 to-purple-50/80 dark:from-blue-900/30 dark:to-purple-900/30 border border-blue-200/50 dark:border-blue-800/50 backdrop-blur-sm transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
+                    <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">Powered by AT Protocol</span>
+                    <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-ping"></div>
                   </div>
                   
                   {/* Modern typography */}
-                  <h1 className={`text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 dark:text-white leading-[1.1] tracking-tight transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                  <h1 className={`text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.1] tracking-tight transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                     <DecryptedText
                       text="Your Link-in-Bio,"
                       animateOn="view"
@@ -631,7 +670,7 @@ export default function Landing() {
                       sequential={true}
                       revealDirection="start"
                       className="text-gray-900 dark:text-white"
-                      encryptedClassName="text-yellow-500 font-extrabold"
+                      encryptedClassName="text-blue-500 font-extrabold"
                       parentClassName="block"
                       useOriginalCharsOnly={true}
                     />
@@ -642,8 +681,8 @@ export default function Landing() {
                       maxIterations={25}
                       sequential={true}
                       revealDirection="center"
-                      className="bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 bg-clip-text text-transparent animate-gradient"
-                      encryptedClassName="text-orange-400 font-extrabold"
+                      className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-gradient"
+                      encryptedClassName="text-purple-400 font-extrabold"
                       parentClassName="inline-block"
                       useOriginalCharsOnly={true}
                     />
@@ -684,18 +723,18 @@ export default function Landing() {
                       }
                     }}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                    className="pl-12 h-14 text-lg border-2 border-gray-200 dark:border-gray-700 rounded-2xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm transition-all duration-300 group-hover:border-yellow-300 dark:group-hover:border-yellow-600 group-hover:shadow-xl focus:border-orange-500 dark:focus:border-orange-400"
+                    className="pl-12 h-14 text-lg border-2 border-blue-200 dark:border-blue-800 rounded-2xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm transition-all duration-300 group-hover:border-blue-300 dark:group-hover:border-blue-600 group-hover:shadow-xl focus:border-purple-500 dark:focus:border-purple-400 shadow-lg"
                   />
-                  <LinkIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors group-hover:text-orange-500" />
+                  <LinkIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-blue-400 transition-colors group-hover:text-purple-500" />
                   {isSearching && (
                     <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                      <div className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
                 </div>
                   )}
                 </div>
                     <Button 
                       onClick={handleSearch} 
-                      className="px-8 h-14 rounded-2xl bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                      className="px-8 h-14 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl shadow-lg"
                     >
                   <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                 </Button>
@@ -760,7 +799,7 @@ export default function Landing() {
               <Link href="/login">
                     <Button 
                       size="lg" 
-                      className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl group"
+                      className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl group shadow-lg"
                     >
                       <Sparkles className="w-5 h-5 mr-3 transition-transform group-hover:rotate-12" />
                   Create Your Profile
@@ -770,7 +809,7 @@ export default function Landing() {
                     <Button 
                       variant="outline" 
                       size="lg" 
-                      className="w-full sm:w-auto h-14 px-10 rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm text-gray-700 dark:text-gray-300 font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-white dark:hover:bg-gray-800 group"
+                      className="w-full sm:w-auto h-14 px-10 rounded-2xl border-2 border-blue-200 dark:border-blue-800 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-blue-600 dark:text-blue-400 font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 group"
                     >
                       <Heart className="w-5 h-5 mr-3 transition-transform group-hover:scale-110" />
                     See Examples
@@ -781,29 +820,32 @@ export default function Landing() {
 
               {/* Right Content - Modern Feature Showcase */}
               <div className={`relative transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}>
-                <div className="relative">
-                  {/* Modern glassmorphism background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 dark:from-gray-800/20 dark:to-gray-900/20 rounded-3xl backdrop-blur-xl border border-white/20 dark:border-gray-700/30 shadow-2xl"></div>
+                <div className="relative group">
+                  {/* Modern glassmorphism background with enhanced effects */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-blue-50/20 to-purple-50/20 dark:from-gray-800/30 dark:via-blue-900/20 dark:to-purple-900/20 rounded-3xl backdrop-blur-2xl border border-white/30 dark:border-gray-700/40 shadow-2xl group-hover:shadow-3xl transition-all duration-500"></div>
+                  
+                  {/* Animated gradient border */}
+                  <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
                   
                   {/* Feature Display */}
-                  <div className="relative bg-white/10 dark:bg-gray-800/10 backdrop-blur-xl border border-white/20 dark:border-gray-700/30 rounded-3xl p-8 shadow-2xl">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${features[currentFeature].color} flex items-center justify-center transition-all duration-800 ease-out`}>
-                        {React.createElement(features[currentFeature].icon, { className: "w-5 h-5 text-white transition-all duration-800" })}
+                  <div className="relative bg-white/20 dark:bg-gray-800/20 backdrop-blur-2xl border border-white/30 dark:border-gray-700/40 rounded-3xl p-8 shadow-2xl group-hover:shadow-3xl transition-all duration-500">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className={`w-12 h-12 rounded-2xl bg-gradient-to-r ${features[currentFeature].color} flex items-center justify-center transition-all duration-800 ease-out group-hover:scale-110 group-hover:rotate-3`}>
+                        {React.createElement(features[currentFeature].icon, { className: "w-6 h-6 text-white transition-all duration-800" })}
                       </div>
                       <div className="transition-all duration-800 ease-out">
-                        <h3 className="font-semibold text-foreground transition-all duration-800">{features[currentFeature].title}</h3>
-                        <p className="text-sm text-muted-foreground transition-all duration-800">{features[currentFeature].description}</p>
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white transition-all duration-800 group-hover:text-blue-600 dark:group-hover:text-blue-400">{features[currentFeature].title}</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-300 transition-all duration-800">{features[currentFeature].description}</p>
                       </div>
                     </div>
                     
-                    {/* Feature Image - Crossfade */}
-                    <div className="relative rounded-2xl overflow-hidden bg-muted/30 h-64">
+                    {/* Feature Image - Enhanced Crossfade */}
+                    <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 h-72 group-hover:h-80 transition-all duration-500">
                       {/* Current Image */}
                       <img 
                         src={features[currentFeature].image} 
                         alt={features[currentFeature].title}
-                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-800 ease-out ${
+                        className={`absolute inset-0 w-full h-full object-cover transition-all duration-800 ease-out group-hover:scale-105 ${
                           isTransitioning ? 'opacity-0' : 'opacity-100'
                         }`}
                         onError={(e) => {
@@ -818,7 +860,7 @@ export default function Landing() {
                       <img 
                         src={features[nextFeature].image} 
                         alt={features[nextFeature].title}
-                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-800 ease-out ${
+                        className={`absolute inset-0 w-full h-full object-cover transition-all duration-800 ease-out group-hover:scale-105 ${
                           isTransitioning ? 'opacity-100' : 'opacity-0'
                         }`}
                         onError={(e) => {
@@ -829,12 +871,18 @@ export default function Landing() {
                         }}
                       />
                       
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                      {/* Enhanced overlay with gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent group-hover:from-black/20 transition-all duration-500"></div>
+                      
+                      {/* Floating elements */}
+                      <div className="absolute top-4 right-4 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
+                        <Sparkles className="w-4 h-4 text-white" />
+                      </div>
                     </div>
             </div>
             
                   {/* Feature Indicators */}
-                  <div className="flex justify-center gap-2 mt-6">
+                  <div className="flex justify-center gap-3 mt-8">
                     {features.map((_, index) => (
                       <button
                         key={index}
@@ -848,10 +896,10 @@ export default function Landing() {
                             }, 50);
                           }
                         }}
-                        className={`h-2 rounded-full transition-all duration-600 ease-in-out ${
+                        className={`h-3 rounded-full transition-all duration-500 ease-in-out group ${
                           index === currentFeature 
-                            ? 'bg-primary w-8' 
-                            : 'bg-muted-foreground/30 w-2 hover:bg-muted-foreground/50 hover:w-4'
+                            ? 'bg-gradient-to-r from-blue-500 to-purple-500 w-12 shadow-lg' 
+                            : 'bg-gray-300 dark:bg-gray-600 w-3 hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-400 hover:w-8 hover:shadow-md'
                         }`}
                       />
                     ))}
@@ -869,57 +917,31 @@ export default function Landing() {
           ref={featuresRef}
           id="features"
           data-section="features"
-          className="py-24 px-6 lg:px-8 relative"
+          className="py-24 px-6 lg:px-8 relative overflow-hidden"
         >
-          {/* Sun rays for features section */}
-          <div className="absolute top-10 right-1/4 w-32 h-32 opacity-10">
-            <svg className="w-full h-full" viewBox="0 0 128 128">
-              <defs>
-                <radialGradient id="featureSunCenter" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#fde047" />
-                  <stop offset="70%" stopColor="#fbbf24" />
-                  <stop offset="100%" stopColor="#f97316" />
-                </radialGradient>
-              </defs>
-              <circle cx="64" cy="64" r="12" fill="url(#featureSunCenter)" />
-              <g stroke="#fbbf24" strokeWidth="2" opacity="0.6">
-                <line x1="64" y1="40" x2="64" y2="20" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0s', animationDuration: '2.5s' }} />
-                <line x1="64" y1="88" x2="64" y2="108" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0.6s', animationDuration: '2.5s' }} />
-                <line x1="40" y1="64" x2="20" y2="64" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '1.2s', animationDuration: '2.5s' }} />
-                <line x1="88" y1="64" x2="108" y2="64" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '1.8s', animationDuration: '2.5s' }} />
-                <line x1="48" y1="48" x2="32" y2="32" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0.3s', animationDuration: '2.5s' }} />
-                <line x1="80" y1="48" x2="96" y2="32" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0.9s', animationDuration: '2.5s' }} />
-                <line x1="48" y1="80" x2="32" y2="96" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '1.5s', animationDuration: '2.5s' }} />
-                <line x1="80" y1="80" x2="96" y2="96" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '2.1s', animationDuration: '2.5s' }} />
-              </g>
-            </svg>
+          {/* Modern floating elements */}
+          <div className="absolute top-10 right-1/4 w-32 h-32 opacity-20">
+            <div className="w-full h-full bg-gradient-to-r from-blue-400/30 to-purple-400/30 rounded-full blur-2xl animate-pulse"></div>
           </div>
           
-          <div className="absolute bottom-20 left-20 w-24 h-24 opacity-5">
-            <svg className="w-full h-full" viewBox="0 0 96 96">
-              <circle cx="48" cy="48" r="8" fill="url(#featureSunCenter)" />
-              <g stroke="#f97316" strokeWidth="1.5" opacity="0.4">
-                <line x1="48" y1="32" x2="48" y2="16" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0.2s', animationDuration: '3.5s' }} />
-                <line x1="48" y1="64" x2="48" y2="80" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '1.4s', animationDuration: '3.5s' }} />
-                <line x1="32" y1="48" x2="16" y2="48" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '2.6s', animationDuration: '3.5s' }} />
-                <line x1="64" y1="48" x2="80" y2="48" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0.8s', animationDuration: '3.5s' }} />
-                <line x1="36" y1="36" x2="24" y2="24" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '1.9s', animationDuration: '3.5s' }} />
-                <line x1="60" y1="36" x2="72" y2="24" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0.5s', animationDuration: '3.5s' }} />
-                <line x1="36" y1="60" x2="24" y2="72" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '3.1s', animationDuration: '3.5s' }} />
-                <line x1="60" y1="60" x2="72" y2="72" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '1.7s', animationDuration: '3.5s' }} />
-              </g>
-            </svg>
+          <div className="absolute bottom-20 left-20 w-24 h-24 opacity-15">
+            <div className="w-full h-full bg-gradient-to-r from-pink-400/30 to-rose-400/30 rounded-full blur-xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+          </div>
+          
+          <div className="absolute top-1/2 left-10 w-16 h-16 opacity-10">
+            <div className="w-full h-full bg-gradient-to-r from-cyan-400/30 to-blue-400/30 rounded-full blur-lg animate-pulse" style={{ animationDelay: '4s' }}></div>
           </div>
           
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-20">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/30 dark:to-orange-900/30 border border-yellow-200/50 dark:border-yellow-800/50 mb-6">
-                <div className="w-2 h-2 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full animate-pulse"></div>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Features</span>
+              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-blue-50/80 to-purple-50/80 dark:from-blue-900/30 dark:to-purple-900/30 border border-blue-200/50 dark:border-blue-800/50 backdrop-blur-sm mb-8">
+                <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse"></div>
+                <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">Features</span>
+                <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-ping"></div>
               </div>
               <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight tracking-tight">
                 Everything you need for your
-                <span className="block bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 bg-clip-text text-transparent">link-in-bio</span>
+                <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-gradient">link-in-bio</span>
               </h2>
               <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
                 Built on the decentralized AT Protocol, your profile is truly yours with unlimited customization and modern design tools
@@ -931,7 +953,7 @@ export default function Landing() {
               {features.map((feature, index) => (
                 <Card 
                   key={index} 
-                  className={`group hover:shadow-2xl transition-all duration-500 bg-white/50 dark:bg-gray-800/50 backdrop-blur-xl border border-white/20 dark:border-gray-700/30 hover:border-yellow-300/50 dark:hover:border-yellow-600/50 hover:-translate-y-3 ${
+                  className={`group hover:shadow-2xl transition-all duration-500 bg-white/60 dark:bg-gray-800/60 backdrop-blur-2xl border border-white/30 dark:border-gray-700/40 hover:border-blue-300/50 dark:hover:border-blue-600/50 hover:-translate-y-4 hover:scale-105 ${
                     visibleSections.has('features') 
                       ? 'opacity-100 translate-y-0' 
                       : 'opacity-0 translate-y-8'
@@ -941,7 +963,7 @@ export default function Landing() {
                 <CardContent className="p-8">
                     <div className="space-y-6">
                       {/* Modern Feature Image */}
-                        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 group-hover:from-yellow-50 dark:group-hover:from-yellow-900/20 transition-all duration-500">
+                        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 group-hover:from-blue-50 dark:group-hover:from-blue-900/20 transition-all duration-500">
                         <img 
                           src={feature.image} 
                           alt={feature.title}
@@ -958,11 +980,15 @@ export default function Landing() {
                         <div className={`absolute top-6 left-6 w-12 h-12 rounded-2xl bg-gradient-to-r ${feature.color} flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
                           {React.createElement(feature.icon, { className: "w-6 h-6 text-white" })}
                         </div>
+                        {/* Floating sparkle effect */}
+                        <div className="absolute top-4 right-4 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
+                          <Sparkles className="w-4 h-4 text-white" />
+                        </div>
                   </div>
                       
                       {/* Modern Feature Content */}
                       <div className="space-y-3">
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-300">
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
                           {feature.title}
                         </h3>
                         <p className="text-gray-600 dark:text-gray-300 leading-relaxed group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors duration-300">
@@ -977,34 +1003,43 @@ export default function Landing() {
 
             {/* Modern Additional Features */}
             <div className="mt-24 grid md:grid-cols-3 gap-8">
-              <div className="text-center space-y-6 group">
-                <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-3xl flex items-center justify-center mx-auto shadow-xl group-hover:scale-110 transition-transform duration-300">
-                  <Globe className="w-10 h-10 text-white" />
+              <div className="text-center space-y-6 group p-8 rounded-3xl bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-white/30 dark:border-gray-700/40 hover:border-blue-300/50 dark:hover:border-blue-600/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-xl">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-3xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+                  <div className="relative w-20 h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-3xl flex items-center justify-center mx-auto shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                    <Globe className="w-10 h-10 text-white" />
                   </div>
+                </div>
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Public Profiles</h3>
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                   Your profile is accessible at a clean URL that you can share anywhere. No platform lock-in, complete freedom.
-                  </p>
+                </p>
               </div>
 
-              <div className="text-center space-y-6 group">
-                <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-3xl flex items-center justify-center mx-auto shadow-xl group-hover:scale-110 transition-transform duration-300">
-                  <Zap className="w-10 h-10 text-white" />
+              <div className="text-center space-y-6 group p-8 rounded-3xl bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-white/30 dark:border-gray-700/40 hover:border-green-300/50 dark:hover:border-green-600/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-xl">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-3xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+                  <div className="relative w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-3xl flex items-center justify-center mx-auto shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                    <Zap className="w-10 h-10 text-white" />
+                  </div>
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">Decentralized</h3>
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                   Powered by the AT Protocol. Your data belongs to you and works across the entire network seamlessly.
                 </p>
-                  </div>
+              </div>
 
-              <div className="text-center space-y-6 group">
-                <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto shadow-xl group-hover:scale-110 transition-transform duration-300">
-                  <Share2 className="w-10 h-10 text-white" />
-                    </div>
+              <div className="text-center space-y-6 group p-8 rounded-3xl bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-white/30 dark:border-gray-700/40 hover:border-purple-300/50 dark:hover:border-purple-600/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-xl">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+                  <div className="relative w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                    <Share2 className="w-10 h-10 text-white" />
+                  </div>
+                </div>
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Easy Sharing</h3>
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                   Share your profile anywhere with a simple link. Works on all platforms and devices effortlessly.
-                  </p>
+                </p>
               </div>
             </div>
           </div>
@@ -1287,28 +1322,84 @@ export default function Landing() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-background">
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <img 
-                src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
-                alt="Basker"
-                className="w-5 h-5 rounded-full"
-              />
-              <h3 className="text-lg font-bold text-primary">Basker</h3>
-              <span className="text-sm text-muted-foreground">© 2025</span>
+      <footer className="border-t border-white/20 dark:border-gray-700/30 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          {/* Main Footer Content */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+            {/* Brand Section */}
+            <div className="lg:col-span-2">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-sm opacity-60"></div>
+                  <img 
+                    src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
+                    alt="Basker"
+                    className="relative w-8 h-8 rounded-full ring-2 ring-white/50 dark:ring-gray-700/50"
+                  />
+                </div>
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Basker</h3>
+              </div>
+              <p className="text-gray-600 dark:text-gray-300 mb-4 max-w-md">
+                Your decentralized link-in-bio platform built on the AT Protocol. 
+                Create, customize, and share your digital identity with complete data ownership.
+              </p>
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-gray-500 dark:text-gray-400">Powered by</span>
+                <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 dark:bg-blue-900/20 rounded-full">
+                  <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                  </svg>
+                  <span className="text-sm font-medium text-blue-600 dark:text-blue-400">AT Protocol</span>
+                </div>
+              </div>
             </div>
-            
-            <div className="text-center md:text-right">
-              <p className="text-sm text-muted-foreground">
-                Built on the AT Protocol • Your data, your control
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Create your own link-in-bio page with basker
-              </p>
-              <div className="mt-2">
-                <VersionInfo />
+
+            {/* Product Links */}
+            <div>
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Product</h4>
+              <ul className="space-y-3">
+                <li><Link href="/pricing" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Pricing</Link></li>
+                <li><Link href="/starter-packs" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Starter Packs</Link></li>
+                <li><Link href="/faq" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">FAQ</Link></li>
+                <li><Link href="/info" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Info Center</Link></li>
+              </ul>
+            </div>
+
+            {/* Support Links */}
+            <div>
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Support</h4>
+              <ul className="space-y-3">
+                <li><Link href="/about" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">About Us</Link></li>
+                <li><a href="https://bsky.app" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Bluesky</a></li>
+                <li><a href="https://atproto.com" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">AT Protocol</a></li>
+                <li><a href="mailto:support@basker.bio" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Contact</a></li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom Section */}
+          <div className="border-t border-white/20 dark:border-gray-700/30 pt-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-6">
+                <p className="text-sm text-gray-500 dark:text-gray-400">© 2025 Basker. All rights reserved.</p>
+                <div className="flex items-center gap-4">
+                  <a href="/privacy" className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Privacy</a>
+                  <a href="/terms" className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Terms</a>
+                  <a href="/cookies" className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Cookies</a>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">All systems operational</span>
+                </div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Made with ❤️ for the decentralized web
+                </div>
+                <div className="mt-2">
+                  <VersionInfo />
+                </div>
               </div>
             </div>
           </div>
@@ -1404,9 +1495,135 @@ export default function Landing() {
           }
         }
         
+        @keyframes fadeInUp {
+          0% {
+            transform: translateY(30px);
+            opacity: 0;
+          }
+          100% {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes slideInLeft {
+          0% {
+            transform: translateX(-30px);
+            opacity: 0;
+          }
+          100% {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes slideInRight {
+          0% {
+            transform: translateX(30px);
+            opacity: 0;
+          }
+          100% {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes scaleIn {
+          0% {
+            transform: scale(0.8);
+            opacity: 0;
+          }
+          100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes rotateIn {
+          0% {
+            transform: rotate(-10deg) scale(0.8);
+            opacity: 0;
+          }
+          100% {
+            transform: rotate(0deg) scale(1);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes bounceIn {
+          0% {
+            transform: scale(0.3);
+            opacity: 0;
+          }
+          50% {
+            transform: scale(1.05);
+          }
+          70% {
+            transform: scale(0.9);
+          }
+          100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes shimmer {
+          0% {
+            background-position: -200% 0;
+          }
+          100% {
+            background-position: 200% 0;
+          }
+        }
+        
+        @keyframes glow {
+          0%, 100% {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+          }
+          50% {
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
+          }
+        }
+        
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px) translateX(0px);
+            opacity: 0.7;
+          }
+          25% {
+            transform: translateY(-20px) translateX(10px);
+            opacity: 1;
+          }
+          50% {
+            transform: translateY(-10px) translateX(-5px);
+            opacity: 0.8;
+          }
+          75% {
+            transform: translateY(-15px) translateX(8px);
+            opacity: 0.9;
+          }
+        }
+        
+        @keyframes gridMove {
+          0% {
+            transform: translate(0, 0);
+          }
+          100% {
+            transform: translate(40px, 40px);
+          }
+        }
         
         .floating-particle {
           animation: floatingParticle 8s ease-in-out infinite;
+        }
+        
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+        
+        .animate-gradient {
+          background-size: 200% 200%;
+          animation: gradientShift 3s ease infinite;
         }
         
         .floating-element {
@@ -1418,6 +1635,39 @@ export default function Landing() {
           animation: gradientShift 3s ease infinite;
         }
         
+        .animate-fade-in {
+          animation: fadeInUp 0.8s ease-out forwards;
+        }
+        
+        .animate-slide-in-left {
+          animation: slideInLeft 0.8s ease-out forwards;
+        }
+        
+        .animate-slide-in-right {
+          animation: slideInRight 0.8s ease-out forwards;
+        }
+        
+        .animate-scale-in {
+          animation: scaleIn 0.6s ease-out forwards;
+        }
+        
+        .animate-rotate-in {
+          animation: rotateIn 0.8s ease-out forwards;
+        }
+        
+        .animate-bounce-in {
+          animation: bounceIn 0.8s ease-out forwards;
+        }
+        
+        .animate-shimmer {
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+          background-size: 200% 100%;
+          animation: shimmer 2s infinite;
+        }
+        
+        .animate-glow {
+          animation: glow 2s ease-in-out infinite;
+        }
         
         /* Smooth scroll behavior */
         html {
@@ -1447,12 +1697,44 @@ export default function Landing() {
         }
         
         ::-webkit-scrollbar-thumb {
-          background: hsl(var(--primary));
+          background: linear-gradient(45deg, #3b82f6, #8b5cf6);
           border-radius: 4px;
         }
         
         ::-webkit-scrollbar-thumb:hover {
-          background: hsl(var(--primary) / 0.8);
+          background: linear-gradient(45deg, #2563eb, #7c3aed);
+        }
+        
+        /* Modern glassmorphism effects */
+        .glass {
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .glass-dark {
+          background: rgba(0, 0, 0, 0.1);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Enhanced shadows */
+        .shadow-3xl {
+          box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        .shadow-4xl {
+          box-shadow: 0 45px 80px -12px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Gradient text effects */
+        .gradient-text {
+          background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899);
+          background-size: 200% 200%;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: gradientShift 3s ease infinite;
         }
       `}</style>
     </div>

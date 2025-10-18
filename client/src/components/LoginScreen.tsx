@@ -65,52 +65,97 @@ export function LoginScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 relative overflow-hidden">
+      {/* Enhanced Animated Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        {/* Floating particles */}
+        {[...Array(15)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-gradient-to-r from-blue-400/40 to-purple-400/40 rounded-full animate-float"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 5}s`,
+              animationDuration: `${4 + Math.random() * 6}s`
+            }}
+          ></div>
+        ))}
+        
+        {/* Animated gradient orbs */}
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-r from-pink-400/20 to-rose-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-gradient-to-r from-cyan-400/15 to-blue-400/15 rounded-full blur-2xl animate-pulse"></div>
+        
+        {/* Animated grid background */}
+        <div className="absolute inset-0 opacity-30 pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-transparent to-purple-500/5"></div>
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(59, 130, 246, 0.15) 1px, transparent 0)`,
+            backgroundSize: '50px 50px'
+          }}></div>
+        </div>
+      </div>
+
       {/* Header */}
-      <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="relative z-10 border-b border-white/20 dark:border-gray-700/30 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl sticky top-0">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/">
-              <Button variant="ghost" size="sm" className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" className="flex items-center gap-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300">
                 <ArrowLeft className="w-4 h-4" />
                 Back
               </Button>
             </Link>
-            <span className="text-muted-foreground">|</span>
-            <h1 className="text-2xl font-bold text-primary">basker</h1>
-            <span className="text-muted-foreground">×</span>
-            <svg className="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 24 24">
+            <span className="text-gray-400">|</span>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Basker</h1>
+            <span className="text-gray-400">×</span>
+            <svg className="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
             </svg>
-            <span className="text-sm text-muted-foreground">Bluesky</span>
+            <span className="text-sm text-gray-500">Bluesky</span>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex items-center justify-center p-4 py-12">
-        <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-6 max-w-md w-full shadow-lg">
-          <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-primary mb-1">basker</h1>
-            <p className="text-muted-foreground text-sm">Your Digital Identity Hub</p>
+      <main className="relative z-10 flex items-center justify-center p-4 py-12">
+        <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-2xl border border-white/30 dark:border-gray-700/40 rounded-2xl p-8 max-w-md w-full shadow-2xl hover:shadow-3xl transition-all duration-300">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-blue-50/80 to-purple-50/80 dark:from-blue-900/30 dark:to-purple-900/30 border border-blue-200/50 dark:border-blue-800/50 backdrop-blur-sm mb-6">
+              <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse"></div>
+              <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+              </svg>
+              <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">Bluesky Login</span>
+              <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-ping"></div>
+            </div>
+            
+            <h1 className="text-4xl font-bold mb-2">
+              <span className="text-gray-900 dark:text-white">Welcome to</span>{' '}
+              <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-gradient">
+                Basker
+              </span>
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300">Your Digital Identity Hub</p>
           </div>
         
-        <div className="mb-6 text-center">
-          <div className="w-16 h-16 mx-auto rounded-full bg-primary/20 flex items-center justify-center mb-3">
-            <svg className="w-8 h-8 text-primary" fill="currentColor" viewBox="0 0 24 24">
+        <div className="mb-8 text-center">
+          <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center mb-4 shadow-lg">
+            <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
             </svg>
           </div>
         </div>
 
-          <Card className="bg-background/50 backdrop-blur-sm border-border">
+          <Card className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-white/30 dark:border-gray-700/40 shadow-lg">
             <CardHeader className="pb-4">
-              <CardTitle className="text-center text-foreground text-lg">Login with Bluesky</CardTitle>
+              <CardTitle className="text-center text-gray-900 dark:text-white text-lg font-semibold">Login with Bluesky</CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <form onSubmit={handleSubmit} className="space-y-3">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="identifier" className="text-foreground">
+                  <Label htmlFor="identifier" className="text-gray-700 dark:text-gray-300 font-medium">
                     Handle or Email
                   </Label>
                   <Input
@@ -120,12 +165,12 @@ export function LoginScreen() {
                     placeholder="user.bsky.social or email@example.com"
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
-                    className="bg-background border-border text-foreground"
+                    className="bg-white/80 dark:bg-gray-800/80 border-2 border-blue-200 dark:border-blue-800 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-foreground">
+                  <Label htmlFor="password" className="text-gray-700 dark:text-gray-300 font-medium">
                     Password
                   </Label>
                   <Input
@@ -135,7 +180,7 @@ export function LoginScreen() {
                     placeholder="Your Bluesky password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="bg-background border-border text-foreground"
+                    className="bg-white/80 dark:bg-gray-800/80 border-2 border-blue-200 dark:border-blue-800 text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
                   />
                 </div>
                 
@@ -143,7 +188,7 @@ export function LoginScreen() {
                   type="submit"
                   data-testid="button-login"
                   disabled={isLoading}
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-3"
+                  className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                 >
                   {isLoading ? (
                     <>
@@ -161,19 +206,19 @@ export function LoginScreen() {
                 </Button>
               </form>
               
-              <p className="text-muted-foreground text-xs text-center mt-3">
+              <p className="text-gray-600 dark:text-gray-400 text-sm text-center mt-4">
                 Create your personalized link-in-bio page powered by the AT Protocol
               </p>
               
-              <div className="mt-4 text-center">
-                <p className="text-muted-foreground text-xs mb-1">
+              <div className="mt-6 text-center">
+                <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">
                   Don't have a Bluesky account yet?
                 </p>
                 <a 
                   href="https://bsky.app" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-primary hover:text-primary/80 underline text-xs font-medium"
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline text-sm font-medium transition-colors duration-300"
                 >
                   Create a free Bluesky account →
                 </a>
@@ -184,29 +229,130 @@ export function LoginScreen() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-background">
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <h3 className="text-lg font-bold text-primary">basker</h3>
-              <span className="text-muted-foreground">×</span>
-              <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-              </svg>
-              <span className="text-sm text-muted-foreground">Bluesky</span>
+      <footer className="relative z-10 border-t border-white/20 dark:border-gray-700/30 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          {/* Main Footer Content */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+            {/* Brand Section */}
+            <div className="lg:col-span-2">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-sm opacity-60"></div>
+                  <img 
+                    src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
+                    alt="Basker"
+                    className="relative w-8 h-8 rounded-full ring-2 ring-white/50 dark:ring-gray-700/50"
+                  />
+                </div>
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Basker</h3>
+              </div>
+              <p className="text-gray-600 dark:text-gray-300 mb-4 max-w-md">
+                Your decentralized link-in-bio platform built on the AT Protocol. 
+                Create, customize, and share your digital identity with complete data ownership.
+              </p>
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-gray-500 dark:text-gray-400">Powered by</span>
+                <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 dark:bg-blue-900/20 rounded-full">
+                  <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                  </svg>
+                  <span className="text-sm font-medium text-blue-600 dark:text-blue-400">AT Protocol</span>
+                </div>
+              </div>
             </div>
-            
-            <div className="text-center md:text-right">
-              <p className="text-sm text-muted-foreground">
-                Built on the AT Protocol • Your data, your control
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Create your own link-in-bio page with basker
-              </p>
+
+            {/* Product Links */}
+            <div>
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Product</h4>
+              <ul className="space-y-3">
+                <li><Link href="/pricing" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Pricing</Link></li>
+                <li><Link href="/starter-packs" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Starter Packs</Link></li>
+                <li><Link href="/faq" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">FAQ</Link></li>
+                <li><Link href="/info" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Info Center</Link></li>
+              </ul>
+            </div>
+
+            {/* Support Links */}
+            <div>
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Support</h4>
+              <ul className="space-y-3">
+                <li><Link href="/about" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">About Us</Link></li>
+                <li><a href="https://bsky.app" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Bluesky</a></li>
+                <li><a href="https://atproto.com" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">AT Protocol</a></li>
+                <li><a href="mailto:support@basker.bio" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Contact</a></li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom Section */}
+          <div className="border-t border-white/20 dark:border-gray-700/30 pt-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-6">
+                <p className="text-sm text-gray-500 dark:text-gray-400">© 2025 Basker. All rights reserved.</p>
+                <div className="flex items-center gap-4">
+                  <a href="/privacy" className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Privacy</a>
+                  <a href="/terms" className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Terms</a>
+                  <a href="/cookies" className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Cookies</a>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">All systems operational</span>
+                </div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Made with ❤️ for the decentralized web
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </footer>
+
+      {/* Modern CSS Animations */}
+      <style>{`
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px) translateX(0px);
+            opacity: 0.7;
+          }
+          25% {
+            transform: translateY(-20px) translateX(10px);
+            opacity: 1;
+          }
+          50% {
+            transform: translateY(-10px) translateX(-5px);
+            opacity: 0.8;
+          }
+          75% {
+            transform: translateY(-15px) translateX(8px);
+            opacity: 0.9;
+          }
+        }
+        
+        @keyframes gradientShift {
+          0%, 100% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+        }
+        
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+        
+        .animate-gradient {
+          background-size: 200% 200%;
+          animation: gradientShift 3s ease infinite;
+        }
+        
+        .shadow-3xl {
+          box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
+        }
+      `}</style>
     </div>
   );
 }

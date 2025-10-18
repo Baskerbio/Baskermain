@@ -195,69 +195,89 @@ export default function StarterPacks() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 relative overflow-hidden">
       <Header />
       
-      <div className="container mx-auto px-4 py-8">
+      {/* Enhanced Animated Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        {/* Floating particles */}
+        {[...Array(15)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-gradient-to-r from-blue-400/40 to-purple-400/40 rounded-full animate-float"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 5}s`,
+              animationDuration: `${4 + Math.random() * 6}s`
+            }}
+          ></div>
+        ))}
+        
+        {/* Animated gradient orbs */}
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-r from-pink-400/20 to-rose-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-gradient-to-r from-cyan-400/15 to-blue-400/15 rounded-full blur-2xl animate-pulse"></div>
+        
+        {/* Animated grid background */}
+        <div className="absolute inset-0 opacity-30 pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-transparent to-purple-500/5"></div>
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(59, 130, 246, 0.15) 1px, transparent 0)`,
+            backgroundSize: '50px 50px'
+          }}></div>
+        </div>
+      </div>
+      
+      <main>
         {/* Hero Section */}
-        <section className="relative py-12 px-4 overflow-hidden mb-8">
-          {/* Animated Background Elements */}
+        <section className="relative py-20 px-4 overflow-hidden">
+          {/* Modern gradient background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20"></div>
+          
+          {/* Animated gradient orbs */}
           <div className="absolute inset-0 overflow-hidden">
-            {/* Floating particles */}
-            <div className="absolute top-20 left-10 w-2 h-2 bg-yellow-400 rounded-full animate-pulse opacity-60"></div>
-            <div className="absolute top-32 right-20 w-3 h-3 bg-orange-400 rounded-full animate-pulse opacity-40" style={{ animationDelay: '1s' }}></div>
-            <div className="absolute top-60 left-1/4 w-2 h-2 bg-yellow-500 rounded-full animate-pulse opacity-50" style={{ animationDelay: '2s' }}></div>
-            <div className="absolute top-40 right-1/3 w-2 h-2 bg-orange-500 rounded-full animate-pulse opacity-30" style={{ animationDelay: '0.5s' }}></div>
-            <div className="absolute top-80 left-1/2 w-3 h-3 bg-yellow-400 rounded-full animate-pulse opacity-40" style={{ animationDelay: '1.5s' }}></div>
-            
-            {/* Animated sun rays */}
-            <div className="absolute top-10 right-10 opacity-20">
-              <svg width="60" height="60" viewBox="0 0 60 60" className="animate-spin" style={{ animationDuration: '20s' }}>
-                <g>
-                  <line x1="30" y1="0" x2="30" y2="8" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
-                  <line x1="30" y1="52" x2="30" y2="60" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
-                  <line x1="0" y1="30" x2="8" y2="30" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
-                  <line x1="52" y1="30" x2="60" y2="30" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
-                  <line x1="8.5" y1="8.5" x2="13.5" y2="13.5" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
-                  <line x1="46.5" y1="46.5" x2="51.5" y2="51.5" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
-                  <line x1="8.5" y1="51.5" x2="13.5" y2="46.5" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
-                  <line x1="46.5" y1="8.5" x2="51.5" y2="13.5" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
-                  <defs>
-                    <linearGradient id="rayGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#fbbf24"/>
-                      <stop offset="100%" stopColor="#f97316"/>
-                    </linearGradient>
-                  </defs>
-                </g>
-              </svg>
-            </div>
+            <div className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-20 right-20 w-80 h-80 bg-gradient-to-r from-pink-400/20 to-rose-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-cyan-400/15 to-blue-400/15 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '4s' }}></div>
           </div>
 
           <div className="max-w-4xl mx-auto text-center relative z-10">
-            {/* Animated Starter Packs Badge */}
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/20 dark:to-orange-900/20 px-4 py-2 rounded-full mb-6 animate-pulse">
-              <Users className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
-              <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">Starter Packs</span>
+            {/* Modern Starter Packs Badge */}
+            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-blue-50/80 to-purple-50/80 dark:from-blue-900/30 dark:to-purple-900/30 border border-blue-200/50 dark:border-blue-800/50 backdrop-blur-sm mb-8">
+              <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse"></div>
+              <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">Starter Packs</span>
+              <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-ping"></div>
             </div>
 
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent mb-4 animate-fade-in">
-              Basker Starter Packs
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
+              <span className="text-gray-900 dark:text-white">Create Your</span>{' '}
+              <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-gradient">
+                Starter Packs
+              </span>
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: '0.2s' }}>
               Discover amazing Basker users organized by interests and communities. 
               Follow curated collections of creators, innovators, and builders.
             </p>
           </div>
         </section>
-        {/* Category Filter */}
-        <div className="flex flex-wrap gap-2 justify-center mb-8">
+
+        <div className="container mx-auto px-4 py-8">
+          {/* Modern Category Filter */}
+          <div className="flex flex-wrap gap-3 justify-center mb-8">
           {categories.map((category) => (
             <Button
               key={category.id}
               variant={selectedCategory === category.id ? "default" : "outline"}
               size="sm"
               onClick={() => setSelectedCategory(category.id)}
-              className="flex items-center gap-2"
+              className={`flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition-all duration-300 ${
+                selectedCategory === category.id 
+                  ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg hover:scale-105' 
+                  : 'bg-white/60 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 border border-blue-200 dark:border-blue-800 hover:scale-105'
+              }`}
             >
               <span>{category.icon}</span>
               {category.label}
@@ -270,8 +290,8 @@ export default function StarterPacks() {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                  <Plus className="w-6 h-6 text-yellow-500" />
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <Plus className="w-6 h-6 text-blue-500" />
                   Your Starter Packs
                 </h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -281,26 +301,26 @@ export default function StarterPacks() {
               <Button
                 onClick={() => setShowCreateForm(!showCreateForm)}
                 disabled={userPacks.length >= 6 && !showCreateForm}
-                className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 shadow-lg"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 {userPacks.length >= 6 ? 'Limit Reached' : 'Create Pack'}
               </Button>
             </div>
             {userPacks.length >= 6 && !showCreateForm && (
-              <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                <p className="text-sm text-yellow-800 dark:text-yellow-200">
+              <div className="mb-4 p-4 bg-blue-50/80 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl backdrop-blur-sm">
+                <p className="text-sm text-blue-800 dark:text-blue-200">
                   You've reached the maximum of 6 starter packs. Delete an existing pack to create a new one.
                 </p>
               </div>
             )}
             
             {showCreateForm && (
-              <Card className="mb-6">
-                <CardContent className="p-6">
-                  <div className="space-y-4">
+              <Card className="mb-6 bg-white/60 dark:bg-gray-800/60 backdrop-blur-2xl border border-blue-200/50 dark:border-blue-800/50 shadow-lg">
+                <CardContent className="p-8">
+                  <div className="space-y-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                         Pack Name
                       </label>
                       <input
@@ -308,11 +328,11 @@ export default function StarterPacks() {
                         value={newPackName}
                         onChange={(e) => setNewPackName(e.target.value)}
                         placeholder="e.g., Creative Professionals"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent dark:bg-gray-800 dark:text-white"
+                        className="w-full px-4 py-3 border-2 border-blue-200 dark:border-blue-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800/60 dark:text-white transition-all duration-300"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                         Description
                       </label>
                       <textarea
@@ -320,17 +340,17 @@ export default function StarterPacks() {
                         onChange={(e) => setNewPackDescription(e.target.value)}
                         placeholder="Describe your starter pack..."
                         rows={3}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent dark:bg-gray-800 dark:text-white"
+                        className="w-full px-4 py-3 border-2 border-blue-200 dark:border-blue-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800/60 dark:text-white transition-all duration-300"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                         Category
                       </label>
                       <select
                         value={newPackCategory}
                         onChange={(e) => setNewPackCategory(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent dark:bg-gray-800 dark:text-white"
+                        className="w-full px-4 py-3 border-2 border-blue-200 dark:border-blue-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800/60 dark:text-white transition-all duration-300"
                       >
                         <option value="general">General</option>
                         <option value="creative">Creative</option>
@@ -419,17 +439,18 @@ export default function StarterPacks() {
                         )}
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-3">
                     <Button
                       onClick={handleCreateStarterPack}
                       disabled={!newPackName.trim() || !newPackDescription.trim() || createStarterPackMutation.isPending}
-                      className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600"
+                      className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-300 hover:scale-105 shadow-lg"
                     >
                       {createStarterPackMutation.isPending ? 'Creating...' : 'Create Pack'}
                     </Button>
                       <Button
                         variant="outline"
                         onClick={() => setShowCreateForm(false)}
+                        className="border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 hover:scale-105"
                       >
                         Cancel
                       </Button>
@@ -449,13 +470,15 @@ export default function StarterPacks() {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {userPacks.map((pack) => (
-                <Card key={pack.uri} className="hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-yellow-200 dark:border-yellow-800">
+                <Card key={pack.uri} className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-2xl border border-blue-200/50 dark:border-blue-800/50 hover:border-blue-300/50 dark:hover:border-blue-600/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 hover:scale-105 group">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-3">
-                      <span className="text-2xl">📋</span>
+                      <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                        <span className="text-xl">📋</span>
+                      </div>
                       <div>
-                        <div className="text-lg">{pack.name}</div>
-                        <Badge variant="outline" className="text-xs">
+                        <div className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{pack.name}</div>
+                        <Badge variant="outline" className="text-xs bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
                           {pack.members?.length || 0} creators
                         </Badge>
                       </div>
@@ -507,7 +530,7 @@ export default function StarterPacks() {
                     {/* Actions */}
                     <div className="flex gap-2">
                       <Link href={`/starter-packs/${encodeURIComponent(pack.uri)}`} className="flex-1">
-                        <Button size="sm" className="w-full">
+                        <Button size="sm" className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white transition-all duration-300 hover:scale-105">
                           <Users className="w-4 h-4 mr-2" />
                           View Pack
                         </Button>
@@ -516,6 +539,7 @@ export default function StarterPacks() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleSharePack(pack)}
+                        className="border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 hover:scale-105"
                       >
                         <Share2 className="w-4 h-4" />
                       </Button>
@@ -523,7 +547,7 @@ export default function StarterPacks() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleDeletePack(pack.uri)}
-                        className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-200 dark:border-red-800 transition-all duration-300 hover:scale-105"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -538,18 +562,20 @@ export default function StarterPacks() {
         {/* All Starter Packs Grid */}
         {filteredPacks.filter(pack => !user || pack.creator.did !== user.did).length > 0 && (
           <div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
               Community Packs
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredPacks.filter(pack => !user || pack.creator.did !== user.did).map((pack) => (
-                <Card key={pack.uri} className="hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <Card key={pack.uri} className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-2xl border border-blue-200/50 dark:border-blue-800/50 hover:border-blue-300/50 dark:hover:border-blue-600/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 hover:scale-105 group">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-3">
-                      <span className="text-2xl">📋</span>
+                      <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                        <span className="text-xl">📋</span>
+                      </div>
                       <div>
-                        <div className="text-lg">{pack.name}</div>
-                        <Badge variant="outline" className="text-xs">
+                        <div className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">{pack.name}</div>
+                        <Badge variant="outline" className="text-xs bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800">
                           {pack.members?.length || 0} creators
                         </Badge>
                       </div>
@@ -601,7 +627,7 @@ export default function StarterPacks() {
                     {/* Actions */}
                     <div className="flex gap-2">
                       <Link href={`/starter-packs/${encodeURIComponent(pack.uri)}`} className="flex-1">
-                        <Button size="sm" className="w-full">
+                        <Button size="sm" className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white transition-all duration-300 hover:scale-105">
                           <Users className="w-4 h-4 mr-2" />
                           View Pack
                         </Button>
@@ -610,6 +636,7 @@ export default function StarterPacks() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleSharePack(pack)}
+                        className="border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-300 hover:scale-105"
                       >
                         <Share2 className="w-4 h-4" />
                       </Button>
@@ -623,9 +650,9 @@ export default function StarterPacks() {
 
         {/* Call to Action */}
         <div className="text-center mt-12">
-          <Card className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 border-0">
+          <Card className="bg-gradient-to-r from-blue-50/80 to-purple-50/80 dark:from-blue-900/30 dark:to-purple-900/30 backdrop-blur-xl border border-blue-200/50 dark:border-blue-800/50 shadow-lg">
             <CardContent className="py-8">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
                 Want to be featured in a starter pack?
               </h3>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
@@ -634,13 +661,13 @@ export default function StarterPacks() {
               </p>
               <div className="flex gap-4 justify-center">
                 <Link href="/login">
-                  <Button>
+                  <Button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white transition-all duration-300 hover:scale-105 shadow-lg">
                     <Sparkles className="w-4 h-4 mr-2" />
                     Create Your Profile
                   </Button>
                 </Link>
                 <Link href="/examples">
-                  <Button variant="outline">
+                  <Button variant="outline" className="border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 hover:scale-105">
                     <ExternalLink className="w-4 h-4 mr-2" />
                     See Examples
                   </Button>
@@ -649,7 +676,113 @@ export default function StarterPacks() {
             </CardContent>
           </Card>
         </div>
-      </div>
+        </div>
+      </main>
+
+      {/* Modern CSS Animations */}
+      <style>{`
+        @keyframes fadeInUp {
+          0% {
+            transform: translateY(30px);
+            opacity: 0;
+          }
+          100% {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes gradientShift {
+          0%, 100% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+        }
+        
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px) translateX(0px);
+            opacity: 0.7;
+          }
+          25% {
+            transform: translateY(-20px) translateX(10px);
+            opacity: 1;
+          }
+          50% {
+            transform: translateY(-10px) translateX(-5px);
+            opacity: 0.8;
+          }
+          75% {
+            transform: translateY(-15px) translateX(8px);
+            opacity: 0.9;
+          }
+        }
+        
+        @keyframes gridMove {
+          0% {
+            transform: translate(0, 0);
+          }
+          100% {
+            transform: translate(35px, 35px);
+          }
+        }
+        
+        @keyframes shimmer {
+          0% {
+            background-position: -200% 0;
+          }
+          100% {
+            background-position: 200% 0;
+          }
+        }
+        
+        @keyframes cardHover {
+          0% {
+            transform: translateY(0) scale(1);
+          }
+          100% {
+            transform: translateY(-8px) scale(1.02);
+          }
+        }
+        
+        @keyframes pulse {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.05);
+          }
+        }
+        
+        .animate-fade-in {
+          animation: fadeInUp 0.8s ease-out forwards;
+        }
+        
+        .animate-gradient {
+          background-size: 200% 200%;
+          animation: gradientShift 3s ease infinite;
+        }
+        
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+        
+        .animate-shimmer {
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+          background-size: 200% 100%;
+          animation: shimmer 2s infinite;
+        }
+        
+        .animate-card-hover {
+          animation: cardHover 0.3s ease-out;
+        }
+        
+        .animate-pulse-slow {
+          animation: pulse 3s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 }
