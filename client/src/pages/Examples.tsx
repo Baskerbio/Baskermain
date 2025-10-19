@@ -13,7 +13,7 @@ export default function Examples() {
   const [profiles, setProfiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const exampleHandles = ['basker.bio', 'samthibault.bsky.social'];
+  const exampleHandles = ['basker.bio', 'sam@basker.bio', 'proximareport.com'];
 
   useEffect(() => {
     const fetchProfiles = async () => {

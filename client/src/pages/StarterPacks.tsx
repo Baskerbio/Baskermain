@@ -659,15 +659,15 @@ export default function StarterPacks() {
                 We're always looking for amazing Basker users to highlight. 
                 Create great content and engage with the community!
               </p>
-              <div className="flex gap-4 justify-center">
-                <Link href="/login">
-                  <Button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white transition-all duration-300 hover:scale-105 shadow-lg">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Link href="/login" className="w-full sm:w-auto">
+                  <Button className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white transition-all duration-300 hover:scale-105 shadow-lg">
                     <Sparkles className="w-4 h-4 mr-2" />
                     Create Your Profile
                   </Button>
                 </Link>
-                <Link href="/examples">
-                  <Button variant="outline" className="border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 hover:scale-105">
+                <Link href="/examples" className="w-full sm:w-auto">
+                  <Button variant="outline" className="w-full sm:w-auto border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 hover:scale-105">
                     <ExternalLink className="w-4 h-4 mr-2" />
                     See Examples
                   </Button>
