@@ -86,7 +86,7 @@ export function SocialIconsRow({ socialLinks, config, isEditMode = false }: Soci
   };
 
   return (
-    <div className="flex flex-row items-center justify-center gap-3 my-6 fade-in flex-wrap">
+    <div className="flex flex-row items-center justify-center gap-3 mt-2 mb-0 fade-in flex-wrap">
       {visibleLinks.map((link) => {
         const platformInfo = PLATFORM_ICONS[link.platform] || PLATFORM_ICONS.custom;
         const Icon = BrandIcons[link.platform as keyof typeof BrandIcons] || BrandIcons.custom;

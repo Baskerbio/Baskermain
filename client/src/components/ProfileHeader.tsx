@@ -181,7 +181,7 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
   if (!profile) return null;
 
   return (
-    <div className="text-center mb-8 fade-in" data-testid="profile-header">
+    <div className="text-center mb-0 fade-in" data-testid="profile-header">
       {/* Banner Section */}
       {effectiveSettings?.showBanner !== false && (
         <div className="relative mb-6 mx-4 sm:mx-6 md:mx-8 lg:mx-12 xl:mx-16 2xl:mx-24">
@@ -356,13 +356,13 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
         )}
       </div>
       
-      <p className="text-muted-foreground mb-4" data-testid="text-handle">
+      <p className="text-muted-foreground mb-0" data-testid="text-handle">
         @{profile.handle}
       </p>
       
       {/* Social Icons - under avatar placement */}
       {effectiveSettings?.socialIconsConfig?.placement === 'under-avatar' && (
-        <>
+        <div className="mb-0">
           {/* Show editor in edit mode */}
           {isEditMode && !isPublicProfile ? (
             <SocialIconsEditor
@@ -418,11 +418,11 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
               />
             )
           )}
-        </>
+        </div>
       )}
       
       {(effectiveSettings?.customBio || profile.description) && !isEditingBio && (
-        <div className="relative group mb-6 max-w-md mx-auto">
+        <div className="relative group mb-3 max-w-md mx-auto">
           <p className="text-foreground" data-testid="text-bio">
             {effectiveSettings?.customBio || profile.description}
           </p>
@@ -442,7 +442,7 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
       
       {/* Social Icons - under bio placement (default) */}
       {(!effectiveSettings?.socialIconsConfig?.placement || effectiveSettings?.socialIconsConfig?.placement === 'under-bio') && (
-        <>
+        <div className="mb-0">
           {/* Show editor in edit mode */}
           {isEditMode && !isPublicProfile ? (
             <SocialIconsEditor
@@ -498,7 +498,7 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
               />
             )
           )}
-        </>
+        </div>
       )}
       
       {isEditingBio && isEditMode && !isPublicProfile && (

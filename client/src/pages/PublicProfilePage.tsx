@@ -266,9 +266,9 @@ export default function PublicProfilePage() {
     <div className={`min-h-screen ${settings?.theme?.backgroundImage ? 'bg-transparent' : 'bg-background'}`}>
       {/* Header */}
       <header className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-50" data-testid="header">
-        <div className="max-w-4xl mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link href="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity">
+        <div className="max-w-4xl mx-auto px-4 py-2 sm:py-3 flex items-center justify-between">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Link href="/" className="flex items-center gap-1 sm:gap-2 hover:opacity-80 transition-opacity">
               <img 
                 src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
                 alt="Basker"
@@ -294,7 +294,7 @@ export default function PublicProfilePage() {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-8">
+      <main className="max-w-2xl mx-auto px-4 py-4">
         {/* Profile Header */}
         <ProfileHeader 
           profile={profile}
@@ -305,7 +305,7 @@ export default function PublicProfilePage() {
         
         {/* Social Icons Row - above sections placement */}
         {settings?.socialIconsConfig?.placement === 'above-sections' && settings?.socialLinks && (
-          <div className="mb-8">
+          <div className="mb-0">
             <div className="flex items-center justify-center">
               <SocialIconsRow 
                 socialLinks={settings.socialLinks} 
@@ -522,7 +522,7 @@ function PublicLinksList({ did }: { did: string }) {
   };
 
   return (
-    <div className="mb-8 fade-in">
+    <div className="mb-2 fade-in">
       <h3 className="text-lg font-semibold text-foreground mb-4">Links</h3>
       <div className="space-y-4">
         {/* Show ungrouped links first */}
@@ -619,7 +619,7 @@ function PublicNotes({ did }: { did: string }) {
   if (notes.length === 0) return null;
 
   return (
-    <div className="mb-8 fade-in">
+    <div className="mb-2 fade-in">
       <h3 className="text-lg font-semibold text-foreground mb-4">Notes</h3>
       <div className="space-y-4">
         {notes.map((note) => (
@@ -769,7 +769,7 @@ function PublicWidgets({ did }: { did: string }) {
   };
 
   return (
-    <div className="mb-8 fade-in">
+    <div className="mb-2 fade-in">
       <h3 className="text-lg font-semibold text-foreground mb-4">Widgets</h3>
       <div className="space-y-6">
         {widgets

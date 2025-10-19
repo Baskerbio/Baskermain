@@ -157,7 +157,7 @@ export function PublicStoriesRing({ profile, targetDid, settings: propSettings }
   // If no stories, just show the avatar
   if (activeStories.length === 0) {
     return (
-      <div className="relative inline-block mb-4">
+      <div className="relative inline-block mb-0">
         <Avatar className="w-24 h-24 border-4 border-primary">
           <AvatarImage 
             src={effectiveSettings?.customAvatar || profile.avatar} 
