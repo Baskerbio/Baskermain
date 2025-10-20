@@ -26,7 +26,6 @@ export default function Landing() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [openFAQ, setOpenFAQ] = useState<number | null>(null);
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isScrolled, setIsScrolled] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
@@ -136,18 +135,6 @@ export default function Landing() {
     return () => observer.disconnect();
   }, []);
 
-  // Mouse tracking for parallax effects
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) * 100,
-        y: (e.clientY / window.innerHeight) * 100
-      });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
 
   // Debounced search function
   useEffect(() => {
@@ -269,11 +256,34 @@ export default function Landing() {
   if (isAuthenticated && user) {
     // Show a welcome interface for authenticated users instead of redirecting
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 relative overflow-hidden">
         <Header />
+        
+        {/* Enhanced Animated Background */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+          {/* Floating particles */}
+          {[...Array(15)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-1 h-1 bg-gradient-to-r from-blue-400/40 to-purple-400/40 rounded-full"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 10}s`,
+                animationDuration: `${12 + Math.random() * 8}s`,
+                animation: 'float 12s ease-in-out infinite'
+              }}
+            ></div>
+          ))}
+          
+          {/* Animated gradient orbs */}
+          <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-r from-pink-400/20 to-rose-400/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-gradient-to-r from-cyan-400/15 to-blue-400/15 rounded-full blur-2xl animate-pulse"></div>
+        </div>
 
-        <main>
-          {/* Welcome Section */}
+        <main className="relative z-10">
+          {/* Welcome Dashboard Section */}
           <section className="relative py-20 px-4 overflow-hidden">
             {/* Animated Background Elements */}
             <div className="absolute inset-0 overflow-hidden">
@@ -307,66 +317,189 @@ export default function Landing() {
               </div>
             </div>
 
-            <div className="max-w-4xl mx-auto text-center relative z-10">
-              {/* Animated Welcome Badge */}
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/20 dark:to-orange-900/20 px-4 py-2 rounded-full mb-6 animate-pulse">
-                <Sparkles className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
-                <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">Welcome Back!</span>
-          </div>
+            <div className="max-w-7xl mx-auto relative z-10">
+              {/* Welcome Header */}
+              <div className="text-center mb-12">
+                {/* Animated Welcome Badge */}
+                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/20 dark:to-orange-900/20 px-4 py-2 rounded-full mb-6 animate-pulse">
+                  <Sparkles className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+                  <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">Welcome Back!</span>
+                </div>
 
-              <h1 className="text-5xl sm:text-6xl font-bold text-foreground mb-6 animate-fade-in">
-                Welcome back, <span className="bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">{user.displayName || user.handle}</span>!
-              </h1>
-              <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                Your link-in-bio page is ready. Manage your links, stories, and content with ease.
-              </p>
-              
-              {/* Enhanced Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-                <Link href="/profile">
-                  <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                    <Settings className="w-5 h-5 mr-2" />
-                    Edit My Profile
-                  </Button>
-                </Link>
-                <Link href={`/${user.handle}`}>
-                  <Button variant="outline" size="lg" className="w-full sm:w-auto border-2 border-yellow-500 text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                    <ExternalLink className="w-5 h-5 mr-2" />
-                    View My Public Profile
-                  </Button>
-                </Link>
+                <h1 className="text-5xl sm:text-6xl font-bold text-foreground mb-6 animate-fade-in">
+                  Welcome back, <span className="bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">{user.displayName || user.handle}</span>!
+                </h1>
+                <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                  Your personalized dashboard is ready. Manage your profile, track analytics, and grow your presence.
+                </p>
               </div>
-              
-              {/* Quick Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto mb-8 animate-fade-in" style={{ animationDelay: '0.6s' }}>
-                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-yellow-200 dark:border-yellow-800">
-                  <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <LinkIcon className="w-6 h-6 text-white" />
-                </div>
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Unlimited Links</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Add as many links as you want</p>
-                </div>
-                
-                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-yellow-200 dark:border-yellow-800">
-                  <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <Palette className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Custom Themes</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Personalize your profile</p>
-                </div>
-                
-                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-yellow-200 dark:border-yellow-800">
-                  <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <Heart className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Stories & Notes</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Share your moments</p>
-                </div>
-              </div>
-              
 
-              {/* Enhanced Bluesky Link */}
-              <div className="mt-6 text-center animate-fade-in" style={{ animationDelay: '1.0s' }}>
+              {/* Dashboard Grid */}
+              <div className="grid lg:grid-cols-3 gap-8 mb-12">
+                {/* Quick Actions Card */}
+                <div className="lg:col-span-2">
+                  <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-yellow-200 dark:border-yellow-800 shadow-xl hover:shadow-2xl transition-all duration-300">
+                    <CardContent className="p-8">
+                      <div className="flex items-center gap-4 mb-6">
+                        <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-xl flex items-center justify-center">
+                          <Settings className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Quick Actions</h3>
+                          <p className="text-gray-600 dark:text-gray-400">Manage your profile and content</p>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <Link href="/profile">
+                          <Button className="w-full h-16 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                            <div className="flex items-center gap-3">
+                              <Settings className="w-5 h-5" />
+                              <div className="text-left">
+                                <div className="font-semibold">Edit Profile</div>
+                                <div className="text-xs opacity-90">Customize your page</div>
+                              </div>
+                            </div>
+                          </Button>
+                        </Link>
+                        
+                        <Link href={`/${user.handle}`}>
+                          <Button variant="outline" className="w-full h-16 border-2 border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                            <div className="flex items-center gap-3">
+                              <ExternalLink className="w-5 h-5" />
+                              <div className="text-left">
+                                <div className="font-semibold">View Profile</div>
+                                <div className="text-xs opacity-90">See public page</div>
+                              </div>
+                            </div>
+                          </Button>
+                        </Link>
+                        
+                        <Link href="/starter-packs">
+                          <Button variant="outline" className="w-full h-16 border-2 border-green-500 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                            <div className="flex items-center gap-3">
+                              <Star className="w-5 h-5" />
+                              <div className="text-left">
+                                <div className="font-semibold">Starter Packs</div>
+                                <div className="text-xs opacity-90">Get templates</div>
+                              </div>
+                            </div>
+                          </Button>
+                        </Link>
+                        
+                        <Link href="/import">
+                          <Button variant="outline" className="w-full h-16 border-2 border-orange-500 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                            <div className="flex items-center gap-3">
+                              <ArrowRight className="w-5 h-5" />
+                              <div className="text-left">
+                                <div className="font-semibold">Import Data</div>
+                                <div className="text-xs opacity-90">Bring your content</div>
+                              </div>
+                            </div>
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Profile Stats Card */}
+                <div>
+                  <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-yellow-200 dark:border-yellow-800 shadow-xl hover:shadow-2xl transition-all duration-300 h-full">
+                    <CardContent className="p-8">
+                      <div className="flex items-center gap-4 mb-6">
+                        <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-emerald-400 rounded-xl flex items-center justify-center">
+                          <Heart className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Profile Stats</h3>
+                          <p className="text-gray-600 dark:text-gray-400">Your performance</p>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center p-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <LinkIcon className="w-5 h-5 text-blue-500" />
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Total Links</span>
+                          </div>
+                          <span className="text-lg font-bold text-blue-600 dark:text-blue-400">∞</span>
+                        </div>
+                        
+                        <div className="flex justify-between items-center p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <Palette className="w-5 h-5 text-green-500" />
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Themes</span>
+                          </div>
+                          <span className="text-lg font-bold text-green-600 dark:text-green-400">5+</span>
+                        </div>
+                        
+                        <div className="flex justify-between items-center p-3 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <StickyNote className="w-5 h-5 text-purple-500" />
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Stories</span>
+                          </div>
+                          <span className="text-lg font-bold text-purple-600 dark:text-purple-400">0</span>
+                        </div>
+                        
+                        <div className="flex justify-between items-center p-3 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <Globe className="w-5 h-5 text-orange-500" />
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Views</span>
+                          </div>
+                          <span className="text-lg font-bold text-orange-600 dark:text-orange-400">0</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+
+
+
+              {/* Tips & Getting Started Section */}
+              <div className="mb-12">
+                <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 shadow-xl">
+                  <CardContent className="p-8">
+                    <div className="text-center mb-8">
+                      <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <Sparkles className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Getting Started Tips</h3>
+                      <p className="text-gray-600 dark:text-gray-400">Make the most of your link-in-bio page</p>
+                    </div>
+                    
+                    <div className="grid md:grid-cols-3 gap-6">
+                      <div className="text-center space-y-3">
+                        <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mx-auto">
+                          <LinkIcon className="w-6 h-6 text-white" />
+                        </div>
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">Add Your First Link</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Start by adding your most important links like social media, website, or contact info</p>
+                      </div>
+                      
+                      <div className="text-center space-y-3">
+                        <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mx-auto">
+                          <Palette className="w-6 h-6 text-white" />
+                        </div>
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">Customize Your Theme</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Choose a theme that matches your brand and personality</p>
+                      </div>
+                      
+                      <div className="text-center space-y-3">
+                        <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center mx-auto">
+                          <Share2 className="w-6 h-6 text-white" />
+                        </div>
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">Share Your Profile</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Add your profile link to your social media bios and business cards</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Enhanced Bluesky Integration */}
+              <div className="text-center">
                 <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-full mb-4">
                   <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                     <span className="text-white text-xs font-bold">AT</span>
@@ -374,10 +507,10 @@ export default function Landing() {
                   <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">Powered by the AT Protocol</span>
                 </div>
                 <div>
-                <a 
-                  href="https://bsky.app" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
+                  <a 
+                    href="https://bsky.app" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors"
                   >
                     Visit Bluesky <ExternalLink className="w-4 h-4" />
@@ -386,7 +519,6 @@ export default function Landing() {
               </div>
             </div>
           </section>
-
 
           {/* Search Section */}
           <section className="py-16 px-4 bg-muted/30">
@@ -509,12 +641,13 @@ export default function Landing() {
         {[...Array(15)].map((_, i) => (
           <div
             key={i}
-            className="absolute w-1 h-1 bg-gradient-to-r from-blue-400/40 to-purple-400/40 rounded-full animate-float"
+            className="absolute w-1 h-1 bg-gradient-to-r from-blue-400/40 to-purple-400/40 rounded-full"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${4 + Math.random() * 6}s`
+              animationDelay: `${Math.random() * 10}s`,
+              animationDuration: `${12 + Math.random() * 8}s`,
+              animation: 'float 12s ease-in-out infinite'
             }}
           ></div>
         ))}
@@ -1588,19 +1721,19 @@ export default function Landing() {
         @keyframes float {
           0%, 100% {
             transform: translateY(0px) translateX(0px);
-            opacity: 0.7;
+            opacity: 0.3;
           }
           25% {
-            transform: translateY(-20px) translateX(10px);
-            opacity: 1;
+            transform: translateY(-10px) translateX(5px);
+            opacity: 0.6;
           }
           50% {
-            transform: translateY(-10px) translateX(-5px);
-            opacity: 0.8;
+            transform: translateY(-5px) translateX(-3px);
+            opacity: 0.4;
           }
           75% {
-            transform: translateY(-15px) translateX(8px);
-            opacity: 0.9;
+            transform: translateY(-8px) translateX(4px);
+            opacity: 0.5;
           }
         }
         
@@ -1618,7 +1751,7 @@ export default function Landing() {
         }
         
         .animate-float {
-          animation: float 6s ease-in-out infinite;
+          animation: float 20s ease-in-out infinite;
         }
         
         .animate-gradient {

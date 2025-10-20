@@ -18,6 +18,10 @@ import InfoCenter from "@/pages/InfoCenter";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfService from "@/pages/TermsOfService";
 import EULA from "@/pages/EULA";
+import CookiePolicy from "@/pages/CookiePolicy";
+import DataProcessingAgreement from "@/pages/DataProcessingAgreement";
+import AcceptableUsePolicy from "@/pages/AcceptableUsePolicy";
+import DMCAPolicy from "@/pages/DMCAPolicy";
 import Examples from "@/pages/Examples";
 import StarterPacks from "@/pages/StarterPacks";
 import StarterPackDetail from "@/pages/StarterPackDetail";
@@ -42,6 +46,10 @@ function Router() {
       <Route path="/privacy" component={PrivacyPolicy} />
       <Route path="/terms" component={TermsOfService} />
       <Route path="/eula" component={EULA} />
+      <Route path="/cookies" component={CookiePolicy} />
+      <Route path="/data-processing" component={DataProcessingAgreement} />
+      <Route path="/acceptable-use" component={AcceptableUsePolicy} />
+      <Route path="/dmca" component={DMCAPolicy} />
       <Route path="/examples" component={Examples} />
       <Route path="/starter-packs" component={StarterPacks} />
       <Route path="/starter-packs/:packId" component={StarterPackDetail} />

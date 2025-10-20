@@ -82,10 +82,13 @@ export default function About() {
               <div className="space-y-6 animate-fade-in" style={{ animationDelay: '0.4s' }}>
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Our Mission</h2>
                 <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
-                  To create a truly decentralized link-in-bio platform where users own their data and have complete control over their online presence.
+                  Our mission is to create the best free and truly decentralized link-in-bio platform, A platform where users own their data and have complete control over their online presence.
                 </p>
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                  We believe that your online identity should be portable, secure, and truly yours. That's why we built Basker on the AT Protocol, ensuring that your profile works across the entire decentralized network.
+                  We believe that your online identity should never be limited by paywalls or hidden fees. That's why Basker gives you full access to themes, widgets, customization and so much more! All for the low low price of $0
+                </p>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                  Your digital identity should be truly yours, truly portable, and truly secure.
                 </p>
               </div>
               <div className="space-y-6 animate-fade-in" style={{ animationDelay: '0.6s' }}>
@@ -117,19 +120,6 @@ export default function About() {
                   </div>
                 </div>
 
-                <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-2xl rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-pink-200/50 dark:border-pink-800/50 hover:border-pink-300/50 dark:hover:border-pink-600/50 hover:-translate-y-1 group">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-rose-500 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                      <Heart className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors mb-2">Open Source</h3>
-                      <p className="text-gray-600 dark:text-gray-300">
-                        Transparent, community-driven development. Everyone can contribute and improve Basker.
-                      </p>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -336,16 +326,8 @@ export default function About() {
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Built with ❤️</h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
-              Basker is developed by a passionate team of developers who believe in the power of decentralized technology.
+              Basker is developed by people who wanted a new, better, free and decentralized Link in bio platform
             </p>
-            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-2xl border border-blue-200/50 dark:border-blue-800/50 rounded-2xl p-8 shadow-lg">
-              <p className="text-gray-600 dark:text-gray-300 mb-6">
-                We're a small team of developers, designers, and blockchain enthusiasts who came together to build something better than the centralized alternatives.
-              </p>
-              <p className="text-gray-600 dark:text-gray-300">
-                Our goal is simple: create a link-in-bio platform that puts users first, respects their privacy, and gives them complete control over their online presence.
-              </p>
-            </div>
           </div>
         </section>
 
