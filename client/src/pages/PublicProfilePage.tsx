@@ -407,15 +407,20 @@ function PublicLinksList({ did }: { did: string }) {
     const linkStyling = getLinkStyling(link);
     const linkContent = (
       <div className="relative">
-        <Card
-          className={`hover:shadow-md transition-shadow cursor-pointer ${linkStyling.shapeClasses}`}
+        <div
+          className={`rounded-lg bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow cursor-pointer ${linkStyling.shapeClasses}`}
           style={linkStyling}
         >
-          <CardContent className="p-4">
+          <div className="p-4">
             <div className="flex items-center gap-3">
               <div
-                className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center"
-                style={{ color: linkStyling.iconColor || undefined }}
+                className={`w-8 h-8 bg-primary/10 flex items-center justify-center ${linkStyling.iconBorderShape}`}
+                style={{ 
+                  color: linkStyling.iconColor || undefined,
+                  border: linkStyling.iconBorderWidth !== '0px' 
+                    ? `${linkStyling.iconBorderWidth} ${linkStyling.iconBorderStyle} ${linkStyling.iconBorderColor}` 
+                    : 'none'
+                }}
               >
                 {getIconComponent(link.icon || 'fas fa-link')}
               </div>
@@ -432,8 +437,8 @@ function PublicLinksList({ did }: { did: string }) {
                 <i className="fas fa-external-link-alt text-xs text-muted-foreground"></i>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
         <GlareHover
           width="100%"
           height="100%"

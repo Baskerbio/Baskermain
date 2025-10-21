@@ -7,14 +7,17 @@ import { useAuth } from '../contexts/AuthContext';
 import { LoginScreen } from '../components/LoginScreen';
 import { VersionInfo } from '../components/VersionInfo';
 import { Header } from '../components/Header';
+import { QuickActionsDashboard } from '../components/QuickActionsDashboard';
 import { ArrowRight, Link as LinkIcon, Globe, Users, Zap, Star, Sparkles, Heart, Share2, Palette, StickyNote, Link2, Settings, Image as ImageIcon, ChevronDown, ChevronUp, Info, ExternalLink } from 'lucide-react';
 import { atprotocol } from '../lib/atprotocol';
 import { createPortal } from 'react-dom';
 import DecryptedText from '../components/DecryptedText';
+import { useToast } from '@/hooks/use-toast';
 import LightRays from '../components/LightRays';
 
 export default function Landing() {
   const { isAuthenticated, user } = useAuth();
+  const { toast } = useToast();
   const [searchHandle, setSearchHandle] = useState('');
   const [searchSuggestions, setSearchSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -335,72 +338,46 @@ export default function Landing() {
               </div>
 
               {/* Dashboard Grid */}
-              <div className="grid lg:grid-cols-3 gap-8 mb-12">
-                {/* Quick Actions Card */}
+              <div className="grid lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12">
+                {/* Quick Actions Dashboard */}
                 <div className="lg:col-span-2">
-                  <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-yellow-200 dark:border-yellow-800 shadow-xl hover:shadow-2xl transition-all duration-300">
-                    <CardContent className="p-8">
-                      <div className="flex items-center gap-4 mb-6">
-                        <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-xl flex items-center justify-center">
-                          <Settings className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Quick Actions</h3>
-                          <p className="text-gray-600 dark:text-gray-400">Manage your profile and content</p>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <Link href="/profile">
-                          <Button className="w-full h-16 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                            <div className="flex items-center gap-3">
-                              <Settings className="w-5 h-5" />
-                              <div className="text-left">
-                                <div className="font-semibold">Edit Profile</div>
-                                <div className="text-xs opacity-90">Customize your page</div>
-                              </div>
-                            </div>
-                          </Button>
-                        </Link>
-                        
-                        <Link href={`/${user.handle}`}>
-                          <Button variant="outline" className="w-full h-16 border-2 border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                            <div className="flex items-center gap-3">
-                              <ExternalLink className="w-5 h-5" />
-                              <div className="text-left">
-                                <div className="font-semibold">View Profile</div>
-                                <div className="text-xs opacity-90">See public page</div>
-                              </div>
-                            </div>
-                          </Button>
-                        </Link>
-                        
-                        <Link href="/starter-packs">
-                          <Button variant="outline" className="w-full h-16 border-2 border-green-500 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                            <div className="flex items-center gap-3">
-                              <Star className="w-5 h-5" />
-                              <div className="text-left">
-                                <div className="font-semibold">Starter Packs</div>
-                                <div className="text-xs opacity-90">Get templates</div>
-                              </div>
-                            </div>
-                          </Button>
-                        </Link>
-                        
-                        <Link href="/import">
-                          <Button variant="outline" className="w-full h-16 border-2 border-orange-500 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                            <div className="flex items-center gap-3">
-                              <ArrowRight className="w-5 h-5" />
-                              <div className="text-left">
-                                <div className="font-semibold">Import Data</div>
-                                <div className="text-xs opacity-90">Bring your content</div>
-                              </div>
-                            </div>
-                          </Button>
-                        </Link>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <QuickActionsDashboard
+                    onAddLink={() => {
+                      // Navigate to profile in edit mode
+                      window.location.href = '/profile';
+                    }}
+                    onOpenSettings={() => {
+                      // Navigate to profile and open settings
+                      window.location.href = '/profile';
+                    }}
+                    onToggleEditMode={() => {
+                      // Navigate to profile
+                      window.location.href = '/profile';
+                    }}
+                    onCopyProfileURL={async () => {
+                      try {
+                        await navigator.clipboard.writeText(`${window.location.origin}/${user.handle}`);
+                        toast({
+                          title: 'URL Copied!',
+                          description: 'Your profile URL has been copied to clipboard',
+                        });
+                      } catch (err) {
+                        console.error('Failed to copy URL:', err);
+                        toast({
+                          title: 'Error',
+                          description: 'Failed to copy URL to clipboard',
+                          variant: 'destructive',
+                        });
+                      }
+                    }}
+                    onViewPublicProfile={() => {
+                      window.open(`/${user.handle}`, '_blank');
+                    }}
+                    isEditMode={false}
+                    linksCount={0} // We'll need to fetch this from the API
+                    notesCount={0} // We'll need to fetch this from the API
+                    widgetsCount={0} // We'll need to fetch this from the API
+                  />
                 </div>
 
                 {/* Profile Stats Card */}
@@ -455,7 +432,77 @@ export default function Landing() {
                 </div>
               </div>
 
+              {/* Additional Quick Actions */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
+                {/* Starter Packs Card */}
+                <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Star className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100">Starter Packs</h3>
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Ready-made templates</p>
+                      </div>
+                    </div>
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-3 sm:mb-4">
+                      Get started quickly with professionally designed templates for different industries and use cases.
+                    </p>
+                    <Link href="/starter-packs">
+                      <Button className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white text-sm">
+                        Browse Packs
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
 
+                {/* Import Data Card */}
+                <Card className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border border-orange-200 dark:border-orange-800 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100">Import Data</h3>
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Bring your content</p>
+                      </div>
+                    </div>
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-3 sm:mb-4">
+                      Import your existing links and content from other platforms to get started faster.
+                    </p>
+                    <Link href="/import">
+                      <Button className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-sm">
+                        Import Now
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+
+                {/* Analytics Card */}
+                <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100">Analytics</h3>
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Track performance</p>
+                      </div>
+                    </div>
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-3 sm:mb-4">
+                      Monitor your profile performance, track clicks, and understand your audience better.
+                    </p>
+                    <Link href="/analytics">
+                      <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-sm">
+                        View Analytics
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              </div>
 
               {/* Tips & Getting Started Section */}
               <div className="mb-12">
@@ -928,7 +975,7 @@ export default function Landing() {
             </div>
 
             {/* Modern CTA Buttons */}
-                <div className={`flex flex-col sm:flex-row gap-4 transition-all duration-1000 delay-900 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                <div className={`flex flex-col sm:flex-row gap-6 justify-center items-center transition-all duration-1000 delay-900 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               <Link href="/login">
                     <Button 
                       size="lg" 
@@ -1252,7 +1299,7 @@ export default function Landing() {
                 <p className="text-muted-foreground mb-6">
                   Join thousands of users who have already created their decentralized link-in-bio pages
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
                   <Link href="/login">
                     <Button size="lg" className="w-full sm:w-auto h-12 px-8">
                       <Sparkles className="w-4 h-4 mr-2" />
@@ -1350,7 +1397,7 @@ export default function Landing() {
                   Basker integrates seamlessly with Bluesky, the decentralized social network. 
                   Your profile works across the entire AT Protocol ecosystem.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
                   <a 
                     href="https://bsky.app" 
                     target="_blank" 
@@ -1522,7 +1569,7 @@ export default function Landing() {
                 </div>
               </div>
               
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                   <span className="text-sm text-gray-500 dark:text-gray-400">All systems operational</span>

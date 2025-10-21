@@ -538,7 +538,7 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
       
       {/* Follow and Open Bluesky Buttons - Only show for public profiles when viewing someone else */}
       {isPublicProfile && targetDid && user?.did !== targetDid && (
-        <div className="mb-4 flex gap-2">
+        <div className="mb-4 mt-8 flex gap-6 justify-center items-center">
           <Button
             size="sm"
             variant={isFollowing ? "outline" : "default"}

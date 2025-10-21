@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Plus, Edit, Trash2, ExternalLink, GripVertical, ChevronDown, Palette, Type, Shapes, Settings, Clock, Link as LinkIcon, Zap } from 'lucide-react';
 import { Droppable, Draggable } from '@hello-pangea/dnd';
-import { useLinks, useSaveLinks, useGroups, useSaveGroups } from '../hooks/use-atprotocol';
+import { useLinks, useSaveLinks, useGroups, useSaveGroups, useSettings } from '../hooks/use-atprotocol';
 import { useToast } from '@/hooks/use-toast';
 import { Link, Group } from '@shared/schema';
 import { getContrastColor, getShapeClasses, getLinkStyling } from '../lib/link-utils';
@@ -36,12 +36,15 @@ const linkFormSchema = z.object({
   backgroundColor: z.string().optional(),
   textColor: z.string().optional(),
   fontFamily: z.string().optional(),
-  containerShape: z.enum(['rounded', 'square', 'pill', 'circle', 'ridged', 'wavy']).default('rounded'),
+  containerShape: z.enum(['rounded', 'square', 'pill', 'rounded-corners', 'diamond', 'ridged', 'wavy']).default('rounded'),
   autoTextColor: z.boolean().default(true),
   iconColor: z.string().optional(),
   borderColor: z.string().optional(),
   borderWidth: z.number().min(0).max(10).optional(),
-  borderStyle: z.enum(['solid', 'dashed', 'dotted', 'double']).optional(),
+  borderStyle: z.enum(['solid', 'dashed', 'dotted', 'double', 'groove', 'ridge']).optional(),
+  iconBorderWidth: z.number().min(0).max(6).optional(),
+  iconBorderColor: z.string().optional(),
+  iconBorderShape: z.enum(['rounded', 'square', 'circle', 'triangle', 'star', 'hexagon', 'diamond', 'heart']).optional(),
   pattern: z.enum(['none', 'dots', 'lines', 'grid', 'diagonal', 'waves']).optional(),
   patternColor: z.string().optional(),
   pixelTransition: z.boolean().default(false),
@@ -75,9 +78,22 @@ const shapeOptions = [
   { value: 'rounded', label: 'Rounded', icon: '⬜' },
   { value: 'square', label: 'Square', icon: '⬛' },
   { value: 'pill', label: 'Pill', icon: '🔲' },
-  { value: 'circle', label: 'Circle', icon: '⭕' },
+  { value: 'rounded-corners', label: 'Rounded Corners', icon: '⬡' },
+  { value: 'diamond', label: 'Diamond', icon: '♦️' },
   { value: 'ridged', label: 'Ridged', icon: '〰️' },
   { value: 'wavy', label: 'Wavy', icon: '🌊' },
+];
+
+// Icon border shape options
+const iconBorderShapeOptions = [
+  { value: 'rounded', label: 'Rounded', icon: '⬜' },
+  { value: 'square', label: 'Square', icon: '⬛' },
+  { value: 'circle', label: 'Circle', icon: '⭕' },
+  { value: 'triangle', label: 'Triangle', icon: '🔺' },
+  { value: 'star', label: 'Star', icon: '⭐' },
+  { value: 'hexagon', label: 'Hexagon', icon: '⬡' },
+  { value: 'diamond', label: 'Diamond', icon: '♦️' },
+  { value: 'heart', label: 'Heart', icon: '❤️' },
 ];
 
 
@@ -88,6 +104,7 @@ export function LinksList({ isEditMode }: LinksListProps) {
   const { data: groups = [] } = useGroups();
   const typedGroups = Array.isArray(groups) ? groups as Group[] : [];
   const { mutate: saveGroups } = useSaveGroups();
+  const { data: settings } = useSettings();
   const { toast } = useToast();
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -250,6 +267,9 @@ export function LinksList({ isEditMode }: LinksListProps) {
         borderColor: editingLink.borderColor || '',
         borderWidth: editingLink.borderWidth || 0,
         borderStyle: editingLink.borderStyle || 'solid',
+        iconBorderWidth: editingLink.iconBorderWidth || 0,
+        iconBorderColor: editingLink.iconBorderColor || '#000000',
+        iconBorderShape: editingLink.iconBorderShape || 'rounded',
         pattern: editingLink.pattern || 'none',
         patternColor: editingLink.patternColor || '',
         pixelTransition: editingLink.pixelTransition || false,
@@ -275,8 +295,11 @@ export function LinksList({ isEditMode }: LinksListProps) {
         autoTextColor: true,
         iconColor: '',
         borderColor: '',
-        borderWidth: 0,
+        borderWidth: 2,
         borderStyle: 'solid',
+        iconBorderWidth: settings?.enableIconBorders ? 2 : 0,
+        iconBorderColor: '#000000',
+        iconBorderShape: 'rounded',
         pattern: 'none',
         patternColor: '',
         pixelTransition: false,
@@ -290,12 +313,12 @@ export function LinksList({ isEditMode }: LinksListProps) {
 
   const onSubmit = (values: z.infer<typeof linkFormSchema>) => {
     console.log('🔍 Form submitted with values:', values);
-    console.log('🔍 Styling values:', {
-      backgroundColor: values.backgroundColor,
-      textColor: values.textColor,
-      fontFamily: values.fontFamily,
-      containerShape: values.containerShape,
-      autoTextColor: values.autoTextColor
+    console.log('🔍 Border values:', {
+      borderWidth: values.borderWidth,
+      borderStyle: values.borderStyle,
+      borderColor: values.borderColor,
+      iconBorderWidth: values.iconBorderWidth,
+      iconBorderColor: values.iconBorderColor
     });
     let updatedLinks: Link[];
 
@@ -445,17 +468,27 @@ export function LinksList({ isEditMode }: LinksListProps) {
   };
 
   const renderLinkCard = (link: any, isGrouped: boolean = false) => {
-    const linkStyling = getLinkStyling(link);
+    const linkStyling = getLinkStyling(link, settings);
+    console.log('Link card debug:', {
+      linkTitle: link.title,
+      iconBorderShape: link.iconBorderShape,
+      processedIconBorderShape: linkStyling.iconBorderShape
+    });
     const linkContent = (
-      <Card 
-        className={`hover:shadow-md transition-shadow cursor-pointer ${linkStyling.shapeClasses}`}
+      <div 
+        className={`rounded-lg bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow cursor-pointer ${linkStyling.shapeClasses}`}
         style={linkStyling}
       >
-        <CardContent className="p-4">
+        <div className="p-4">
           <div className="flex items-center gap-3">
             <div 
-              className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center"
-              style={{ color: linkStyling.iconColor || undefined }}
+              className={`w-8 h-8 bg-primary/10 flex items-center justify-center ${linkStyling.iconBorderShape}`}
+              style={{ 
+                color: linkStyling.iconColor || undefined,
+                border: linkStyling.iconBorderWidth !== '0px' 
+                  ? `${linkStyling.iconBorderWidth} ${linkStyling.iconBorderStyle} ${linkStyling.iconBorderColor}` 
+                  : 'none'
+              }}
             >
               {getIconComponent(link.icon || 'fas fa-link')}
             </div>
@@ -472,8 +505,8 @@ export function LinksList({ isEditMode }: LinksListProps) {
               <i className="fas fa-external-link-alt text-xs text-muted-foreground"></i>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
 
     // If pixel transition is enabled and not in edit mode, add it as an overlay
@@ -521,20 +554,20 @@ export function LinksList({ isEditMode }: LinksListProps) {
   };
 
   const renderDraggableLinkCard = (link: any, provided: any, snapshot: any, isGrouped: boolean = false) => {
-    const linkStyling = getLinkStyling(link);
+    const linkStyling = getLinkStyling(link, settings);
     const linkContent = (
       <div className="relative">
-        <Card
+        <div
           ref={provided.innerRef}
           {...provided.draggableProps}
-          className={`card-hover group relative cursor-pointer ${
+          className={`card-hover group relative cursor-pointer rounded-lg bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow ${
             snapshot.isDragging ? 'shadow-lg' : ''
           } ${linkStyling.shapeClasses}`}
           style={linkStyling}
           onClick={() => !isEditMode && openLink(link.url)}
           data-testid={`link-${link.id}`}
         >
-          <CardContent className="p-4">
+          <div className="p-4">
             <div className="flex items-center gap-4">
               {isEditMode && (
                 <Button
@@ -547,8 +580,13 @@ export function LinksList({ isEditMode }: LinksListProps) {
                 </Button>
               )}
               <div 
-                className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0"
-                style={{ color: linkStyling.iconColor || undefined }}
+                className={`w-10 h-10 bg-primary/10 flex items-center justify-center flex-shrink-0 ${linkStyling.iconBorderShape}`}
+                style={{ 
+                  color: linkStyling.iconColor || undefined,
+                  border: linkStyling.iconBorderWidth !== '0px' 
+                    ? `${linkStyling.iconBorderWidth} ${linkStyling.iconBorderStyle} ${linkStyling.iconBorderColor}` 
+                    : 'none'
+                }}
               >
                 {getIconComponent(link.icon || 'fas fa-link')}
               </div>
@@ -592,8 +630,8 @@ export function LinksList({ isEditMode }: LinksListProps) {
                 <ExternalLink className="w-4 h-4 text-muted-foreground" />
               )}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
         <GlareHover
           width="100%"
           height="100%"
@@ -605,7 +643,7 @@ export function LinksList({ isEditMode }: LinksListProps) {
           glareAngle={-45}
           glareSize={200}
           transitionDuration={600}
-          className="absolute inset-0"
+          className="absolute inset-0 pointer-events-none"
         />
       </div>
     );
@@ -714,6 +752,19 @@ export function LinksList({ isEditMode }: LinksListProps) {
                 fontFamily: 'system',
                 containerShape: 'rounded',
                 autoTextColor: true,
+        borderWidth: 2,
+        borderStyle: 'solid',
+        borderColor: '#000000',
+        iconBorderWidth: settings?.enableIconBorders ? 2 : 0,
+        iconBorderColor: '#000000',
+        iconBorderShape: 'rounded',
+                pattern: 'none',
+                patternColor: '#000000',
+                pixelTransition: false,
+                pixelTransitionText: '',
+                pixelTransitionColor: '#000000',
+                pixelTransitionGridSize: 7,
+                pixelTransitionDuration: 0.3,
               });
             }
           }}>
@@ -930,30 +981,49 @@ export function LinksList({ isEditMode }: LinksListProps) {
                     </TabsContent>
                     
                     <TabsContent value="appearance" className="space-y-6 mt-6">
+                      {/* Colors Section */}
                       <div className="space-y-4">
-                        <h3 className="text-lg font-semibold flex items-center gap-2">
-                          <Palette className="w-5 h-5" />
-                          Colors & Background
-                        </h3>
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-semibold flex items-center gap-2">
+                            <Palette className="w-5 h-5" />
+                            Colors
+                          </h3>
+                          <FormField
+                            control={form.control}
+                            name="autoTextColor"
+                            render={({ field }) => (
+                              <FormItem className="flex flex-row items-center gap-3">
+                                <FormLabel className="text-sm">Auto Text Color</FormLabel>
+                                <FormControl>
+                                  <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                    size="sm"
+                                  />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        </div>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <FormField
+                            control={form.control}
                             name="backgroundColor"
-                      render={({ field }) => (
+                            render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Background Color</FormLabel>
+                                <FormLabel>Background</FormLabel>
                                 <FormControl>
                                   <div className="flex items-center gap-2">
                                     <Input
                                       type="color"
-                                      className="w-12 h-10 p-1 border rounded"
+                                      className="w-10 h-10 p-1 border rounded cursor-pointer"
                                       value={field.value || '#ffffff'}
                                       onChange={(e) => field.onChange(e.target.value)}
                                     />
                                     <Input
                                       placeholder="#ffffff"
-                                      className="flex-1"
+                                      className="flex-1 text-sm"
                                       value={field.value || ''}
                                       onChange={(e) => field.onChange(e.target.value)}
                                     />
@@ -969,18 +1039,18 @@ export function LinksList({ isEditMode }: LinksListProps) {
                             name="textColor"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Text Color</FormLabel>
+                                <FormLabel>Text</FormLabel>
                                 <FormControl>
                                   <div className="flex items-center gap-2">
                                     <Input
                                       type="color"
-                                      className="w-12 h-10 p-1 border rounded"
+                                      className="w-10 h-10 p-1 border rounded cursor-pointer"
                                       value={field.value || '#000000'}
                                       onChange={(e) => field.onChange(e.target.value)}
                                     />
                                     <Input
                                       placeholder="#000000"
-                                      className="flex-1"
+                                      className="flex-1 text-sm"
                                       value={field.value || ''}
                                       onChange={(e) => field.onChange(e.target.value)}
                                     />
@@ -990,79 +1060,127 @@ export function LinksList({ isEditMode }: LinksListProps) {
                               </FormItem>
                             )}
                           />
+                          
+                          <FormField
+                            control={form.control}
+                            name="iconColor"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Icon Color</FormLabel>
+                                <FormControl>
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      type="color"
+                                      className="w-10 h-10 p-1 border rounded cursor-pointer"
+                                      value={field.value || '#000000'}
+                                      onChange={(e) => field.onChange(e.target.value)}
+                                    />
+                                    <Input
+                                      placeholder="#000000"
+                                      className="flex-1 text-sm"
+                                      value={field.value || ''}
+                                      onChange={(e) => field.onChange(e.target.value)}
+                                    />
+                                  </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="iconBorderWidth"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Icon Border: {field.value || 0}px</FormLabel>
+                                <FormControl>
+                                  <Slider
+                                    min={0}
+                                    max={6}
+                                    step={1}
+                                    value={[field.value || 0]}
+                                    onValueChange={(value) => field.onChange(value[0])}
+                                    className="w-full"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="iconBorderColor"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Icon Border Color</FormLabel>
+                                <FormControl>
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      type="color"
+                                      className="w-10 h-10 p-1 border rounded cursor-pointer"
+                                      value={field.value || '#000000'}
+                                      onChange={(e) => field.onChange(e.target.value)}
+                                    />
+                                    <Input
+                                      placeholder="#000000"
+                                      className="flex-1 text-sm"
+                                      value={field.value || ''}
+                                      onChange={(e) => field.onChange(e.target.value)}
+                                    />
+                                  </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="iconBorderShape"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Icon Border Shape</FormLabel>
+                                <FormControl>
+                                  <Select value={field.value || 'rounded'} onValueChange={field.onChange}>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select shape" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {iconBorderShapeOptions.map((option) => (
+                                        <SelectItem key={option.value} value={option.value}>
+                                          <div className="flex items-center gap-2">
+                                            <span>{option.icon}</span>
+                                            <span>{option.label}</span>
+                                          </div>
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                         </div>
-                        
-                        <FormField
-                          control={form.control}
-                          name="iconColor"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="flex items-center gap-2">
-                                <Palette className="w-4 h-4" />
-                                Icon Color
-                              </FormLabel>
-                              <FormControl>
-                                <div className="flex items-center gap-2">
-                                  <Input
-                                    type="color"
-                                    className="w-12 h-10 p-1 border rounded"
-                                    value={field.value || '#000000'}
-                                    onChange={(e) => field.onChange(e.target.value)}
-                                  />
-                                  <Input
-                                    placeholder="#000000"
-                                    className="flex-1"
-                                    value={field.value || ''}
-                                    onChange={(e) => field.onChange(e.target.value)}
-                                  />
-                                </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="autoTextColor"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                          <div className="space-y-0.5">
-                                <FormLabel className="text-base">
-                                  Auto Text Color
-                                </FormLabel>
-                                <div className="text-sm text-muted-foreground">
-                                  Automatically choose text color based on background brightness
-                                </div>
-                          </div>
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
                       </div>
                       
+                      {/* Shape & Typography Section */}
                       <div className="space-y-4">
                         <h3 className="text-lg font-semibold flex items-center gap-2">
                           <Shapes className="w-5 h-5" />
-                          Shape & Style
+                          Shape & Typography
                         </h3>
                         
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
                             name="containerShape"
-                          render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="flex items-center gap-2">
-                                  <Shapes className="w-4 h-4" />
-                                  Container Shape
-                                </FormLabel>
-                              <FormControl>
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Container Shape</FormLabel>
+                                <FormControl>
                                   <Select onValueChange={field.onChange} defaultValue={field.value || 'rounded'}>
                                     <SelectTrigger>
                                       <SelectValue placeholder="Choose a shape" />
@@ -1071,7 +1189,7 @@ export function LinksList({ isEditMode }: LinksListProps) {
                                       {shapeOptions.map((shape) => (
                                         <SelectItem key={shape.value} value={shape.value}>
                                           <div className="flex items-center gap-2">
-                                            <span>{shape.icon}</span>
+                                            <span className="text-lg">{shape.icon}</span>
                                             <span>{shape.label}</span>
                                           </div>
                                         </SelectItem>
@@ -1089,10 +1207,7 @@ export function LinksList({ isEditMode }: LinksListProps) {
                             name="fontFamily"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="flex items-center gap-2">
-                                  <Type className="w-4 h-4" />
-                                  Font Family
-                                </FormLabel>
+                                <FormLabel>Font Family</FormLabel>
                                 <FormControl>
                                   <Select onValueChange={field.onChange} defaultValue={field.value || 'system'}>
                                     <SelectTrigger>
@@ -1108,58 +1223,59 @@ export function LinksList({ isEditMode }: LinksListProps) {
                                       ))}
                                     </SelectContent>
                                   </Select>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                         </div>
                       </div>
                       
+                      {/* Borders Section */}
                       <div className="space-y-4">
                         <h3 className="text-lg font-semibold flex items-center gap-2">
                           <Settings className="w-5 h-5" />
-                          Borders & Patterns
+                          Borders
                         </h3>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <FormField
+                            control={form.control}
                             name="borderColor"
-                          render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Border Color</FormLabel>
-                              <FormControl>
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Color</FormLabel>
+                                <FormControl>
                                   <div className="flex items-center gap-2">
-                                <Input
+                                    <Input
                                       type="color"
-                                      className="w-12 h-10 p-1 border rounded"
+                                      className="w-10 h-10 p-1 border rounded cursor-pointer"
                                       value={field.value || '#000000'}
                                       onChange={(e) => field.onChange(e.target.value)}
                                     />
                                     <Input
                                       placeholder="#000000"
-                                      className="flex-1"
+                                      className="flex-1 text-sm"
                                       value={field.value || ''}
                                       onChange={(e) => field.onChange(e.target.value)}
                                     />
                                   </div>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                           
                           <FormField
                             control={form.control}
                             name="borderWidth"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Border Width: {field.value || 0}px</FormLabel>
+                                <FormLabel>Width: {field.value || 0}px</FormLabel>
                                 <FormControl>
                                   <Slider
                                     min={0}
-                                    max={10}
+                                    max={8}
                                     step={1}
                                     value={[field.value || 0]}
                                     onValueChange={(value) => field.onChange(value[0])}
@@ -1170,25 +1286,25 @@ export function LinksList({ isEditMode }: LinksListProps) {
                               </FormItem>
                             )}
                           />
-                  </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
+                          
+                          <FormField
+                            control={form.control}
                             name="borderStyle"
-                        render={({ field }) => (
-                          <FormItem>
-                                <FormLabel>Border Style</FormLabel>
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Style</FormLabel>
                                 <FormControl>
                                   <Select onValueChange={field.onChange} defaultValue={field.value || 'solid'}>
                                     <SelectTrigger>
-                                      <SelectValue placeholder="Choose border style" />
+                                      <SelectValue placeholder="Choose style" />
                                     </SelectTrigger>
                                     <SelectContent>
                                       <SelectItem value="solid">Solid</SelectItem>
                                       <SelectItem value="dashed">Dashed</SelectItem>
                                       <SelectItem value="dotted">Dotted</SelectItem>
                                       <SelectItem value="double">Double</SelectItem>
+                                      <SelectItem value="groove">Groove</SelectItem>
+                                      <SelectItem value="ridge">Ridge</SelectItem>
                                     </SelectContent>
                                   </Select>
                                 </FormControl>
@@ -1196,13 +1312,23 @@ export function LinksList({ isEditMode }: LinksListProps) {
                               </FormItem>
                             )}
                           />
-                          
+                        </div>
+                      </div>
+                      
+                      {/* Background Patterns Section */}
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold flex items-center gap-2">
+                          <Palette className="w-5 h-5" />
+                          Background Patterns
+                        </h3>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <FormField
                             control={form.control}
                             name="pattern"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Background Pattern</FormLabel>
+                                <FormLabel>Pattern Type</FormLabel>
                                 <FormControl>
                                   <Select onValueChange={field.onChange} defaultValue={field.value || 'none'}>
                                     <SelectTrigger>
@@ -1222,164 +1348,154 @@ export function LinksList({ isEditMode }: LinksListProps) {
                               </FormItem>
                             )}
                           />
+                          
+                          <FormField
+                            control={form.control}
+                            name="patternColor"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Pattern Color</FormLabel>
+                                <FormControl>
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      type="color"
+                                      className="w-10 h-10 p-1 border rounded cursor-pointer"
+                                      value={field.value || '#000000'}
+                                      onChange={(e) => field.onChange(e.target.value)}
+                                    />
+                                    <Input
+                                      placeholder="#000000"
+                                      className="flex-1 text-sm"
+                                      value={field.value || ''}
+                                      onChange={(e) => field.onChange(e.target.value)}
+                                    />
+                                  </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                         </div>
-                        
-                        <FormField
-                          control={form.control}
-                          name="patternColor"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Pattern Color</FormLabel>
-                            <FormControl>
-                              <div className="flex items-center gap-2">
-                                <Input
-                                  type="color"
-                                  className="w-12 h-10 p-1 border rounded"
-                                    value={field.value || '#000000'}
-                                  onChange={(e) => field.onChange(e.target.value)}
-                                />
-                                <Input
-                                    placeholder="#000000"
-                                  className="flex-1"
-                                  value={field.value || ''}
-                                  onChange={(e) => field.onChange(e.target.value)}
-                                />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
                       </div>
 
                       {/* Pixel Transition Section */}
                       <div className="space-y-4">
-                        <h3 className="text-lg font-semibold flex items-center gap-2">
-                          <Zap className="w-5 h-5" />
-                          Pixel Transition Effect
-                        </h3>
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-semibold flex items-center gap-2">
+                            <Zap className="w-5 h-5" />
+                            Pixel Transition Effect
+                          </h3>
+                          <FormField
+                            control={form.control}
+                            name="pixelTransition"
+                            render={({ field }) => (
+                              <FormItem className="flex flex-row items-center gap-3">
+                                <FormLabel className="text-sm">Enable</FormLabel>
+                                <FormControl>
+                                  <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                    size="sm"
+                                  />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        </div>
                         
-                      <FormField
-                        control={form.control}
-                          name="pixelTransition"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                              <div className="space-y-0.5">
-                                <FormLabel className="text-base">
-                                  Enable Pixel Transition
-                                </FormLabel>
-                                <FormDescription>
-                                  Add a pixelated transition effect on hover (desktop) or tap and hold (mobile)
-                                </FormDescription>
-                              </div>
-                              <FormControl>
-                                <Switch
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-
                         {form.watch('pixelTransition') && (
-                          <div className="space-y-4 pl-4 border-l-2 border-muted">
-                            <FormField
-                              control={form.control}
-                              name="pixelTransitionText"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Reveal Text</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      placeholder="Enter text to reveal during transition..."
-                                      value={field.value || ''}
-                                      onChange={(e) => field.onChange(e.target.value)}
-                                    />
-                                  </FormControl>
-                                  <FormDescription>
-                                    Text that will be revealed during the pixel transition effect
-                                  </FormDescription>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            <FormField
-                              control={form.control}
-                              name="pixelTransitionColor"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Pixel Color</FormLabel>
-                                  <FormControl>
-                                    <div className="flex items-center gap-2">
+                          <div className="space-y-4 p-4 bg-muted/30 rounded-lg border">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <FormField
+                                control={form.control}
+                                name="pixelTransitionText"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Reveal Text</FormLabel>
+                                    <FormControl>
                                       <Input
-                                        type="color"
-                                        className="w-12 h-10 p-1 border rounded"
-                                        value={field.value || '#000000'}
-                                        onChange={(e) => field.onChange(e.target.value)}
-                                      />
-                                      <Input
-                                        placeholder="#000000"
-                                        className="flex-1"
+                                        placeholder="Enter text to reveal..."
                                         value={field.value || ''}
                                         onChange={(e) => field.onChange(e.target.value)}
                                       />
-                                    </div>
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                      
-                      <FormField
-                        control={form.control}
-                              name="pixelTransitionGridSize"
-                        render={({ field }) => (
-                          <FormItem>
-                                  <FormLabel>Grid Size: {field.value}</FormLabel>
-                            <FormControl>
-                                    <Slider
-                                      min={3}
-                                      max={15}
-                                      step={1}
-                                      value={[field.value || 7]}
-                                      onValueChange={(value) => field.onChange(value[0])}
-                                      className="w-full"
-                                    />
-                            </FormControl>
-                                  <FormDescription>
-                                    Higher values create smaller, more detailed pixels
-                                  </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                              name="pixelTransitionDuration"
-                        render={({ field }) => (
-                          <FormItem>
-                                  <FormLabel>Duration: {field.value}s</FormLabel>
-                            <FormControl>
-                                    <Slider
-                                      min={0.1}
-                                      max={2.0}
-                                      step={0.1}
-                                      value={[field.value || 0.3]}
-                                      onValueChange={(value) => field.onChange(value[0])}
-                                      className="w-full"
-                                    />
-                            </FormControl>
-                                  <FormDescription>
-                                    How fast the pixel transition animates
-                                  </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              
+                              <FormField
+                                control={form.control}
+                                name="pixelTransitionColor"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Pixel Color</FormLabel>
+                                    <FormControl>
+                                      <div className="flex items-center gap-2">
+                                        <Input
+                                          type="color"
+                                          className="w-10 h-10 p-1 border rounded cursor-pointer"
+                                          value={field.value || '#000000'}
+                                          onChange={(e) => field.onChange(e.target.value)}
+                                        />
+                                        <Input
+                                          placeholder="#000000"
+                                          className="flex-1 text-sm"
+                                          value={field.value || ''}
+                                          onChange={(e) => field.onChange(e.target.value)}
+                                        />
+                                      </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <FormField
+                                control={form.control}
+                                name="pixelTransitionGridSize"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Grid Size: {field.value}</FormLabel>
+                                    <FormControl>
+                                      <Slider
+                                        min={3}
+                                        max={15}
+                                        step={1}
+                                        value={[field.value || 7]}
+                                        onValueChange={(value) => field.onChange(value[0])}
+                                        className="w-full"
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              
+                              <FormField
+                                control={form.control}
+                                name="pixelTransitionDuration"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Duration: {field.value}s</FormLabel>
+                                    <FormControl>
+                                      <Slider
+                                        min={0.1}
+                                        max={2.0}
+                                        step={0.1}
+                                        value={[field.value || 0.3]}
+                                        onValueChange={(value) => field.onChange(value[0])}
+                                        className="w-full"
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </div>
                         )}
                       </div>
                     </TabsContent>

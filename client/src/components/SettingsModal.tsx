@@ -231,6 +231,7 @@ const DEFAULT_FORM_DATA: Partial<Settings> = {
   showNotes: true,
   isPublic: true,
   enableAnalytics: true,
+  enableIconBorders: false,
   sectionOrder: DEFAULT_SECTIONS,
   socialLinks: [],
   socialIconsConfig: {
@@ -254,6 +255,7 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
     showNotes: true,
     isPublic: true,
     enableAnalytics: true,
+    enableIconBorders: false,
     sectionOrder: DEFAULT_SECTIONS,
     socialLinks: [],
     socialIconsConfig: {
@@ -461,7 +463,7 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
                 <div className="space-y-6">
 
                   {/* Appearance Tab */}
-                  <TabsContent value="appearance" className="space-y-6">
+                  <TabsContent value="appearance" className="space-y-6" data-section="theme">
                     {/* Theme Settings */}
                     <div>
                       <h3 className="text-lg font-medium text-foreground mb-3">Theme</h3>
@@ -908,7 +910,7 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
                   </TabsContent>
 
                   {/* Content Tab */}
-                  <TabsContent value="content" className="space-y-8">
+                  <TabsContent value="content" className="space-y-8" data-section="layout">
                     {/* Custom Profile */}
                     <div>
                       <h3 className="text-lg font-medium text-foreground mb-4">Custom Profile</h3>
@@ -969,7 +971,7 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
                   </TabsContent>
 
                   {/* Social Links Tab */}
-                  <TabsContent value="social" className="space-y-8">
+                  <TabsContent value="social" className="space-y-8" data-section="social-icons">
                     {/* Social Icons Row */}
                     <div id="social-icons-section">
                       <h3 className="text-lg font-medium text-foreground mb-4">Social Icons Row</h3>
@@ -1309,7 +1311,7 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
                   </TabsContent>
 
                   {/* Privacy & SEO Tab */}
-                  <TabsContent value="privacy" className="space-y-8">
+                  <TabsContent value="privacy" className="space-y-8" data-section="analytics">
                     {/* Privacy & Behavior Settings */}
                     <div>
                       <h3 className="text-lg font-medium text-foreground mb-4">Privacy & Behavior</h3>
@@ -1335,6 +1337,18 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
                             checked={Boolean((formData as any).enableAnalytics)}
                             onCheckedChange={(checked) => setFormData(prev => ({ ...prev, enableAnalytics: checked }))}
                             data-testid="switch-analytics"
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <Label className="text-sm font-medium text-foreground">Icon Borders</Label>
+                            <p className="text-xs text-muted-foreground">Enable icon borders for new links by default</p>
+                          </div>
+                          <Switch
+                            checked={Boolean((formData as any).enableIconBorders)}
+                            onCheckedChange={(checked) => setFormData(prev => ({ ...prev, enableIconBorders: checked }))}
+                            data-testid="switch-icon-borders"
                           />
                         </div>
               

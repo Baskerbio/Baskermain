@@ -394,7 +394,7 @@ export default function Profile() {
               }
 
               return (
-                <div key={section} className="relative">
+                <div key={section} className="relative" data-section={section}>
                   {sectionComponent}
                   {isEditMode && (
                     <div className="absolute -left-12 top-4 flex flex-col gap-1">

@@ -21,15 +21,17 @@ export const getContrastColor = (backgroundColor: string): string => {
 export const getShapeClasses = (shape: string) => {
   switch (shape) {
     case 'square':
-      return 'rounded-none';
+      return 'rounded-none shape-square';
     case 'pill':
-      return 'rounded-full';
-    case 'circle':
-      return 'rounded-full aspect-square w-12 h-12 flex items-center justify-center';
+      return 'rounded-full shape-pill';
+    case 'rounded-corners':
+      return 'shape-rounded-corners';
+    case 'diamond':
+      return 'shape-diamond';
     case 'ridged':
-      return 'rounded-lg border-2 border-dashed';
+      return 'rounded-lg shape-ridged';
     case 'wavy':
-      return 'rounded-lg';
+      return 'rounded-lg shape-wavy';
     case 'rounded':
     default:
       return 'rounded-lg';
@@ -37,7 +39,7 @@ export const getShapeClasses = (shape: string) => {
 };
 
 // Get link styling based on customization
-export const getLinkStyling = (link: Link) => {
+export const getLinkStyling = (link: Link, settings?: any) => {
   const backgroundColor = link.backgroundColor || undefined;
   const textColor = link.autoTextColor && backgroundColor 
     ? getContrastColor(backgroundColor) 
@@ -54,11 +56,47 @@ export const getLinkStyling = (link: Link) => {
   if (textColor) style.color = textColor;
   if (fontFamily) style.fontFamily = fontFamily;
   
-  // Border styling
-  if (link.borderColor && link.borderWidth && link.borderWidth > 0) {
-    style.borderColor = link.borderColor;
-    style.borderWidth = `${link.borderWidth}px`;
-    style.borderStyle = link.borderStyle || 'solid';
+  // Border styling - Apply only via inline styles to avoid double borders
+  const borderWidth = link.borderWidth || 0;
+  const borderStyle = link.borderStyle || 'solid';
+  const borderColor = link.borderColor || '#000000';
+  
+  if (borderWidth > 0) {
+    // Apply custom border and override any default borders
+    style.border = `${borderWidth}px ${borderStyle} ${borderColor}`;
+  } else {
+    // No border when width is 0
+    style.border = 'none';
+  }
+  
+  // Debug logging
+  // Icon border styling - show if width > 0, use global setting for defaults only
+  const iconBorderWidth = link.iconBorderWidth || 0;
+  const iconBorderColor = link.iconBorderColor || '#000000';
+  const iconBorderShape = link.iconBorderShape || 'rounded';
+  
+  console.log('Icon border shape debug:', {
+    iconBorderShape: link.iconBorderShape,
+    processedShape: iconBorderShape,
+    cssClass: `icon-border-${iconBorderShape}`
+  });
+  
+  // Special border effects
+  if (link.borderEffect) {
+    switch (link.borderEffect) {
+      case 'gradient':
+        borderClasses.push('border-gradient');
+        break;
+      case 'animated':
+        borderClasses.push('border-animated');
+        break;
+      case 'neon':
+        borderClasses.push('border-neon');
+        break;
+      case 'glow':
+        borderClasses.push('border-glow');
+        break;
+    }
   }
   
   // Pattern styling
@@ -88,7 +126,12 @@ export const getLinkStyling = (link: Link) => {
   return {
     ...style,
     shapeClasses,
+    hasCustomBorder: borderWidth > 0,
     iconColor,
+    iconBorderWidth: iconBorderWidth > 0 ? `${iconBorderWidth}px` : '0px',
+    iconBorderColor: iconBorderColor,
+    iconBorderStyle: iconBorderWidth > 0 ? 'solid' : 'none',
+    iconBorderShape: `icon-border-${iconBorderShape}`,
     pixelTransition: link.pixelTransition || false,
     pixelTransitionText: link.pixelTransitionText || '',
     pixelTransitionColor: link.pixelTransitionColor || '#000000',

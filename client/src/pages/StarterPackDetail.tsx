@@ -388,7 +388,7 @@ export default function StarterPackDetail() {
                     </p>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex gap-4 items-center justify-center">
                     <Link href={`/profile/${member.handle}`}>
                       <Button variant="outline" size="sm">
                         <ExternalLink className="w-4 h-4 mr-2" />

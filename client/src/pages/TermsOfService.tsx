@@ -40,43 +40,90 @@ export default function TermsOfService() {
 
             <h2>2. Description of Service</h2>
             <p>
-              Basker is a link-in-bio platform that allows users to create personalized profile pages 
-              with links, widgets, work history, and verification features. The service integrates 
-              with Bluesky and other third-party platforms.
+              Basker is a decentralized link-in-bio platform built on the AT Protocol that allows users to create personalized profile pages. Our service provides:
+            </p>
+            <ul>
+              <li><strong>Profile Customization:</strong> Custom themes, layouts, and branding options</li>
+              <li><strong>Link Management:</strong> Organize and display multiple links with custom titles and descriptions</li>
+              <li><strong>Widgets:</strong> Work history, social media integration, contact forms, and other interactive elements</li>
+              <li><strong>Stories & Notes:</strong> Share updates, announcements, and personal content</li>
+              <li><strong>Verification:</strong> Display verified credentials and professional achievements</li>
+              <li><strong>Analytics:</strong> Track profile views and link clicks (where available)</li>
+              <li><strong>AT Protocol Integration:</strong> Seamless login and data portability through Bluesky and other AT Protocol services</li>
+            </ul>
+            <p>
+              <strong>Important:</strong> User accounts and authentication are managed by third-party AT Protocol services (such as Bluesky). Basker provides the platform interface but does not control user accounts or core identity data.
             </p>
 
-            <h2>3. User Accounts</h2>
-            <p>To use our service, you must:</p>
+            <h2>3. User Accounts and AT Protocol Integration</h2>
+            <p>To use Basker, you must:</p>
             <ul>
-              <li>Provide accurate and complete information</li>
-              <li>Maintain the security of your account</li>
-              <li>Be responsible for all activities under your account</li>
-              <li>Notify us immediately of any unauthorized use</li>
+              <li>Have a valid AT Protocol account (such as a Bluesky account)</li>
+              <li>Provide accurate and complete information when creating your Basker profile</li>
+              <li>Maintain the security of both your AT Protocol account and Basker profile</li>
+              <li>Be responsible for all activities under your Basker profile</li>
+              <li>Comply with the terms of service of your AT Protocol service provider</li>
+              <li>Notify us immediately of any unauthorized use of your Basker profile</li>
             </ul>
+            <p>
+              <strong>Account Management:</strong> Your user account, authentication, and core identity are managed by your chosen AT Protocol service provider (e.g., Bluesky). Basker cannot reset passwords, modify account settings, or delete AT Protocol accounts. All account-related issues must be resolved through your AT Protocol service provider.
+            </p>
 
             <h2>4. Acceptable Use</h2>
-            <p>You agree not to use the service to:</p>
+            <p>You agree not to use Basker to:</p>
             <ul>
               <li>Violate any laws or regulations</li>
-              <li>Infringe on intellectual property rights</li>
-              <li>Transmit harmful or malicious code</li>
-              <li>Spam or send unsolicited communications</li>
-              <li>Impersonate others or provide false information</li>
-              <li>Interfere with the service's operation</li>
+              <li>Infringe on intellectual property rights of others</li>
+              <li>Share malicious links or harmful content</li>
+              <li>Create fake profiles or impersonate others</li>
+              <li>Spam or send unsolicited communications through our platform</li>
+              <li>Share content that is illegal, harmful, threatening, abusive, or discriminatory</li>
+              <li>Attempt to hack, disrupt, or interfere with our platform or AT Protocol services</li>
+              <li>Use automated tools to scrape or harvest user data</li>
+              <li>Share false or misleading information in your work history or verification claims</li>
+              <li>Circumvent any security measures or access controls</li>
             </ul>
+            <p>
+              <strong>Content Guidelines:</strong> All content you share on your Basker profile, including links, stories, notes, and work history, must comply with these terms and applicable laws. We reserve the right to remove content that violates these guidelines.
+            </p>
 
             <h2>5. Content and Intellectual Property</h2>
             <p>
-              You retain ownership of content you create and share through our service. By using our 
-              service, you grant us a license to host, display, and distribute your content as 
-              necessary to provide the service.
+              You retain ownership of all content you create and share through Basker, including:
+            </p>
+            <ul>
+              <li>Profile customization (themes, layouts, colors)</li>
+              <li>Links and link descriptions</li>
+              <li>Stories, notes, and personal updates</li>
+              <li>Work history and professional information</li>
+              <li>Widget content and customizations</li>
+              <li>Profile images and banners</li>
+            </ul>
+            <p>
+              By using Basker, you grant us a limited, non-exclusive license to host, display, and distribute your content as necessary to provide our link-in-bio service. This license terminates when you delete your Basker profile or remove specific content.
+            </p>
+            <p>
+              <strong>AT Protocol Content:</strong> Content you share through AT Protocol services (like Bluesky) remains subject to their terms of service and intellectual property policies, which are separate from this agreement.
             </p>
 
-            <h2>6. Work History</h2>
+            <h2>6. Work History and Professional Information</h2>
             <p>
-              Users can add work history and employment information to their profiles. 
-              This information is self-reported and should be accurate. We reserve the right to 
-              remove or modify content that violates our terms.
+              Basker allows you to add work history, employment information, skills, and professional achievements to your profile. This feature is designed to help you showcase your professional background and credentials.
+            </p>
+            <p>
+              <strong>Accuracy Requirements:</strong> All work history and professional information must be accurate and truthful. You are responsible for:
+            </p>
+            <ul>
+              <li>Providing correct employment dates, job titles, and company names</li>
+              <li>Ensuring skills and qualifications are accurately represented</li>
+              <li>Updating information when your employment status changes</li>
+              <li>Not claiming false credentials or achievements</li>
+            </ul>
+            <p>
+              <strong>Verification:</strong> While we provide tools to display verified credentials, we do not independently verify work history or professional claims. Users should verify information before making professional decisions based on profile content.
+            </p>
+            <p>
+              We reserve the right to remove or modify content that violates our terms or appears to contain false information.
             </p>
 
             <h2>7. Privacy and Data Protection</h2>
@@ -103,25 +150,38 @@ export default function TermsOfService() {
               arising from your use of the service or violation of these terms.
             </p>
 
-            <h2>11. Termination</h2>
+            <h2>11. AT Protocol Integration Terms</h2>
             <p>
-              We may terminate or suspend your account at any time for violation of these terms or 
-              for any other reason at our discretion. You may also terminate your account at any time.
+              Basker's integration with the AT Protocol creates additional considerations:
+            </p>
+            <ul>
+              <li><strong>Service Dependencies:</strong> Basker's functionality depends on AT Protocol services. Service interruptions or changes to AT Protocol may affect Basker's availability</li>
+              <li><strong>Data Portability:</strong> Your profile data may be exportable through AT Protocol tools, providing additional data portability options</li>
+              <li><strong>Third-Party Terms:</strong> Your use of AT Protocol services (like Bluesky) is subject to their terms of service, which may differ from these terms</li>
+              <li><strong>Account Linking:</strong> Your Basker profile is linked to your AT Protocol identity. Changes to your AT Protocol account may affect your Basker profile</li>
+            </ul>
+
+            <h2>12. Termination</h2>
+            <p>
+              We may terminate or suspend your Basker profile at any time for violation of these terms or for any other reason at our discretion. You may also delete your Basker profile at any time.
+            </p>
+            <p>
+              <strong>Important:</strong> Terminating your Basker profile does not affect your AT Protocol account. To fully delete your account, you must do so through your AT Protocol service provider (e.g., Bluesky).
             </p>
 
-            <h2>12. Changes to Terms</h2>
+            <h2>13. Changes to Terms</h2>
             <p>
               We reserve the right to modify these terms at any time. We will notify users of 
               significant changes via email or through the service.
             </p>
 
-            <h2>13. Governing Law</h2>
+            <h2>14. Governing Law</h2>
             <p>
               These terms shall be governed by and construed in accordance with applicable laws, 
               without regard to conflict of law principles.
             </p>
 
-            <h2>14. Contact Information</h2>
+            <h2>15. Contact Information</h2>
             <p>
               If you have any questions about these terms, please contact us at:
             </p>

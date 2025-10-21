@@ -832,3 +832,227 @@
   border-radius: 50% 20% 50% 20%;
   transform: rotate(30deg);
 }
+
+/* Container Shape Styles - Natural and Border-Friendly */
+.shape-square {
+  border-radius: 0 !important;
+  position: relative !important;
+}
+
+.shape-pill {
+  border-radius: 9999px !important;
+  position: relative !important;
+}
+
+
+.shape-rounded-corners {
+  border-radius: 20px 8px 20px 8px !important;
+  position: relative !important;
+  /* Subtle rounded corners effect using border-radius */
+}
+
+.shape-diamond {
+  border-radius: 8px 20px 8px 20px !important;
+  position: relative !important;
+  /* Subtle diamond effect */
+}
+
+.shape-ridged {
+  border-radius: 8px !important;
+  position: relative !important;
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(107, 114, 128, 0.15) 2px,
+      rgba(107, 114, 128, 0.15) 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(107, 114, 128, 0.15) 2px,
+      rgba(107, 114, 128, 0.15) 4px
+    ) !important;
+  background-size: 4px 4px !important;
+  background-origin: padding-box !important;
+}
+
+.shape-wavy {
+  border-radius: 8px !important;
+  position: relative !important;
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 4px,
+      rgba(59, 130, 246, 0.1) 4px,
+      rgba(59, 130, 246, 0.1) 8px
+    ) !important;
+  background-size: 8px 8px !important;
+  background-origin: padding-box !important;
+}
+
+/* Border System - Separate from shapes */
+.border-none {
+  border: none !important;
+}
+
+.border-solid {
+  border-style: solid !important;
+}
+
+.border-dashed {
+  border-style: dashed !important;
+}
+
+.border-dotted {
+  border-style: dotted !important;
+}
+
+.border-double {
+  border-style: double !important;
+}
+
+.border-groove {
+  border-style: groove !important;
+}
+
+.border-ridge {
+  border-style: ridge !important;
+}
+
+.border-inset {
+  border-style: inset !important;
+}
+
+.border-outset {
+  border-style: outset !important;
+}
+
+/* Border Widths - Force complete border properties */
+.border-1 {
+  border: 1px solid !important;
+}
+
+.border-2 {
+  border: 2px solid !important;
+}
+
+.border-3 {
+  border: 3px solid !important;
+}
+
+.border-4 {
+  border: 4px solid !important;
+}
+
+.border-6 {
+  border: 6px solid !important;
+}
+
+.border-8 {
+  border: 8px solid !important;
+}
+
+/* Remove default Card border when we have custom styling */
+.no-default-border {
+  border: none !important;
+}
+
+
+
+/* Icon Border Shapes - More specific selectors */
+.w-8.h-8.icon-border-rounded,
+.w-10.h-10.icon-border-rounded {
+  border-radius: 8px !important;
+  clip-path: none !important;
+  background-color: rgba(255, 0, 0, 0.1) !important; /* Debug: red tint */
+}
+
+.w-8.h-8.icon-border-square,
+.w-10.h-10.icon-border-square {
+  border-radius: 0 !important;
+  clip-path: none !important;
+  background-color: rgba(0, 255, 0, 0.1) !important; /* Debug: green tint */
+}
+
+.w-8.h-8.icon-border-circle,
+.w-10.h-10.icon-border-circle {
+  border-radius: 50% !important;
+  clip-path: none !important;
+  background-color: rgba(0, 0, 255, 0.1) !important; /* Debug: blue tint */
+}
+
+.w-8.h-8.icon-border-triangle,
+.w-10.h-10.icon-border-triangle {
+  border-radius: 0 !important;
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%) !important;
+  background-color: rgba(255, 255, 0, 0.1) !important; /* Debug: yellow tint */
+}
+
+.w-8.h-8.icon-border-star,
+.w-10.h-10.icon-border-star {
+  border-radius: 0 !important;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%) !important;
+  background-color: rgba(255, 0, 255, 0.1) !important; /* Debug: magenta tint */
+}
+
+.w-8.h-8.icon-border-hexagon,
+.w-10.h-10.icon-border-hexagon {
+  border-radius: 0 !important;
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%) !important;
+  background-color: rgba(0, 255, 255, 0.1) !important; /* Debug: cyan tint */
+}
+
+.w-8.h-8.icon-border-diamond,
+.w-10.h-10.icon-border-diamond {
+  border-radius: 0 !important;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%) !important;
+  background-color: rgba(255, 165, 0, 0.1) !important; /* Debug: orange tint */
+}
+
+.w-8.h-8.icon-border-heart,
+.w-10.h-10.icon-border-heart {
+  border-radius: 0 !important;
+  clip-path: polygon(50% 85%, 15% 45%, 15% 25%, 50% 25%, 85% 25%, 85% 45%) !important;
+  background-color: rgba(255, 192, 203, 0.1) !important; /* Debug: pink tint */
+}
+
+/* Special Border Effects */
+.border-gradient {
+  border-image: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899) 1 !important;
+  border-style: solid !important;
+}
+
+.border-animated {
+  border-image: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6) 1 !important;
+  border-style: solid !important;
+  animation: borderGlow 2s linear infinite !important;
+}
+
+@keyframes borderGlow {
+  0% { border-image-source: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6) !important; }
+  25% { border-image-source: linear-gradient(45deg, #8b5cf6, #ec4899, #3b82f6, #8b5cf6) !important; }
+  50% { border-image-source: linear-gradient(45deg, #ec4899, #3b82f6, #8b5cf6, #ec4899) !important; }
+  75% { border-image-source: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6) !important; }
+  100% { border-image-source: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6) !important; }
+}
+
+.border-neon {
+  border: 2px solid #00ffff !important;
+  box-shadow: 
+    0 0 5px #00ffff,
+    0 0 10px #00ffff,
+    0 0 15px #00ffff,
+    inset 0 0 5px #00ffff !important;
+}
+
+.border-glow {
+  border: 2px solid #3b82f6 !important;
+  box-shadow: 
+    0 0 10px rgba(59, 130, 246, 0.5),
+    0 0 20px rgba(59, 130, 246, 0.3),
+    0 0 30px rgba(59, 130, 246, 0.1) !important;
+}

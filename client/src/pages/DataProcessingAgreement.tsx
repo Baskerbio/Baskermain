@@ -19,7 +19,7 @@ export default function DataProcessingAgreement() {
 
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Data Controller and Processor</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
-              Basker acts as a data processor when processing personal data on behalf of users who create profiles. Users are the data controllers of their own personal data and content.
+              Basker acts as a data processor when processing personal data on behalf of users who create profiles. Users are the data controllers of their own personal data and content. <strong>Important:</strong> User accounts and authentication are handled entirely by third-party AT Protocol services (including Bluesky). Basker provides a login option to access our platform, but all account management, user authentication, and core user data are managed by the AT Protocol and fall under their respective terms of service and privacy policies.
             </p>
 
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Types of Personal Data We Process</h2>
@@ -78,9 +78,21 @@ export default function DataProcessingAgreement() {
               As a decentralized platform built on the AT Protocol, your data may be stored and processed across multiple nodes in the network. We ensure that any international transfers comply with applicable data protection laws and implement appropriate safeguards.
             </p>
 
+            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">AT Protocol Integration and Data Handling</h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
+              Basker is built on the AT Protocol, a decentralized social networking protocol. This integration affects how we handle your data:
+            </p>
+            <ul className="list-disc pl-6 text-gray-600 dark:text-gray-300 mb-6">
+              <li><strong>Account Management:</strong> Your user account, authentication, and core identity data are managed entirely by AT Protocol services (such as Bluesky), not by Basker</li>
+              <li><strong>Data Storage:</strong> Your profile content and customizations are stored on our platform, but your account credentials and authentication are handled by the AT Protocol</li>
+              <li><strong>Third-Party Terms:</strong> Your use of AT Protocol services is subject to their terms of service and privacy policies, which are separate from this agreement</li>
+              <li><strong>Data Portability:</strong> Due to the decentralized nature of the AT Protocol, you may have additional data portability options through the protocol itself</li>
+              <li><strong>Account Deletion:</strong> While you can delete your Basker profile data, account deletion must be handled through the AT Protocol service you use (e.g., Bluesky)</li>
+            </ul>
+
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Third-Party Processors</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
-              We may use third-party service providers to help us operate our platform. These processors are bound by contractual obligations to protect your data and only process it as instructed by us.
+              We may use third-party service providers to help us operate our platform. These processors are bound by contractual obligations to protect your data and only process it as instructed by us. Additionally, AT Protocol services (including Bluesky) act as independent data controllers for your account and authentication data.
             </p>
 
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Data Breach Notification</h2>

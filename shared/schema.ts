@@ -50,12 +50,15 @@ export const linkSchema = z.object({
   backgroundColor: z.string().optional(),
   textColor: z.string().optional(),
   fontFamily: z.string().optional(),
-  containerShape: z.enum(['rounded', 'square', 'pill', 'circle', 'ridged', 'wavy']).default('rounded'),
+  containerShape: z.enum(['rounded', 'square', 'pill', 'rounded-corners', 'diamond', 'ridged', 'wavy']).default('rounded'),
   autoTextColor: z.boolean().default(true), // Auto-detect text color based on background
   iconColor: z.string().optional(), // Custom icon color
+  iconBorderWidth: z.number().min(0).max(6).optional(), // Icon border width in pixels
+  iconBorderColor: z.string().optional(), // Icon border color
+  iconBorderShape: z.enum(['rounded', 'square', 'circle', 'triangle', 'star', 'hexagon', 'diamond', 'heart']).optional(), // Icon border shape
   borderColor: z.string().optional(), // Border color
   borderWidth: z.number().min(0).max(10).optional(), // Border width in pixels
-  borderStyle: z.enum(['solid', 'dashed', 'dotted', 'double']).optional(), // Border style
+  borderStyle: z.enum(['solid', 'dashed', 'dotted', 'double', 'groove', 'ridge']).optional(), // Border style
   pattern: z.enum(['none', 'dots', 'lines', 'grid', 'diagonal', 'waves']).optional(), // Background pattern
   patternColor: z.string().optional(), // Pattern color
   pixelTransition: z.boolean().default(false), // Enable pixel transition effect
@@ -323,6 +326,7 @@ export const settingsSchema = z.object({
   showNotes: z.boolean().default(true),
   isPublic: z.boolean().default(true),
   enableAnalytics: z.boolean().default(true),
+  enableIconBorders: z.boolean().default(false), // Global setting for icon borders
   sectionOrder: z.array(z.enum(["widgets", "notes", "links"])).default(["widgets", "notes", "links"]),
   // Social Icons Row
   socialLinks: z.array(socialLinkSchema).default([]).optional(),
