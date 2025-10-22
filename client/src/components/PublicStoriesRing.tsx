@@ -117,7 +117,16 @@ export function PublicStoriesRing({ profile, targetDid, settings: propSettings }
         console.log('🔍 PublicStoriesRing - Loading stories for DID:', targetDid);
         const data = await atprotocol.getPublicStories(targetDid);
         console.log('🔍 PublicStoriesRing - Got data:', data);
-        setStories(data?.stories || []);
+        const stories = data?.stories || [];
+        
+        // Filter out expired stories on the client side as well
+        const now = new Date();
+        const activeStories = stories.filter(story => {
+          const expiresAt = new Date(story.expiresAt);
+          return expiresAt > now;
+        });
+        
+        setStories(activeStories);
       } catch (error) {
         console.error('Failed to load public stories:', error);
         setStories([]);

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
@@ -25,6 +25,23 @@ export function Stories({ isEditMode }: StoriesProps) {
   const { mutate: saveStories } = useSaveStories();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // Filter out expired stories on component mount and when stories change
+  useEffect(() => {
+    if (stories.length > 0) {
+      const now = new Date();
+      const activeStories = stories.filter(story => {
+        const expiresAt = new Date(story.expiresAt);
+        return expiresAt > now;
+      });
+      
+      // If we have expired stories, save the filtered list
+      if (activeStories.length !== stories.length) {
+        console.log(`Filtering out ${stories.length - activeStories.length} expired stories`);
+        saveStories(activeStories);
+      }
+    }
+  }, [stories, saveStories]);
 
   const form = useForm<z.infer<typeof storyFormSchema>>({
     resolver: zodResolver(storyFormSchema),

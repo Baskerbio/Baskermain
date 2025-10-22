@@ -139,6 +139,23 @@ export function StoriesRing({ profile, isEditMode = false, isOwnProfile = false,
     }
   }, [isDragging, form]);
 
+  // Filter out expired stories from own stories
+  useEffect(() => {
+    if (ownStories.length > 0) {
+      const now = new Date();
+      const activeStories = ownStories.filter(story => {
+        const expiresAt = new Date(story.expiresAt);
+        return expiresAt > now;
+      });
+      
+      // If we have expired stories, save the filtered list
+      if (activeStories.length !== ownStories.length) {
+        console.log(`Filtering out ${ownStories.length - activeStories.length} expired stories from own stories`);
+        saveStories(activeStories);
+      }
+    }
+  }, [ownStories, saveStories]);
+
   // Use own stories for authenticated user, public stories for public profiles
   const stories = targetDid ? publicStories : ownStories;
 
@@ -149,7 +166,16 @@ export function StoriesRing({ profile, isEditMode = false, isOwnProfile = false,
       const loadPublicStories = async () => {
         try {
           const data = await atprotocol.getPublicStories(targetDid);
-          setPublicStories(data?.stories || []);
+          const stories = data?.stories || [];
+          
+          // Filter out expired stories on the client side as well
+          const now = new Date();
+          const activeStories = stories.filter(story => {
+            const expiresAt = new Date(story.expiresAt);
+            return expiresAt > now;
+          });
+          
+          setPublicStories(activeStories);
         } catch (error) {
           console.error('Failed to load public stories:', error);
           setPublicStories([]);

@@ -1,53 +1,57 @@
 # Basker - Decentralized Link-in-Bio Platform
 
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/Baskerbio/Baskermain/releases)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-Private-red.svg)](LICENSE)
 [![Built on AT Protocol](https://img.shields.io/badge/built%20on-AT%20Protocol-purple.svg)](https://atproto.com/)
 
-Basker is a decentralized link-in-bio platform built on the AT Protocol, allowing users to create beautiful, customizable profile pages with unlimited links, stories, notes, and widgets. Your data belongs to you and works across the entire decentralized network.
+Basker is a comprehensive decentralized link-in-bio platform built on the AT Protocol, providing users with a complete ecosystem for creating professional profile pages. The platform emphasizes data ownership, decentralization, and user control while offering advanced customization and moderation capabilities.
 
-## ✨ Features
+## 🏗️ Architecture Overview
 
-### 🔗 **Link Management**
-- Unlimited links with custom icons and descriptions
-- Advanced customization (colors, fonts, shapes)
-- Drag-and-drop reordering
-- Group organization
+### **Technology Stack**
+- **Frontend**: React 18 + TypeScript + Vite
+- **Backend**: Express.js + Node.js
+- **Database**: PostgreSQL with Drizzle ORM
+- **Protocol**: AT Protocol (Bluesky)
+- **Styling**: Tailwind CSS + Radix UI
+- **Deployment**: GitHub Actions + Render
 
-### 📝 **Content Widgets**
-- **Notes**: Personal notes and thoughts
-- **Stories**: Time-limited content with expiration
+### **Core Principles**
+- **Decentralization**: Built on AT Protocol for true data ownership
+- **Privacy-First**: No data harvesting or tracking
+- **Open Standards**: Interoperable with the broader AT Protocol ecosystem
+- **User Control**: Complete control over personal data and content
+
+## 🚀 Platform Features
+
+### **Content Management System**
+- **Unlimited Links**: Custom icons, descriptions, and advanced styling
+- **Stories System**: Time-limited content with automatic expiration
+- **Notes & Blogging**: Personal content creation and management
 - **Work History**: Professional experience with company verification
-- **Portfolio Gallery**: Showcase your work (coming soon)
-- **Product Showcase**: Highlight products (coming soon)
+- **Widget System**: Extensible content widgets and integrations
 
-### 🛡️ **Moderation & Administration**
+### **Advanced Customization**
+- **Theme Engine**: Multiple themes with custom color schemes
+- **Layout System**: Flexible section ordering and positioning
+- **Responsive Design**: Mobile-first approach with adaptive layouts
+- **Accessibility**: WCAG compliant with keyboard navigation
+
+### **Moderation & Administration**
 - **Ozone Integration**: Professional moderation using AT Protocol's Ozone
 - **Composable Moderation**: Decentralized, transparent moderation model
-- **Granular Permissions**: Fine-tuned moderator access control
-- **Company Verification**: Work history verification system
-- See [Ozone Integration Guide](docs/OZONE_INTEGRATION.md) for details
+- **Company Verification**: Automated work history verification system
+- **Admin Panel**: Comprehensive moderation and user management tools
 
-### 🎨 **Customization**
-- Multiple themes and color schemes
-- Custom profile images and bios
-- Responsive design for all devices
-- Dark mode support
+## 🛠️ Development Setup
 
-### 🔒 **Security & Privacy**
-- Built on AT Protocol for decentralization
-- Content Security Policy (CSP) protection
-- No data harvesting or tracking
-- User data ownership
-
-## 🚀 Quick Start
-
-### Prerequisites
+### **Prerequisites**
 - Node.js 18+ 
-- npm or yarn
-- Bluesky account
+- PostgreSQL 14+
+- Git
+- Bluesky account (for AT Protocol integration)
 
-### Installation
+### **Installation**
 
 1. **Clone the repository**
    ```bash
@@ -60,137 +64,218 @@ Basker is a decentralized link-in-bio platform built on the AT Protocol, allowin
    npm install
    ```
 
-3. **Configure environment**
+3. **Database setup**
+   ```bash
+   # Create PostgreSQL database
+   createdb basker_dev
+   
+   # Run database migrations
+   npm run db:push
+   ```
+
+4. **Environment configuration**
    ```bash
    cp .env.example .env
-   # Edit .env with your configuration
+   # Configure your environment variables
    ```
 
-4. **Build the application**
+5. **Start development server**
    ```bash
-   npm run build
+   npm run dev
    ```
 
-5. **Start the server**
-   ```bash
-   npm start
-   ```
-
-### Development
+### **Development Commands**
 
 ```bash
-# Start development server
-npm run dev
+# Development
+npm run dev              # Start development server
+npm run build           # Build for production
+npm run preview         # Preview production build
 
 # Type checking
-npm run check
+npm run check           # TypeScript type checking
+npm run lint            # ESLint code linting
 
-# Database operations
-npm run db:push
+# Database
+npm run db:push         # Push schema changes
+npm run db:studio       # Open Drizzle Studio
+npm run db:generate     # Generate migrations
+
+# Testing
+npm run test            # Run test suite
+npm run test:watch      # Watch mode testing
 ```
 
 ## 📁 Project Structure
 
 ```
-BaskerBio/
-├── client/                 # React frontend
+Baskermain/
+├── client/                    # React frontend application
 │   ├── src/
-│   │   ├── components/     # React components
-│   │   ├── pages/         # Page components
-│   │   ├── contexts/      # React contexts
-│   │   ├── hooks/         # Custom hooks
-│   │   └── lib/           # Utilities and AT Protocol client
-├── server/                # Express.js backend
-├── shared/                # Shared schemas and types
-├── .github/workflows/     # GitHub Actions
-└── dist/                  # Built application
+│   │   ├── components/        # Reusable UI components
+│   │   │   ├── ui/           # Base UI components (Radix)
+│   │   │   ├── widgets/     # Content widget components
+│   │   │   └── ...           # Feature-specific components
+│   │   ├── pages/            # Route-based page components
+│   │   ├── contexts/         # React context providers
+│   │   ├── hooks/            # Custom React hooks
+│   │   ├── lib/              # Utilities and AT Protocol client
+│   │   └── main.tsx          # Application entry point
+│   ├── public/               # Static assets
+│   └── dist/                 # Built frontend
+├── server/                   # Express.js backend
+│   ├── index.ts             # Server entry point
+│   ├── routes.ts            # API route definitions
+│   ├── storage.ts           # Database operations
+│   └── admin.ts             # Admin panel routes
+├── shared/                   # Shared code between client/server
+│   └── schema.ts            # Zod schemas and types
+├── docs/                     # Documentation
+│   ├── TECHNOLOGY_STACK.md  # Technical architecture
+│   ├── OZONE_INTEGRATION.md # Moderation system docs
+│   └── VERIFICATION_IMPLEMENTATION.md
+├── scripts/                  # Utility scripts
+├── drizzle.config.ts        # Database configuration
+├── tailwind.config.ts       # Tailwind CSS configuration
+└── vite.config.ts          # Vite build configuration
 ```
 
 ## 🔧 Configuration
 
-### Environment Variables
-
-Create a `.env` file with the following variables:
+### **Environment Variables**
 
 ```env
-# Database
-DATABASE_URL=your_database_url
+# Database Configuration
+DATABASE_URL=postgresql://user:password@localhost:5432/basker
 
-# AT Protocol
+# AT Protocol Configuration
 AT_PROTOCOL_SERVICE_URL=https://bsky.social
 AT_PROTOCOL_HANDLE=your-handle.bsky.social
 AT_PROTOCOL_APP_PASSWORD=your-app-password
 
-# Server
+# Server Configuration
 PORT=5000
-NODE_ENV=production
+NODE_ENV=development
+SESSION_SECRET=your-session-secret
 
-# Session
-SESSION_SECRET=your_session_secret
+# Optional: Analytics and Monitoring
+ANALYTICS_ENABLED=true
+LOG_LEVEL=info
 ```
 
-### AT Protocol Setup
+### **AT Protocol Integration**
 
-1. Create a Bluesky account at [bsky.app](https://bsky.app)
-2. Generate an app password in your Bluesky settings
-3. Configure the AT Protocol credentials in your environment
+The platform integrates with the AT Protocol for decentralized data storage and user authentication:
+
+1. **Account Setup**: Users authenticate via Bluesky accounts
+2. **Data Storage**: All user data is stored on the AT Protocol network
+3. **Interoperability**: Content works across the entire AT Protocol ecosystem
+4. **Moderation**: Leverages AT Protocol's Ozone moderation tools
 
 ## 🚀 Deployment
 
-### GitHub Actions
+### **Production Build**
 
-The project includes automated deployment via GitHub Actions:
+```bash
+# Build the application
+npm run build
 
-- **Trigger**: Push to `master` branch or version tags
-- **Build**: Automated build and test
-- **Deploy**: Production deployment (configure your hosting provider)
-- **Release**: Automatic release creation on version tags
+# The dist/ folder contains the production build
+# Deploy this to your hosting provider
+```
 
-### Manual Deployment
+### **Database Deployment**
 
-1. **Build the application**
-   ```bash
-   npm run build
-   ```
+```bash
+# Push schema to production database
+npm run db:push
 
-2. **Deploy the `dist/` folder** to your hosting provider
+# Generate and run migrations
+npm run db:generate
+npm run db:migrate
+```
 
-3. **Configure environment variables** on your hosting platform
+### **Environment Setup**
 
-## 📋 Available Scripts
+1. **Database**: Set up PostgreSQL instance
+2. **AT Protocol**: Configure Bluesky integration
+3. **Environment**: Set production environment variables
+4. **SSL**: Configure HTTPS for production
+5. **Monitoring**: Set up logging and error tracking
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm start` - Start production server
-- `npm run check` - TypeScript type checking
-- `npm run db:push` - Push database schema changes
+## 🔒 Security & Privacy
+
+### **Data Protection**
+- **Content Security Policy**: Comprehensive CSP headers
+- **HTTPS Enforcement**: All traffic encrypted
+- **Session Security**: Secure session management
+- **Input Validation**: Comprehensive input sanitization
+
+### **Privacy Features**
+- **No Tracking**: No analytics or user tracking
+- **Data Ownership**: Users own their data completely
+- **Decentralization**: Data stored on AT Protocol network
+- **Transparency**: Open about data handling practices
+
+## 📊 Monitoring & Analytics
+
+### **Built-in Analytics**
+- **User Engagement**: Link click tracking
+- **Performance Metrics**: Page load times and interactions
+- **Heat Maps**: Visual user interaction data
+- **Custom Events**: Trackable user actions
+
+### **Admin Tools**
+- **User Management**: Comprehensive user administration
+- **Content Moderation**: Ozone integration for content review
+- **System Health**: Server and database monitoring
+- **Error Tracking**: Comprehensive error logging
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+### **Development Workflow**
+
+1. **Fork the repository**
+2. **Create feature branch**: `git checkout -b feature/amazing-feature`
+3. **Make changes**: Follow coding standards and conventions
+4. **Test thoroughly**: Ensure all tests pass
+5. **Commit changes**: `git commit -m 'Add amazing feature'`
+6. **Push to branch**: `git push origin feature/amazing-feature`
+7. **Create Pull Request**: Detailed description of changes
+
+### **Code Standards**
+- **TypeScript**: Strict type checking enabled
+- **ESLint**: Code linting with custom rules
+- **Prettier**: Consistent code formatting
+- **Testing**: Comprehensive test coverage required
+- **Documentation**: Clear code comments and documentation
+
+## 📚 Documentation
+
+- **[Technology Stack](docs/TECHNOLOGY_STACK.md)**: Detailed technical architecture
+- **[Ozone Integration](docs/OZONE_INTEGRATION.md)**: Moderation system documentation
+- **[Verification System](docs/VERIFICATION_IMPLEMENTATION.md)**: Work history verification
+- **[Quick Access Guide](docs/QUICK_ACCESS.md)**: Developer quick reference
+
+## 🔗 External Resources
+
+- **AT Protocol**: [atproto.com](https://atproto.com/)
+- **Bluesky**: [bsky.app](https://bsky.app)
+- **Radix UI**: [radix-ui.com](https://www.radix-ui.com/)
+- **Tailwind CSS**: [tailwindcss.com](https://tailwindcss.com/)
+- **Drizzle ORM**: [orm.drizzle.team](https://orm.drizzle.team/)
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is **private and proprietary**. All rights reserved. This code is not open source and is not available for public use or distribution.
 
-## 🔗 Links
+## 🆘 Support
 
-- **Live Demo**: [basker.bio](https://basker.bio)
-- **Documentation**: [Info Center](https://basker.bio/info)
-- **Support**: [support@basker.bio](mailto:support@basker.bio)
-- **Verification**: [verification@basker.bio](mailto:verification@basker.bio)
-
-## 🙏 Acknowledgments
-
-- Built on the [AT Protocol](https://atproto.com/)
-- Powered by [Bluesky](https://bsky.app)
-- UI components from [Radix UI](https://www.radix-ui.com/)
-- Styling with [Tailwind CSS](https://tailwindcss.com/)
+For technical support and questions:
+- **Email**: [dev@basker.bio](mailto:dev@basker.bio)
+- **Documentation**: Internal documentation system
+- **Issues**: Private issue tracking system
 
 ---
 
-**Version 1.0.0** - Complete platform with work history, verification system, and legal documentation
+**Version 1.0.0** - Complete decentralized platform with advanced moderation, verification, and customization capabilities.

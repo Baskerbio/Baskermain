@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
@@ -16,6 +16,7 @@ import { useEditMode } from '../components/EditModeProvider';
 import { useLinks, useSaveLinks, useSettings, useSaveSettings } from '../hooks/use-atprotocol';
 import { useToast } from '@/hooks/use-toast';
 import { DropResult } from '@hello-pangea/dnd';
+import { atprotocol } from '../lib/atprotocol';
 
 export default function Profile() {
   const { user, logout } = useAuth();
@@ -28,6 +29,24 @@ export default function Profile() {
   const [showSettings, setShowSettings] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [settingsScrollTo, setSettingsScrollTo] = useState<string | undefined>(undefined);
+
+  // Cleanup expired stories on component mount
+  useEffect(() => {
+    const cleanupStories = async () => {
+      try {
+        await atprotocol.cleanupExpiredStories();
+      } catch (error) {
+        console.error('Failed to cleanup expired stories:', error);
+      }
+    };
+    
+    cleanupStories();
+    
+    // Set up periodic cleanup every 5 minutes
+    const interval = setInterval(cleanupStories, 5 * 60 * 1000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   const handleLogout = async () => {
     try {

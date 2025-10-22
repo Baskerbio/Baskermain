@@ -476,7 +476,22 @@ export class ATProtocolClient {
       
       console.log('Successfully fetched stories from AT Protocol');
       const record = response.data.value as any;
-      return { stories: record.stories || [] };
+      const allStories = record.stories || [];
+      
+      // Filter out expired stories
+      const now = new Date();
+      const activeStories = allStories.filter((story: Story) => {
+        const expiresAt = new Date(story.expiresAt);
+        return expiresAt > now;
+      });
+      
+      // If we have expired stories, save the filtered list back
+      if (activeStories.length !== allStories.length) {
+        console.log(`Filtered out ${allStories.length - activeStories.length} expired stories`);
+        await this.saveStories(activeStories);
+      }
+      
+      return { stories: activeStories };
     } catch (error: any) {
       if (error.status === 404) {
         console.log('No stories record found in AT Protocol, returning empty array');
@@ -507,6 +522,30 @@ export class ATProtocolClient {
     } catch (error: any) {
       console.error('AT Protocol failed for saving stories:', error);
       throw new Error(`Failed to save stories to AT Protocol: ${error.message}`);
+    }
+  }
+
+  // Utility method to clean up expired stories
+  async cleanupExpiredStories(): Promise<void> {
+    if (!this.did) return;
+
+    try {
+      const storiesData = await this.getStories();
+      if (storiesData && storiesData.stories.length > 0) {
+        const now = new Date();
+        const activeStories = storiesData.stories.filter(story => {
+          const expiresAt = new Date(story.expiresAt);
+          return expiresAt > now;
+        });
+        
+        // If we found expired stories, save the filtered list
+        if (activeStories.length !== storiesData.stories.length) {
+          console.log(`Cleaning up ${storiesData.stories.length - activeStories.length} expired stories`);
+          await this.saveStories(activeStories);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to cleanup expired stories:', error);
     }
   }
 
@@ -961,11 +1000,20 @@ export class ATProtocolClient {
 
       console.log('Successfully fetched public stories from AT Protocol');
       const record = response.data.value as any;
-      const stories = record.stories || [];
+      const allStories = record.stories || [];
+      
+      // Filter out expired stories
+      const now = new Date();
+      const activeStories = allStories.filter((story: Story) => {
+        const expiresAt = new Date(story.expiresAt);
+        return expiresAt > now;
+      });
+      
+      console.log(`Filtered ${allStories.length - activeStories.length} expired stories from public view`);
       console.log('Raw record from AT Protocol:', record);
-      console.log('Stories array:', stories);
+      console.log('Active stories array:', activeStories);
 
-      return { stories };
+      return { stories: activeStories };
     } catch (error: any) {
       if (error.status === 404) {
         console.log('No public stories record found in AT Protocol, returning empty array');
