@@ -168,6 +168,7 @@ export default function Solaris() {
                 </div>
               </div>
             </div>
+            </div>
           </div>
         </section>
 
