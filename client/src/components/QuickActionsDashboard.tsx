@@ -32,7 +32,8 @@ import {
   Grid3X3,
   Layout,
   Wand2,
-  Sliders
+  Sliders,
+  CreditCard
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -87,6 +88,7 @@ export function QuickActionsDashboard({
         'copy-url',
         'view-profile',
         'analytics',
+        'pulse',
         'customize-theme',
         'manage-widgets',
         'export-data',
@@ -254,6 +256,17 @@ export function QuickActionsDashboard({
         }, 100);
       },
       category: 'analytics'
+    },
+    {
+      id: 'tap',
+      title: 'The Tap',
+      description: 'Your digital business card',
+      icon: <CreditCard className="w-5 h-5" />,
+      color: 'bg-blue-500',
+      action: () => {
+        window.location.href = '/tap';
+      },
+      category: 'sharing'
     },
     {
       id: 'performance',

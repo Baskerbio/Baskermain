@@ -29,6 +29,7 @@ import { LoginScreen } from "@/components/LoginScreen";
 import ModerationPanel from "@/pages/ModerationPanel";
 import Analytics from "@/pages/Analytics";
 import Import from "@/pages/Import";
+import Tap from "@/pages/Tap";
 
 function Router() {
   return (
@@ -38,6 +39,7 @@ function Router() {
       <Route path="/profile" component={Profile} />
       <Route path="/analytics" component={Analytics} />
       <Route path="/import" component={Import} />
+      <Route path="/tap" component={Tap} />
       <Route path="/about" component={About} />
       <Route path="/faq" component={FAQ} />
       <Route path="/pricing" component={Pricing} />

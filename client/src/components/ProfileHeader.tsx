@@ -391,7 +391,6 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
                   ...baseSettings,
                   socialLinks: links,
                   socialIconsConfig: {
-                    enabled: false,
                     placement: 'under-bio',
                     style: 'default',
                     size: 'medium',
@@ -471,7 +470,6 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
                   ...baseSettings,
                   socialLinks: links,
                   socialIconsConfig: {
-                    enabled: false,
                     placement: 'under-bio',
                     style: 'default',
                     size: 'medium',
