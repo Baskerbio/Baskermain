@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +7,6 @@ import {
   CreditCard, 
   Download, 
   Share2, 
-  Copy, 
   ArrowRight,
   Sparkles,
   Palette,
@@ -17,57 +16,18 @@ import {
   Globe,
   Smartphone,
   Monitor,
-  Printer
+  Printer,
+  CheckCircle,
+  Users,
+  Shield,
+  Zap as Lightning,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
 
-export default function Tap() {
+export default function Solaris() {
   const { user } = useAuth();
-  const { toast } = useToast();
-  const [selectedCard, setSelectedCard] = useState('blue');
-
-  const handleCopyCardURL = async () => {
-    try {
-      await navigator.clipboard.writeText(`${window.location.origin}/tap`);
-      toast({
-        title: 'Card URL Copied!',
-        description: 'Your Tap page URL has been copied to clipboard',
-      });
-    } catch (err) {
-      toast({
-        title: 'Error',
-        description: 'Failed to copy URL',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleShareCard = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: 'My Basker Card',
-        text: 'Check out my digital business card on Basker!',
-        url: `${window.location.origin}/tap`
-      });
-    } else {
-      handleCopyCardURL();
-    }
-  };
-
-  const handleDownloadCard = () => {
-    toast({
-      title: 'Download Feature',
-      description: 'Card download feature coming soon!',
-    });
-  };
-
-  const cardVariants = [
-    { id: 'blue', name: 'Professional Blue', color: 'from-blue-500 to-blue-600' },
-    { id: 'purple', name: 'Creative Purple', color: 'from-purple-500 to-purple-600' },
-    { id: 'green', name: 'Tech Green', color: 'from-green-500 to-green-600' },
-    { id: 'orange', name: 'Wellness Orange', color: 'from-orange-500 to-orange-600' }
-  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-blue-900 dark:to-indigo-900">
@@ -80,266 +40,300 @@ export default function Tap() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">Basker</h1>
-              <p className="text-xs text-gray-600 dark:text-gray-400">The Tap</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">Solaris</p>
             </div>
           </Link>
           
           <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleCopyCardURL}
-              className="flex items-center gap-2"
-            >
-              <Copy className="w-4 h-4" />
-              Copy URL
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleShareCard}
-              className="flex items-center gap-2"
-            >
-              <Share2 className="w-4 h-4" />
-              Share
-            </Button>
-            <Link href="/profile">
-              <Button size="sm" className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
-                <ArrowRight className="w-4 h-4 mr-2" />
-                Back to Profile
-              </Button>
-            </Link>
+            {user ? (
+              <Link href="/profile">
+                <Button size="sm" className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
+                  <ArrowRight className="w-4 h-4 mr-2" />
+                  Go to Profile
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/login">
+                <Button size="sm" className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
+                  Get Started
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Hero Section */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 px-4 py-2 rounded-full mb-6">
             <div className="w-3 h-3 rounded-full bg-blue-500 animate-pulse"></div>
-            <span className="text-sm font-medium text-blue-800 dark:text-blue-200">Digital Business Card</span>
+            <span className="text-sm font-medium text-blue-800 dark:text-blue-200">Digital Business Cards</span>
           </div>
           
-          <h1 className="text-5xl sm:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-            The <span className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">Tap</span>
+          <h1 className="text-6xl sm:text-7xl font-bold text-gray-900 dark:text-white mb-6">
+            Basker <span className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">Solaris</span>
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-3xl mx-auto">
-            Your digital business card that fits in your pocket. 
-            Share your professional identity with a simple tap.
+          <p className="text-2xl text-gray-600 dark:text-gray-400 mb-8 max-w-4xl mx-auto">
+            The future of networking is here. Create stunning digital business cards 
+            that never go out of style and always stay connected.
           </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            {user ? (
+              <Link href="/profile">
+                <Button size="lg" className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-lg px-8 py-4">
+                  Create Your Card
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/login">
+                <Button size="lg" className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-lg px-8 py-4">
+                  Get Started Free
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
+            )}
+            <Button size="lg" variant="outline" className="text-lg px-8 py-4">
+              <Download className="w-5 h-5 mr-2" />
+              See Examples
+            </Button>
+          </div>
         </div>
 
-        {/* Main Card Section */}
-        <div className="grid lg:grid-cols-2 gap-12 mb-12">
-          {/* Card Preview */}
-          <div className="space-y-6">
-            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-blue-200 dark:border-blue-800 shadow-xl">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">Your Card</CardTitle>
-                    <p className="text-gray-600 dark:text-gray-400">Preview and customize your digital business card</p>
-                  </div>
-                  <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
-                    <CreditCard className="w-3 h-3 mr-1" />
-                    Live Preview
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="p-8">
-                {/* Card Preview */}
-                <div className="flex justify-center mb-6">
-                  <div className="physical-card-container">
-                    <div className="physical-card-border">
-                      <div className={`physical-card physical-card-${selectedCard}`}>
-                        {/* Top right corner branding */}
-                        <div className="absolute top-3 right-3 text-white/80 text-xs font-mono">BASKER</div>
-                        
-                        {/* Large name in center */}
-                        <div className="absolute top-10 left-1/2 transform -translate-x-1/2 text-white text-lg sm:text-2xl font-bold text-center">
-                          {user?.displayName || user?.handle || 'YOUR NAME'}
-                        </div>
-                        
-                        {/* Title below name */}
-                        <div className="absolute top-16 left-1/2 transform -translate-x-1/2 text-white/90 text-xs sm:text-sm text-center">
-                          Professional Title
-                        </div>
-                        
-                        {/* Contact info */}
-                        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/80 text-xs sm:text-sm text-center">
-                          <div>your@email.com</div>
-                          <div className="text-[10px] sm:text-xs mt-1">+1 (555) 123-4567</div>
-                        </div>
-                        
-                        {/* User handle in top left */}
-                        <div className="absolute top-2 left-2 text-white/80 text-[10px] sm:text-xs font-mono">
-                          @{user?.handle || 'yourhandle.bsky.social'}
-                        </div>
-                      </div>
+        {/* Card Showcase */}
+        <div className="mb-16">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Beautiful Card Designs</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-400">Choose from professional templates that make an impact</p>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* Professional Blue Card */}
+            <div className="flex justify-center">
+              <div className="physical-card-container">
+                <div className="physical-card-border">
+                  <div className="physical-card physical-card-blue">
+                    <div className="absolute top-3 right-3 text-white/80 text-xs font-mono">BASKER</div>
+                    <div className="absolute top-10 left-1/2 transform -translate-x-1/2 text-white text-lg font-bold text-center">ALEX CHEN</div>
+                    <div className="absolute top-16 left-1/2 transform -translate-x-1/2 text-white/90 text-xs text-center">Software Engineer</div>
+                    <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/80 text-xs text-center">
+                      <div>alex@company.com</div>
+                      <div className="text-[10px] mt-1">+1 (555) 123-4567</div>
                     </div>
+                    <div className="absolute top-2 left-2 text-white/80 text-[10px] font-mono">@alexchen.bsky.social</div>
                   </div>
                 </div>
+              </div>
+            </div>
 
-                {/* Card Actions */}
-                <div className="grid grid-cols-2 gap-3">
-                  <Button onClick={handleDownloadCard} className="w-full">
-                    <Download className="w-4 h-4 mr-2" />
-                    Download
-                  </Button>
-                  <Button variant="outline" onClick={handleShareCard} className="w-full">
-                    <Share2 className="w-4 h-4 mr-2" />
-                    Share
-                  </Button>
+            {/* Creative Purple Card */}
+            <div className="flex justify-center">
+              <div className="physical-card-container">
+                <div className="physical-card-border">
+                  <div className="physical-card physical-card-purple">
+                    <div className="absolute top-3 right-3 text-white/80 text-xs font-mono">BASKER</div>
+                    <div className="absolute top-10 left-1/2 transform -translate-x-1/2 text-white text-lg font-bold text-center">SARAH KIM</div>
+                    <div className="absolute top-16 left-1/2 transform -translate-x-1/2 text-white/90 text-xs text-center">Creative Director</div>
+                    <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/80 text-xs text-center">
+                      <div>sarah@studio.com</div>
+                      <div className="text-[10px] mt-1">+1 (555) 987-6543</div>
+                    </div>
+                    <div className="absolute top-2 left-2 text-white/80 text-[10px] font-mono">@sarahkim.bsky.social</div>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+
+            {/* Tech Green Card */}
+            <div className="flex justify-center">
+              <div className="physical-card-container">
+                <div className="physical-card-border">
+                  <div className="physical-card physical-card-green">
+                    <div className="absolute top-3 right-3 text-white/80 text-xs font-mono">BASKER</div>
+                    <div className="absolute top-10 left-1/2 transform -translate-x-1/2 text-white text-lg font-bold text-center">MIKE WANG</div>
+                    <div className="absolute top-16 left-1/2 transform -translate-x-1/2 text-white/90 text-xs text-center">Tech Lead</div>
+                    <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/80 text-xs text-center">
+                      <div>mike@tech.com</div>
+                      <div className="text-[10px] mt-1">+1 (555) 456-7890</div>
+                    </div>
+                    <div className="absolute top-2 left-2 text-white/80 text-[10px] font-mono">@mikewang.bsky.social</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Wellness Orange Card */}
+            <div className="flex justify-center">
+              <div className="physical-card-container">
+                <div className="physical-card-border">
+                  <div className="physical-card physical-card-orange">
+                    <div className="absolute top-3 right-3 text-white/80 text-xs font-mono">BASKER</div>
+                    <div className="absolute top-10 left-1/2 transform -translate-x-1/2 text-white text-lg font-bold text-center">LISA BROWN</div>
+                    <div className="absolute top-16 left-1/2 transform -translate-x-1/2 text-white/90 text-xs text-center">Wellness Coach</div>
+                    <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/80 text-xs text-center">
+                      <div>lisa@wellness.com</div>
+                      <div className="text-[10px] mt-1">+1 (555) 321-0987</div>
+                    </div>
+                    <div className="absolute top-2 left-2 text-white/80 text-[10px] font-mono">@lisabrown.bsky.social</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
 
-          {/* Card Customization */}
-          <div className="space-y-6">
-            {/* Style Selection */}
-            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-purple-200 dark:border-purple-800 shadow-lg">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-                    <Palette className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg font-bold text-gray-900 dark:text-white">Card Styles</CardTitle>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Choose your professional look</p>
-                  </div>
+        {/* Features Section */}
+        <div className="mb-16">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Why Choose Solaris?</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-400">The most advanced digital business card platform</p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-blue-200 dark:border-blue-800 shadow-xl">
+              <CardContent className="p-8 text-center">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <Smartphone className="w-8 h-8 text-white" />
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-3">
-                  {cardVariants.map((variant) => (
-                    <Button
-                      key={variant.id}
-                      variant={selectedCard === variant.id ? "default" : "outline"}
-                      onClick={() => setSelectedCard(variant.id)}
-                      className="justify-start h-auto p-3"
-                    >
-                      <div className={`w-4 h-4 rounded mr-3 bg-gradient-to-r ${variant.color}`}></div>
-                      <div className="text-left">
-                        <div className="font-medium text-sm">{variant.name}</div>
-                      </div>
-                    </Button>
-                  ))}
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Mobile First</h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  Designed for the modern world. Your card looks perfect on any device, 
+                  from smartphones to tablets to desktops.
+                </p>
+                <div className="flex items-center justify-center gap-2 text-sm text-blue-600 dark:text-blue-400">
+                  <CheckCircle className="w-4 h-4" />
+                  <span>Responsive Design</span>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Features */}
-            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-green-200 dark:border-green-800 shadow-lg">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
-                    <Zap className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg font-bold text-gray-900 dark:text-white">Features</CardTitle>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">What makes your card special</p>
-                  </div>
+            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-green-200 dark:border-green-800 shadow-xl">
+              <CardContent className="p-8 text-center">
+                <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <Globe className="w-8 h-8 text-white" />
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Smartphone className="w-5 h-5 text-blue-500" />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Mobile optimized</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Globe className="w-5 h-5 text-green-500" />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Shareable link</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Printer className="w-5 h-5 text-purple-500" />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Print ready</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Heart className="w-5 h-5 text-red-500" />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Professional design</span>
-                  </div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Always Updated</h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  Never hand out an outdated card again. Update your information 
+                  instantly and everyone gets the latest version.
+                </p>
+                <div className="flex items-center justify-center gap-2 text-sm text-green-600 dark:text-green-400">
+                  <CheckCircle className="w-4 h-4" />
+                  <span>Real-time Updates</span>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Quick Actions */}
-            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-orange-200 dark:border-orange-800 shadow-lg">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
-                    <Sparkles className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg font-bold text-gray-900 dark:text-white">Quick Actions</CardTitle>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Manage your card</p>
-                  </div>
+            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-purple-200 dark:border-purple-800 shadow-xl">
+              <CardContent className="p-8 text-center">
+                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <Star className="w-8 h-8 text-white" />
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <Button className="w-full justify-start" variant="outline" onClick={handleDownloadCard}>
-                    <Download className="w-4 h-4 mr-2" />
-                    Download Card
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline" onClick={handleShareCard}>
-                    <Share2 className="w-4 h-4 mr-2" />
-                    Share Card
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline" onClick={handleCopyCardURL}>
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copy Card URL
-                  </Button>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Professional</h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  Multiple design options to match your personal or corporate brand. 
+                  Look professional in any industry.
+                </p>
+                <div className="flex items-center justify-center gap-2 text-sm text-purple-600 dark:text-purple-400">
+                  <CheckCircle className="w-4 h-4" />
+                  <span>Brand Customization</span>
                 </div>
               </CardContent>
             </Card>
           </div>
         </div>
 
-        {/* Why The Tap Section */}
-        <div className="mb-12">
+        {/* Benefits Section */}
+        <div className="mb-16">
           <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 shadow-xl">
-            <CardContent className="p-8">
-              <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <CreditCard className="w-8 h-8 text-white" />
+            <CardContent className="p-12">
+              <div className="text-center mb-12">
+                <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                  <Sun className="w-10 h-10 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Why The Tap?</h3>
-                <p className="text-gray-600 dark:text-gray-400">Your digital business card for the modern world</p>
+                <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">The Solaris Advantage</h2>
+                <p className="text-xl text-gray-600 dark:text-gray-400">Why thousands choose Basker Solaris</p>
               </div>
               
-              <div className="grid md:grid-cols-3 gap-6">
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <div className="text-center">
                   <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <Smartphone className="w-6 h-6 text-white" />
+                    <Users className="w-6 h-6 text-white" />
                   </div>
-                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Mobile First</h4>
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Easy Sharing</h4>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Designed for smartphones and tablets with perfect responsive layouts
+                    Share with a simple tap or QR code scan
                   </p>
                 </div>
                 
                 <div className="text-center">
                   <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <Globe className="w-6 h-6 text-white" />
+                    <Shield className="w-6 h-6 text-white" />
                   </div>
-                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Always Updated</h4>
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Secure</h4>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Your information stays current - no more outdated business cards
+                    Your data is protected with enterprise-grade security
                   </p>
                 </div>
                 
                 <div className="text-center">
                   <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <Star className="w-6 h-6 text-white" />
+                    <Lightning className="w-6 h-6 text-white" />
                   </div>
-                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Professional</h4>
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Fast</h4>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Multiple design options to match your personal or corporate brand
+                    Lightning-fast loading and instant updates
                   </p>
                 </div>
+                
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <Heart className="w-6 h-6 text-white" />
+                  </div>
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Memorable</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Stand out with stunning, interactive designs
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* CTA Section */}
+        <div className="text-center">
+          <Card className="bg-gradient-to-r from-blue-500 to-purple-500 text-white border-0 shadow-2xl">
+            <CardContent className="p-12">
+              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <CreditCard className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-4xl font-bold mb-4">Ready to Make Your Mark?</h2>
+              <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+                Join thousands of professionals who have already upgraded to digital business cards. 
+                Create yours in minutes and start networking like never before.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                {user ? (
+                  <Link href="/profile">
+                    <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4">
+                      Create Your Card
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link href="/login">
+                    <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4">
+                      Get Started Free
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
+                  </Link>
+                )}
+                <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 text-lg px-8 py-4">
+                  <Download className="w-5 h-5 mr-2" />
+                  View Examples
+                </Button>
               </div>
             </CardContent>
           </Card>

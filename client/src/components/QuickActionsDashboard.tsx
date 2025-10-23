@@ -258,9 +258,9 @@ export function QuickActionsDashboard({
       category: 'analytics'
     },
     {
-      id: 'tap',
-      title: 'The Tap',
-      description: 'Your digital business card',
+      id: 'solaris',
+      title: 'Basker Solaris',
+      description: 'Digital business cards',
       icon: <CreditCard className="w-5 h-5" />,
       color: 'bg-blue-500',
       action: () => {
