@@ -264,7 +264,7 @@ export function QuickActionsDashboard({
       icon: <CreditCard className="w-5 h-5" />,
       color: 'bg-blue-500',
       action: () => {
-        window.location.href = '/tap';
+        window.location.href = '/solaris';
       },
       category: 'sharing'
     },

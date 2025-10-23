@@ -1,8 +1,7 @@
 import React from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import { 
   CreditCard, 
   Download, 
@@ -22,94 +21,82 @@ import {
   Shield,
   Zap as Lightning,
   Sun,
-  Moon
+  Moon,
+  Link as LinkIcon,
+  ExternalLink
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { Header } from '../components/Header';
+import LightRays from '../components/LightRays';
 
 export default function Solaris() {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-blue-900 dark:to-indigo-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-blue-900 dark:to-indigo-900 relative overflow-hidden">
+      {/* Light Rays Background */}
+      <LightRays />
+      
       {/* Header */}
-      <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-              <CreditCard className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Basker</h1>
-              <p className="text-xs text-gray-600 dark:text-gray-400">Solaris</p>
-            </div>
-          </Link>
-          
-          <div className="flex items-center gap-3">
-            {user ? (
-              <Link href="/profile">
-                <Button size="sm" className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
-                  <ArrowRight className="w-4 h-4 mr-2" />
-                  Go to Profile
-                </Button>
-              </Link>
-            ) : (
-              <Link href="/login">
-                <Button size="sm" className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
-                  Get Started
-                </Button>
-              </Link>
-            )}
-          </div>
-        </div>
-      </header>
+      <Header />
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="relative z-10">
         {/* Hero Section */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 px-4 py-2 rounded-full mb-6">
-            <div className="w-3 h-3 rounded-full bg-blue-500 animate-pulse"></div>
-            <span className="text-sm font-medium text-blue-800 dark:text-blue-200">Digital Business Cards</span>
-          </div>
-          
-          <h1 className="text-6xl sm:text-7xl font-bold text-gray-900 dark:text-white mb-6">
-            Basker <span className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">Solaris</span>
-          </h1>
-          <p className="text-2xl text-gray-600 dark:text-gray-400 mb-8 max-w-4xl mx-auto">
-            The future of networking is here. Create stunning digital business cards 
-            that never go out of style and always stay connected.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            {user ? (
-              <Link href="/profile">
-                <Button size="lg" className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-lg px-8 py-4">
-                  Create Your Card
-                  <ArrowRight className="w-5 h-5 ml-2" />
+        <section className="relative py-20 sm:py-32">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 px-4 py-2 rounded-full mb-8">
+                <div className="w-3 h-3 rounded-full bg-blue-500 animate-pulse"></div>
+                <span className="text-sm font-medium text-blue-800 dark:text-blue-200">Digital Business Cards</span>
+              </div>
+              
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-8">
+                Basker <span className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">Solaris</span>
+              </h1>
+              
+              <p className="text-xl sm:text-2xl text-gray-600 dark:text-gray-400 mb-12 max-w-4xl mx-auto leading-relaxed">
+                The future of networking is here. Create stunning digital business cards 
+                that never go out of style and always stay connected.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                {user ? (
+                  <Link href="/profile">
+                    <Button size="lg" className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-lg px-8 py-4 shadow-xl hover:shadow-2xl transition-all duration-300">
+                      Create Your Card
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link href="/login">
+                    <Button size="lg" className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-lg px-8 py-4 shadow-xl hover:shadow-2xl transition-all duration-300">
+                      Get Started Free
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
+                  </Link>
+                )}
+                <Button size="lg" variant="outline" className="text-lg px-8 py-4 border-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-300">
+                  <Download className="w-5 h-5 mr-2" />
+                  See Examples
                 </Button>
-              </Link>
-            ) : (
-              <Link href="/login">
-                <Button size="lg" className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-lg px-8 py-4">
-                  Get Started Free
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-              </Link>
-            )}
-            <Button size="lg" variant="outline" className="text-lg px-8 py-4">
-              <Download className="w-5 h-5 mr-2" />
-              See Examples
-            </Button>
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
 
         {/* Card Showcase */}
-        <div className="mb-16">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Beautiful Card Designs</h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400">Choose from professional templates that make an impact</p>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <section className="py-20 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+                Beautiful Card Designs
+              </h2>
+              <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                Choose from professional templates that make an impact
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Professional Blue Card */}
             <div className="flex justify-center">
               <div className="physical-card-container">
@@ -182,16 +169,21 @@ export default function Solaris() {
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* Features Section */}
-        <div className="mb-16">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Why Choose Solaris?</h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400">The most advanced digital business card platform</p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8">
+        <section className="py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+                Why Choose Solaris?
+              </h2>
+              <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                The most advanced digital business card platform
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-8">
             <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-blue-200 dark:border-blue-800 shadow-xl">
               <CardContent className="p-8 text-center">
                 <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
@@ -243,21 +235,26 @@ export default function Solaris() {
               </CardContent>
             </Card>
           </div>
-        </div>
+        </section>
 
         {/* Benefits Section */}
-        <div className="mb-16">
-          <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 shadow-xl">
-            <CardContent className="p-12">
-              <div className="text-center mb-12">
-                <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                  <Sun className="w-10 h-10 text-white" />
+        <section className="py-20 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-blue-200 dark:border-blue-800 shadow-2xl">
+              <CardContent className="p-12">
+                <div className="text-center mb-16">
+                  <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                    <Sun className="w-10 h-10 text-white" />
+                  </div>
+                  <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+                    The Solaris Advantage
+                  </h2>
+                  <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                    Why thousands choose Basker Solaris
+                  </p>
                 </div>
-                <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">The Solaris Advantage</h2>
-                <p className="text-xl text-gray-600 dark:text-gray-400">Why thousands choose Basker Solaris</p>
-              </div>
-              
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <div className="text-center">
                   <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mx-auto mb-4">
                     <Users className="w-6 h-6 text-white" />
@@ -300,44 +297,46 @@ export default function Solaris() {
               </div>
             </CardContent>
           </Card>
-        </div>
+        </section>
 
         {/* CTA Section */}
-        <div className="text-center">
-          <Card className="bg-gradient-to-r from-blue-500 to-purple-500 text-white border-0 shadow-2xl">
-            <CardContent className="p-12">
-              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <CreditCard className="w-8 h-8 text-white" />
-              </div>
-              <h2 className="text-4xl font-bold mb-4">Ready to Make Your Mark?</h2>
-              <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-                Join thousands of professionals who have already upgraded to digital business cards. 
-                Create yours in minutes and start networking like never before.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                {user ? (
-                  <Link href="/profile">
-                    <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4">
-                      Create Your Card
-                      <ArrowRight className="w-5 h-5 ml-2" />
-                    </Button>
-                  </Link>
-                ) : (
-                  <Link href="/login">
-                    <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4">
-                      Get Started Free
-                      <ArrowRight className="w-5 h-5 ml-2" />
-                    </Button>
-                  </Link>
-                )}
-                <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 text-lg px-8 py-4">
-                  <Download className="w-5 h-5 mr-2" />
-                  View Examples
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <section className="py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Card className="bg-gradient-to-r from-blue-500 to-purple-500 text-white border-0 shadow-2xl">
+              <CardContent className="p-12">
+                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <CreditCard className="w-8 h-8 text-white" />
+                </div>
+                <h2 className="text-4xl sm:text-5xl font-bold mb-6">Ready to Make Your Mark?</h2>
+                <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto">
+                  Join thousands of professionals who have already upgraded to digital business cards. 
+                  Create yours in minutes and start networking like never before.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  {user ? (
+                    <Link href="/profile">
+                      <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4 shadow-xl hover:shadow-2xl transition-all duration-300">
+                        Create Your Card
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Link href="/login">
+                      <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4 shadow-xl hover:shadow-2xl transition-all duration-300">
+                        Get Started Free
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                      </Button>
+                    </Link>
+                  )}
+                  <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 text-lg px-8 py-4 transition-all duration-300">
+                    <Download className="w-5 h-5 mr-2" />
+                    View Examples
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
       </main>
     </div>
   );
