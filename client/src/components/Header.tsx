@@ -53,8 +53,8 @@ export function Header() {
               <span className="relative z-10">Pricing</span>
               <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </Link>
-            <Link href="/faq" className="relative px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-all duration-300 rounded-lg hover:bg-pink-50/50 dark:hover:bg-pink-900/20 group">
-              <span className="relative z-10">FAQ</span>
+            <Link href="/solaris" className="relative px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-all duration-300 rounded-lg hover:bg-pink-50/50 dark:hover:bg-pink-900/20 group">
+              <span className="relative z-10">Solaris</span>
               <div className="absolute inset-0 bg-gradient-to-r from-pink-500/10 to-rose-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </Link>
             <Link href="/starter-packs" className="relative px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-300 rounded-lg hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 group">
@@ -144,10 +144,10 @@ export function Header() {
                   Pricing
                 </Button>
               </Link>
-              <Link href="/faq">
+              <Link href="/solaris">
                 <Button variant="outline" size="sm" className="w-full justify-start gap-3 h-12 bg-white/50 dark:bg-gray-800/50 border-pink-200 dark:border-pink-800 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-all duration-300">
-                  <HelpCircle className="w-4 h-4" />
-                  FAQ
+                  <Sparkles className="w-4 h-4" />
+                  Solaris
                 </Button>
               </Link>
               <Link href="/starter-packs">

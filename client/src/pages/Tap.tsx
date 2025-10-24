@@ -33,16 +33,53 @@ export default function Solaris() {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-blue-900 dark:to-indigo-900 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-blue-900 dark:to-indigo-900 relative">
       {/* Light Rays Background */}
-      <LightRays />
+      <div className="fixed inset-0 z-0" style={{ zIndex: 0 }}>
+        <LightRays />
+      </div>
+      
+      {/* Floating Particles Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0" style={{ zIndex: 1 }}>
+        {/* Floating particles */}
+        {[...Array(15)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-gradient-to-r from-blue-400/40 to-purple-400/40 rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 10}s`,
+              animationDuration: `${12 + Math.random() * 8}s`,
+              animation: 'float 12s ease-in-out infinite'
+            }}
+          ></div>
+        ))}
+        
+        {/* Animated gradient orbs */}
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-r from-pink-400/20 to-rose-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-gradient-to-r from-cyan-400/15 to-blue-400/15 rounded-full blur-2xl animate-pulse"></div>
+      </div>
       
       {/* Header */}
-      <Header />
+      <div className="relative z-50 sticky top-0">
+        <Header />
+      </div>
 
       <main className="relative z-10">
         {/* Hero Section */}
         <section className="relative py-20 sm:py-32">
+          {/* Animated Background Elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            {/* Floating particles */}
+            <div className="absolute top-20 left-10 w-2 h-2 bg-yellow-400 rounded-full animate-pulse opacity-60"></div>
+            <div className="absolute top-32 right-20 w-3 h-3 bg-orange-400 rounded-full animate-pulse opacity-40" style={{ animationDelay: '1s' }}></div>
+            <div className="absolute top-60 left-1/4 w-2 h-2 bg-yellow-500 rounded-full animate-pulse opacity-50" style={{ animationDelay: '2s' }}></div>
+            <div className="absolute top-40 right-1/3 w-2 h-2 bg-orange-500 rounded-full animate-pulse opacity-30" style={{ animationDelay: '0.5s' }}></div>
+            <div className="absolute top-80 left-1/2 w-3 h-3 bg-yellow-400 rounded-full animate-pulse opacity-40" style={{ animationDelay: '1.5s' }}></div>
+          </div>
+          
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 px-4 py-2 rounded-full mb-8">
@@ -54,27 +91,39 @@ export default function Solaris() {
                 Basker <span className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">Solaris</span>
               </h1>
               
-              <p className="text-xl sm:text-2xl text-gray-600 dark:text-gray-400 mb-12 max-w-4xl mx-auto leading-relaxed">
+              <p className="text-xl sm:text-2xl text-gray-600 dark:text-gray-400 mb-8 max-w-4xl mx-auto leading-relaxed">
                 The future of networking is here. Create stunning digital business cards 
                 that never go out of style and always stay connected.
               </p>
               
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-100 to-red-100 dark:from-orange-900/20 dark:to-red-900/20 px-4 py-2 rounded-full mb-4">
+                <div className="w-3 h-3 rounded-full bg-orange-500 animate-pulse"></div>
+                <span className="text-sm font-medium text-orange-800 dark:text-orange-200">Coming Soon</span>
+              </div>
+              
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 max-w-2xl mx-auto">
+                Solaris cards are coming soon! Stay up to date with updates on development and join our community on{' '}
+                <a 
+                  href="https://discord.com/invite/d32M7SJvjT" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline transition-colors duration-200"
+                >
+                  Discord
+                </a>
+                .
+              </p>
+              
+              <p className="text-lg text-gray-600 dark:text-gray-400 mb-12 max-w-3xl mx-auto">
+                Integrated with <span className="font-semibold text-blue-600 dark:text-blue-400">BaskerBio</span> for seamless 
+                professional networking and contact management.
+              </p>
+              
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                {user ? (
-                  <Link href="/profile">
-                    <Button size="lg" className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-lg px-8 py-4 shadow-xl hover:shadow-2xl transition-all duration-300">
-                      Create Your Card
-                      <ArrowRight className="w-5 h-5 ml-2" />
-                    </Button>
-                  </Link>
-                ) : (
-                  <Link href="/login">
-                    <Button size="lg" className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-lg px-8 py-4 shadow-xl hover:shadow-2xl transition-all duration-300">
-                      Get Started Free
-                      <ArrowRight className="w-5 h-5 ml-2" />
-                    </Button>
-                  </Link>
-                )}
+                <Button size="lg" disabled className="bg-gradient-to-r from-gray-400 to-gray-500 text-lg px-8 py-4 shadow-xl cursor-not-allowed opacity-60">
+                  Coming Soon
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
                 <Button size="lg" variant="outline" className="text-lg px-8 py-4 border-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-300">
                   <Download className="w-5 h-5 mr-2" />
                   See Examples
@@ -224,17 +273,18 @@ export default function Solaris() {
                 <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
                   <Star className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Professional</h3>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">BaskerBio Integration</h3>
                 <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  Multiple design options to match your personal or corporate brand. 
-                  Look professional in any industry.
+                  Seamlessly integrated with BaskerBio for professional networking, 
+                  contact management, and business relationship building.
                 </p>
                 <div className="flex items-center justify-center gap-2 text-sm text-purple-600 dark:text-purple-400">
                   <CheckCircle className="w-4 h-4" />
-                  <span>Brand Customization</span>
+                  <span>Professional Networking</span>
                 </div>
               </CardContent>
             </Card>
+            </div>
           </div>
         </section>
 
@@ -298,10 +348,19 @@ export default function Solaris() {
               </div>
             </CardContent>
           </Card>
+          </div>
         </section>
 
         {/* CTA Section */}
-        <section className="py-20">
+        <section className="py-20 relative">
+          {/* Floating particles */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-10 left-20 w-2 h-2 bg-blue-400 rounded-full animate-pulse opacity-50"></div>
+            <div className="absolute top-20 right-10 w-3 h-3 bg-purple-400 rounded-full animate-pulse opacity-40" style={{ animationDelay: '1s' }}></div>
+            <div className="absolute bottom-20 left-1/3 w-2 h-2 bg-pink-400 rounded-full animate-pulse opacity-60" style={{ animationDelay: '2s' }}></div>
+            <div className="absolute bottom-10 right-1/4 w-3 h-3 bg-cyan-400 rounded-full animate-pulse opacity-30" style={{ animationDelay: '0.5s' }}></div>
+          </div>
+          
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <Card className="bg-gradient-to-r from-blue-500 to-purple-500 text-white border-0 shadow-2xl">
               <CardContent className="p-12">
@@ -309,26 +368,31 @@ export default function Solaris() {
                   <CreditCard className="w-8 h-8 text-white" />
                 </div>
                 <h2 className="text-4xl sm:text-5xl font-bold mb-6">Ready to Make Your Mark?</h2>
-                <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto">
-                  Join thousands of professionals who have already upgraded to digital business cards. 
-                  Create yours in minutes and start networking like never before.
+                <p className="text-xl text-white/90 mb-6 max-w-3xl mx-auto">
+                  Join thousands of professionals who will upgrade to digital business cards. 
+                  Coming soon with full BaskerBio integration.
+                </p>
+                <div className="inline-flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full mb-4">
+                  <div className="w-3 h-3 rounded-full bg-white animate-pulse"></div>
+                  <span className="text-sm font-medium text-white">Coming Soon</span>
+                </div>
+                <p className="text-sm text-white/80 mb-8 max-w-2xl mx-auto">
+                  Stay updated on development progress and join our community on{' '}
+                  <a 
+                    href="https://discord.com/invite/d32M7SJvjT" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-white hover:text-white/90 underline transition-colors duration-200"
+                  >
+                    Discord
+                  </a>
+                  .
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  {user ? (
-                    <Link href="/profile">
-                      <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4 shadow-xl hover:shadow-2xl transition-all duration-300">
-                        Create Your Card
-                        <ArrowRight className="w-5 h-5 ml-2" />
-                      </Button>
-                    </Link>
-                  ) : (
-                    <Link href="/login">
-                      <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4 shadow-xl hover:shadow-2xl transition-all duration-300">
-                        Get Started Free
-                        <ArrowRight className="w-5 h-5 ml-2" />
-                      </Button>
-                    </Link>
-                  )}
+                  <Button size="lg" disabled className="bg-white/50 text-white/70 text-lg px-8 py-4 shadow-xl cursor-not-allowed opacity-60">
+                    Coming Soon
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
                   <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 text-lg px-8 py-4 transition-all duration-300">
                     <Download className="w-5 h-5 mr-2" />
                     View Examples
