@@ -47,7 +47,12 @@ const updateMetaTags = (settings: any, profile: UserProfile) => {
   const bio = profile.description || settings?.customBio || 'Check out my Basker profile';
   const seoTitle = settings?.seoTitle || `${displayName} - Basker Profile`;
   const seoDesc = settings?.seoDescription || bio;
-  const seoKeywords = settings?.seoKeywords?.join(', ') || `${displayName}, Basker, Links, Portfolio`;
+  
+  // Combine user keywords with default Basker keywords
+  const defaultKeywords = 'Basker, Basker Bio, Baskerbio, free link platform, link-in-bio, decentralized bluesky, AT Protocol, social media link, bio link, basker.bio';
+  const seoKeywords = settings?.seoKeywords?.length 
+    ? `${settings.seoKeywords.join(', ')}, ${defaultKeywords}`
+    : `${displayName}, Basker, Links, Portfolio, ${defaultKeywords}`;
   const seoImage = settings?.seoImage || profile.avatar || profile.banner || '';
   const ogSiteName = settings?.seoSiteName || 'Basker';
   const twitterHandle = settings?.seoTwitterHandle || '';

@@ -14,6 +14,7 @@ import { createPortal } from 'react-dom';
 import DecryptedText from '../components/DecryptedText';
 import { useToast } from '@/hooks/use-toast';
 import LightRays from '../components/LightRays';
+import { SEOHead } from '../components/SEOHead';
 
 export default function Landing() {
   const { isAuthenticated, user } = useAuth();
@@ -680,6 +681,10 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 relative overflow-hidden">
+      <SEOHead 
+        title="Basker - Free Link-in-Bio Platform on AT Protocol | Decentralized Social Links"
+        description="Create your free link-in-bio page on Basker. Decentralized, powered by Bluesky and AT Protocol. Add unlimited links, widgets, and customize your profile. Free link sharing platform."
+      />
       <Header />
       
       {/* Enhanced Animated Background */}

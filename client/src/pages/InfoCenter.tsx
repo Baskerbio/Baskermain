@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '../contexts/AuthContext';
 import { VersionInfo } from '../components/VersionInfo';
 import { Header } from '../components/Header';
+import { SEOHead } from '../components/SEOHead';
 import { 
   FileText, 
   Scale, 
@@ -31,6 +32,11 @@ export default function InfoCenter() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 relative overflow-hidden">
+      <SEOHead 
+        title="Info Center - Basker Support, FAQ & Legal Information"
+        description="Get help with Basker, read FAQs, legal information, and learn about the free link-in-bio platform on AT Protocol. Support and resources for Basker users."
+        keywords="Basker help, Basker FAQ, Basker support, Basker legal, Basker privacy, link-in-bio support"
+      />
       <Header />
       
       {/* Enhanced Animated Background */}

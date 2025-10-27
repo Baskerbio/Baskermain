@@ -17,6 +17,7 @@ import { useLinks, useSaveLinks, useSettings, useSaveSettings } from '../hooks/u
 import { useToast } from '@/hooks/use-toast';
 import { DropResult } from '@hello-pangea/dnd';
 import { atprotocol } from '../lib/atprotocol';
+import { SEOHead } from '../components/SEOHead';
 
 export default function Profile() {
   const { user, logout } = useAuth();
@@ -126,6 +127,11 @@ export default function Profile() {
 
   return (
     <DragDropProvider onDragEnd={onDragEnd}>
+      <SEOHead 
+        title={`${user?.displayName || user?.handle || 'Profile'} - Basker Profile`}
+        description={`View ${user?.displayName || user?.handle || 'this profile'}'s Basker link-in-bio page with custom links, widgets, and more.`}
+        keywords={`${user?.handle}, Basker, link-in-bio, social links, profile`}
+      />
       <div className="min-h-screen bg-background">
         {/* Header */}
         <header className="bg-card border-b border-border sticky top-0 z-50" data-testid="header">
