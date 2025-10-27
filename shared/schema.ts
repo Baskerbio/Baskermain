@@ -309,6 +309,10 @@ export const socialIconsConfigSchema = z.object({
   backgroundColor: z.string().optional(),
   iconColor: z.string().optional(),
   hoverColor: z.string().optional(),
+  // Border styling for social icons
+  borderWidth: z.number().min(0).max(10).optional(),
+  borderColor: z.string().optional(),
+  borderStyle: z.enum(['solid', 'dashed', 'dotted', 'double', 'groove', 'ridge']).optional(),
 });
 
 // Banner adjustment settings
@@ -342,6 +346,33 @@ export const settingsSchema = z.object({
   customBanner: z.string().optional(), // Custom banner URL
   // Banner adjustments
   bannerAdjustment: bannerAdjustmentSchema.optional(),
+  // Profile Text Styling
+  profileTextStyling: z.object({
+    nameBorderWidth: z.number().min(0).max(10).optional(),
+    nameBorderColor: z.string().optional(),
+    nameBorderStyle: z.enum(['solid', 'dashed', 'dotted', 'double', 'groove', 'ridge']).optional(),
+    nameBackgroundColor: z.string().optional(),
+    nameContainerShape: z.enum(['none', 'rounded', 'square', 'pill', 'rounded-corners']).optional(),
+    usernameBorderWidth: z.number().min(0).max(10).optional(),
+    usernameBorderColor: z.string().optional(),
+    usernameBorderStyle: z.enum(['solid', 'dashed', 'dotted', 'double', 'groove', 'ridge']).optional(),
+    usernameBackgroundColor: z.string().optional(),
+    usernameContainerShape: z.enum(['none', 'rounded', 'square', 'pill', 'rounded-corners']).optional(),
+    bioBorderWidth: z.number().min(0).max(10).optional(),
+    bioBorderColor: z.string().optional(),
+    bioBorderStyle: z.enum(['solid', 'dashed', 'dotted', 'double', 'groove', 'ridge']).optional(),
+    bioBackgroundColor: z.string().optional(),
+    bioContainerShape: z.enum(['none', 'rounded', 'square', 'pill', 'rounded-corners']).optional(),
+  }).optional(),
+  // Widget Global Styling
+  widgetGlobalStyling: z.object({
+    backgroundColor: z.string().optional(),
+    borderWidth: z.number().min(0).max(10).optional(),
+    borderColor: z.string().optional(),
+    borderStyle: z.enum(['solid', 'dashed', 'dotted', 'double', 'groove', 'ridge']).optional(),
+    borderRadius: z.enum(['none', 'sm', 'md', 'lg', 'xl', 'full']).optional(),
+    padding: z.number().min(0).max(50).optional(),
+  }).optional(),
   // Professional Profile Fields
   availabilityStatus: z.enum(['available', 'busy', 'unavailable']).default('available').optional(),
   availabilityMessage: z.string().optional(),
@@ -357,6 +388,23 @@ export const settingsSchema = z.object({
   seoSiteName: z.string().optional(),
   seoTwitterHandle: z.string().optional(),
   seoFacebookAppId: z.string().optional(),
+  // Privacy & Behavior Settings
+  allowIndexing: z.boolean().default(true).optional(),
+  showViewCount: z.boolean().default(false).optional(),
+  trackLinkClicks: z.boolean().default(false).optional(),
+  // Custom Domain Settings
+  enableCustomDomain: z.boolean().default(false).optional(),
+  customDomain: z.string().optional(),
+  // Custom URL Settings
+  customUrl: z.string().optional(),
+  // URL Redirect Settings
+  enableRedirect: z.boolean().default(false).optional(),
+  redirectUrl: z.string().optional(),
+  // Banner Border Styling
+  bannerBorderWidth: z.number().min(0).max(20).optional(),
+  bannerBorderColor: z.string().optional(),
+  bannerBorderStyle: z.enum(['solid', 'dashed', 'dotted', 'double', 'groove', 'ridge']).optional(),
+  bannerBorderRadius: z.number().min(0).max(50).optional(),
 });
 
 // Widget schema with many more types and better configuration

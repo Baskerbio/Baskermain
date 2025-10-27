@@ -400,7 +400,7 @@ export default function Profile() {
               let sectionComponent;
               switch (section) {
                 case 'widgets':
-                  sectionComponent = <Widgets key="widgets" isEditMode={isEditMode} />;
+                  sectionComponent = <Widgets key="widgets" isEditMode={isEditMode} effectiveSettings={settings} />;
                   break;
                 case 'notes':
                   sectionComponent = <Notes key="notes" isEditMode={isEditMode} />;

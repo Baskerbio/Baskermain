@@ -28,6 +28,7 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 interface WidgetsProps {
   isEditMode: boolean;
+  effectiveSettings?: any;
 }
 
 const WIDGET_TYPES = [
@@ -70,7 +71,7 @@ const WIDGET_TYPES = [
   { value: 'mini_game', label: 'Mini Game', icon: Gamepad2, description: 'Fun browser games for visitors' },
 ];
 
-export function Widgets({ isEditMode }: WidgetsProps) {
+export function Widgets({ isEditMode, effectiveSettings }: WidgetsProps) {
   const { data: widgets = [] } = useWidgets();
   const { mutate: saveWidgets } = useSaveWidgets();
   const { toast } = useToast();
@@ -160,6 +161,31 @@ export function Widgets({ isEditMode }: WidgetsProps) {
       case 'full': return 'w-full';
       default: return 'w-full'; // Default to full width
     }
+  };
+
+  const getWidgetStyle = (widgetId?: string) => {
+    const globalStyling = effectiveSettings?.widgetGlobalStyling;
+    
+    // If widgetId provided, try to get per-widget styling
+    let widget: Widget | undefined;
+    if (widgetId) {
+      widget = widgets.find(w => w.id === widgetId);
+    }
+    
+    const perWidgetStyling = widget?.styling;
+    
+    // Combine global and per-widget styling (per-widget overrides global)
+    const combinedStyling = {
+      backgroundColor: perWidgetStyling?.backgroundColor || globalStyling?.backgroundColor,
+      borderWidth: perWidgetStyling?.borderWidth !== undefined ? `${perWidgetStyling.borderWidth}px` : (globalStyling?.borderWidth ? `${globalStyling.borderWidth}px` : undefined),
+      borderStyle: perWidgetStyling?.borderStyle || globalStyling?.borderStyle,
+      borderColor: perWidgetStyling?.borderColor || globalStyling?.borderColor,
+      borderRadius: perWidgetStyling?.borderRadius !== undefined ? `${perWidgetStyling.borderRadius}px` : (globalStyling?.borderRadius ? `${globalStyling.borderRadius}px` : undefined),
+      padding: perWidgetStyling?.padding !== undefined ? `${perWidgetStyling.padding}px` : (globalStyling?.padding ? `${globalStyling.padding}px` : undefined),
+    };
+    
+    // Remove undefined values
+    return Object.fromEntries(Object.entries(combinedStyling).filter(([_, v]) => v !== undefined));
   };
 
   const getDefaultConfig = (type: string) => {
@@ -573,7 +599,7 @@ export function Widgets({ isEditMode }: WidgetsProps) {
                                     </div>
                                   </div>
                                 )}
-                                <Card className="w-full h-full flex flex-col">
+                                <Card className="w-full h-full flex flex-col" style={getWidgetStyle(widget.id)}>
                                   <CardContent className="pt-8 flex-1">
                                     {renderWidget(widget)}
                                   </CardContent>
@@ -597,7 +623,7 @@ export function Widgets({ isEditMode }: WidgetsProps) {
                                     </div>
                                   </div>
                                 )}
-                                <Card className="w-full h-full flex flex-col">
+                                <Card className="w-full h-full flex flex-col" style={getWidgetStyle(nextWidget.id)}>
                                   <CardContent className="pt-8 flex-1">
                                     {renderWidget(nextWidget)}
                                   </CardContent>
@@ -626,7 +652,7 @@ export function Widgets({ isEditMode }: WidgetsProps) {
                                 </div>
                               )}
                               <div className={`${getSizeClass(widget.size)} mx-auto h-full`}>
-                                <Card className="w-full h-full flex flex-col">
+                                <Card className="w-full h-full flex flex-col" style={getWidgetStyle(widget.id)}>
                                   <CardContent className="pt-8 flex-1">
                                     {renderWidget(widget)}
                                   </CardContent>
@@ -4222,6 +4248,131 @@ function WidgetEditor({
           </div>
           
           {renderConfigEditor()}
+          
+          {/* Widget Styling Options */}
+          <div className="border rounded-lg p-4 space-y-4">
+            <h4 className="font-medium">Widget Styling</h4>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-sm mb-1">Background Color</Label>
+                <Input
+                  type="color"
+                  value={editedWidget.styling?.backgroundColor || '#ffffff'}
+                  onChange={(e) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      styling: {
+                        ...(prev.styling || {}),
+                        backgroundColor: e.target.value
+                      }
+                    }))
+                  }
+                  className="h-8 w-full p-0 cursor-pointer"
+                />
+              </div>
+              <div>
+                <Label className="text-sm mb-1">Border Color</Label>
+                <Input
+                  type="color"
+                  value={editedWidget.styling?.borderColor || '#000000'}
+                  onChange={(e) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      styling: {
+                        ...(prev.styling || {}),
+                        borderColor: e.target.value
+                      }
+                    }))
+                  }
+                  className="h-8 w-full p-0 cursor-pointer"
+                />
+              </div>
+              <div>
+                <Label className="text-sm mb-1">Border Width: {editedWidget.styling?.borderWidth || 0}px</Label>
+                <input
+                  type="range"
+                  min="0"
+                  max="10"
+                  value={editedWidget.styling?.borderWidth || 0}
+                  onChange={(e) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      styling: {
+                        ...(prev.styling || {}),
+                        borderWidth: parseInt(e.target.value)
+                      }
+                    }))
+                  }
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <Label className="text-sm mb-1">Border Style</Label>
+                <Select 
+                  value={editedWidget.styling?.borderStyle || 'solid'} 
+                  onValueChange={(value) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      styling: {
+                        ...(prev.styling || {}),
+                        borderStyle: value
+                      }
+                    }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="solid">Solid</SelectItem>
+                    <SelectItem value="dashed">Dashed</SelectItem>
+                    <SelectItem value="dotted">Dotted</SelectItem>
+                    <SelectItem value="double">Double</SelectItem>
+                    <SelectItem value="groove">Groove</SelectItem>
+                    <SelectItem value="ridge">Ridge</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-sm mb-1">Border Radius: {editedWidget.styling?.borderRadius || 0}px</Label>
+                <input
+                  type="range"
+                  min="0"
+                  max="50"
+                  value={editedWidget.styling?.borderRadius || 0}
+                  onChange={(e) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      styling: {
+                        ...(prev.styling || {}),
+                        borderRadius: parseInt(e.target.value)
+                      }
+                    }))
+                  }
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <Label className="text-sm mb-1">Padding: {editedWidget.styling?.padding || 0}px</Label>
+                <input
+                  type="range"
+                  min="0"
+                  max="50"
+                  value={editedWidget.styling?.padding || 0}
+                  onChange={(e) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      styling: {
+                        ...(prev.styling || {}),
+                        padding: parseInt(e.target.value)
+                      }
+                    }))
+                  }
+                  className="w-full"
+                />
+              </div>
+            </div>
+          </div>
           
           <div className="flex gap-2 pt-4">
             <Button onClick={handleSave}>Save Changes</Button>

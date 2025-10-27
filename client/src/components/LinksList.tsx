@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Edit, Trash2, ExternalLink, GripVertical, ChevronDown, Palette, Type, Shapes, Settings, Clock, Link as LinkIcon, Zap } from 'lucide-react';
+import { Plus, Edit, Trash2, ExternalLink, GripVertical, ChevronDown, Palette, Type, Shapes, Settings, Clock, Link as LinkIcon, Zap, UserPlus, ChevronDown as ChevronDownIcon, ChevronRight, Folder, Square, Box, Diamond, Waves, Circle, Triangle, Star, Hexagon, Heart } from 'lucide-react';
 import { Droppable, Draggable } from '@hello-pangea/dnd';
 import { useLinks, useSaveLinks, useGroups, useSaveGroups, useSettings } from '../hooks/use-atprotocol';
 import { useToast } from '@/hooks/use-toast';
@@ -75,25 +75,25 @@ const fontOptions = [
 
 // Container shape options
 const shapeOptions = [
-  { value: 'rounded', label: 'Rounded', icon: '⬜' },
-  { value: 'square', label: 'Square', icon: '⬛' },
-  { value: 'pill', label: 'Pill', icon: '🔲' },
-  { value: 'rounded-corners', label: 'Rounded Corners', icon: '⬡' },
-  { value: 'diamond', label: 'Diamond', icon: '♦️' },
-  { value: 'ridged', label: 'Ridged', icon: '〰️' },
-  { value: 'wavy', label: 'Wavy', icon: '🌊' },
+  { value: 'rounded', label: 'Rounded', icon: <Square className="w-4 h-4 rounded" /> },
+  { value: 'square', label: 'Square', icon: <Square className="w-4 h-4" /> },
+  { value: 'pill', label: 'Pill', icon: <Box className="w-4 h-4 rounded-full" /> },
+  { value: 'rounded-corners', label: 'Rounded Corners', icon: <Square className="w-4 h-4 rounded-sm" /> },
+  { value: 'diamond', label: 'Diamond', icon: <Diamond className="w-4 h-4" /> },
+  { value: 'ridged', label: 'Ridged', icon: <Box className="w-4 h-4" /> },
+  { value: 'wavy', label: 'Wavy', icon: <Waves className="w-4 h-4" /> },
 ];
 
 // Icon border shape options
 const iconBorderShapeOptions = [
-  { value: 'rounded', label: 'Rounded', icon: '⬜' },
-  { value: 'square', label: 'Square', icon: '⬛' },
-  { value: 'circle', label: 'Circle', icon: '⭕' },
-  { value: 'triangle', label: 'Triangle', icon: '🔺' },
-  { value: 'star', label: 'Star', icon: '⭐' },
-  { value: 'hexagon', label: 'Hexagon', icon: '⬡' },
-  { value: 'diamond', label: 'Diamond', icon: '♦️' },
-  { value: 'heart', label: 'Heart', icon: '❤️' },
+  { value: 'rounded', label: 'Rounded', icon: <Square className="w-4 h-4 rounded" /> },
+  { value: 'square', label: 'Square', icon: <Square className="w-4 h-4" /> },
+  { value: 'circle', label: 'Circle', icon: <Circle className="w-4 h-4" /> },
+  { value: 'triangle', label: 'Triangle', icon: <Triangle className="w-4 h-4" /> },
+  { value: 'star', label: 'Star', icon: <Star className="w-4 h-4" /> },
+  { value: 'hexagon', label: 'Hexagon', icon: <Hexagon className="w-4 h-4" /> },
+  { value: 'diamond', label: 'Diamond', icon: <Diamond className="w-4 h-4" /> },
+  { value: 'heart', label: 'Heart', icon: <Heart className="w-4 h-4" /> },
 ];
 
 
@@ -708,7 +708,8 @@ export function LinksList({ isEditMode }: LinksListProps) {
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={() => setIsCreateGroupDialogOpen(true)}>
-                  ➕ Create New Group
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Create New Group
                 </DropdownMenuItem>
                 
                 {getUniqueGroups().length > 0 && (
@@ -725,7 +726,12 @@ export function LinksList({ isEditMode }: LinksListProps) {
                           key={group}
                           onClick={() => toggleGroup(group)}
                         >
-                          {isOpen ? '🔽' : '▶️'} {group}
+                          {isOpen ? (
+                            <ChevronDownIcon className="w-4 h-4 mr-2" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4 mr-2" />
+                          )}
+                          {group}
                         </DropdownMenuItem>
                       );
                     })}
@@ -1147,16 +1153,16 @@ export function LinksList({ isEditMode }: LinksListProps) {
                                     <SelectTrigger>
                                       <SelectValue placeholder="Select shape" />
                                     </SelectTrigger>
-                                    <SelectContent>
-                                      {iconBorderShapeOptions.map((option) => (
-                                        <SelectItem key={option.value} value={option.value}>
-                                          <div className="flex items-center gap-2">
-                                            <span>{option.icon}</span>
-                                            <span>{option.label}</span>
-                                          </div>
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
+                                                                         <SelectContent>
+                                       {iconBorderShapeOptions.map((option) => (
+                                         <SelectItem key={option.value} value={option.value}>
+                                           <div className="flex items-center gap-2">
+                                             {option.icon}
+                                             <span>{option.label}</span>
+                                           </div>
+                                         </SelectItem>
+                                       ))}
+                                     </SelectContent>
                                   </Select>
                                 </FormControl>
                                 <FormMessage />
@@ -1185,16 +1191,16 @@ export function LinksList({ isEditMode }: LinksListProps) {
                                     <SelectTrigger>
                                       <SelectValue placeholder="Choose a shape" />
                                     </SelectTrigger>
-                                    <SelectContent>
-                                      {shapeOptions.map((shape) => (
-                                        <SelectItem key={shape.value} value={shape.value}>
-                                          <div className="flex items-center gap-2">
-                                            <span className="text-lg">{shape.icon}</span>
-                                            <span>{shape.label}</span>
-                                          </div>
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
+                                                                         <SelectContent>
+                                       {shapeOptions.map((shape) => (
+                                         <SelectItem key={shape.value} value={shape.value}>
+                                           <div className="flex items-center gap-2">
+                                             {shape.icon}
+                                             <span>{shape.label}</span>
+                                           </div>
+                                         </SelectItem>
+                                       ))}
+                                     </SelectContent>
                                   </Select>
                                 </FormControl>
                                 <FormMessage />
@@ -1713,19 +1719,24 @@ export function LinksList({ isEditMode }: LinksListProps) {
                     
                     return (
                       <div key={groupName}>
-                        <div 
-                          className="flex items-center gap-2 mb-3 cursor-pointer hover:bg-muted/50 p-2 rounded"
-                          onClick={() => toggleGroup(groupName)}
-                        >
-                          <span className="text-lg">{isGroupOpen ? '🔽' : '▶️'}</span>
-                          <h4 
-                            className="font-medium" 
-                            style={{ color: groupData?.titleTextColor || '#ffffff' }}
-                          >
-                            📁 {groupName}
-                          </h4>
-                          <span className="text-sm text-muted-foreground">({groupLinks.length})</span>
-                        </div>
+                                                 <div 
+                           className="flex items-center gap-2 mb-3 cursor-pointer hover:bg-muted/50 p-2 rounded"
+                           onClick={() => toggleGroup(groupName)}
+                         >
+                           {isGroupOpen ? (
+                             <ChevronDownIcon className="w-5 h-5 text-muted-foreground" />
+                           ) : (
+                             <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                           )}
+                           <Folder className="w-4 h-4" style={{ color: groupData?.titleTextColor || '#ffffff' }} />
+                           <h4 
+                             className="font-medium" 
+                             style={{ color: groupData?.titleTextColor || '#ffffff' }}
+                           >
+                             {groupName}
+                           </h4>
+                           <span className="text-sm text-muted-foreground">({groupLinks.length})</span>
+                         </div>
                         
                         {isGroupOpen && (
                           <div className="ml-4 space-y-4">

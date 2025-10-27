@@ -152,6 +152,33 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
+// Custom domain detection middleware
+app.use(async (req: Request, res: Response, next: NextFunction) => {
+  const host = req.get('host');
+  const subdomain = host?.split('.')[0];
+  
+  // Check if this is a custom subdomain request
+  // Allow common subdomains like www, api, etc. to pass through
+  const excludedSubdomains = ['www', 'api', 'cdn', 'static', 'images', 'assets', 'basker'];
+  
+  // Check if this is a full custom domain (not a subdomain of basker.bio)
+  const isCustomDomain = !host?.includes('basker.bio') && !host?.includes('localhost');
+  
+  if (isCustomDomain && subdomain && !excludedSubdomains.includes(subdomain) && host !== 'localhost:5000' && host !== 'localhost:3000') {
+    // This is a full custom domain - try to find the handle and redirect
+    // For now, we'll use the subdomain as a potential handle
+    // In a full implementation, you'd query your database/AT Protocol to find the handle
+    // For this MVP, we'll assume the subdomain maps to a handle
+    res.locals.customDomainHandle = subdomain;
+    res.locals.redirectToProfile = true;
+  } else if (subdomain && !excludedSubdomains.includes(subdomain) && host !== 'localhost:5000' && host !== 'localhost:3000') {
+    // This is a basker.bio subdomain
+    res.locals.customDomainHandle = subdomain;
+  }
+  
+  next();
+});
+
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));

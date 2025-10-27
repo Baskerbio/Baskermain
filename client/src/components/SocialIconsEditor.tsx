@@ -3,8 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SocialLink, SocialIconsConfig } from '@shared/schema';
-import { Plus, X, GripVertical, Palette, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, X, GripVertical, Palette } from 'lucide-react';
 import { SocialIconsRow } from './SocialIconsRow';
 import { useToast } from '@/hooks/use-toast';
 
@@ -17,7 +18,6 @@ interface SocialIconsEditorProps {
 
 export function SocialIconsEditor({ socialLinks, config, onSave, onOpenSettings }: SocialIconsEditorProps) {
   const [isAdding, setIsAdding] = useState(false);
-  const [showStyleOptions, setShowStyleOptions] = useState(false);
   const [editingLinks, setEditingLinks] = useState<SocialLink[]>(socialLinks);
   const [editingConfig, setEditingConfig] = useState<SocialIconsConfig>(config || {
     enabled: true,
@@ -111,27 +111,21 @@ export function SocialIconsEditor({ socialLinks, config, onSave, onOpenSettings 
         </div>
       )}
 
-      {/* Style Options - Collapsible */}
+      {/* Style Options - Always Visible with Clear Header */}
       {editingLinks.length > 0 && (
         <Card className="mb-4">
           <CardContent className="p-4">
-            <button
-              onClick={() => setShowStyleOptions(!showStyleOptions)}
-              className="w-full flex items-center justify-between text-sm font-medium hover:text-primary transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <Palette className="w-4 h-4" />
-                <span>Customize Style</span>
-              </div>
-              {showStyleOptions ? (
-                <ChevronUp className="w-4 h-4" />
-              ) : (
-                <ChevronDown className="w-4 h-4" />
-              )}
-            </button>
+            <div className="mb-4">
+              <h3 className="text-base font-semibold flex items-center gap-2">
+                <Palette className="w-5 h-5" />
+                Social Icons Styling
+              </h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Customize the appearance of your social media icons
+              </p>
+            </div>
 
-            {showStyleOptions && (
-              <div className="mt-4 space-y-4">
+            <div className="space-y-4">
                 {/* Placement */}
                 <div>
                   <Label className="text-xs text-muted-foreground mb-2 block">Placement</Label>
@@ -259,8 +253,72 @@ export function SocialIconsEditor({ socialLinks, config, onSave, onOpenSettings 
                     Reset to Default Colors
                   </Button>
                 </div>
+
+                {/* Border Styling */}
+                <div className="border-t pt-4 mt-4">
+                  <Label className="text-sm font-medium mb-3 block">Border Styling</Label>
+                  
+                  <div className="space-y-3">
+                    {/* Border Width */}
+                    <div>
+                      <Label className="text-xs mb-1 block">Border Width: {editingConfig.borderWidth || 0}px</Label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="10"
+                        value={editingConfig.borderWidth || 0}
+                        onChange={(e) => updateConfig({ borderWidth: parseInt(e.target.value) })}
+                        className="w-full"
+                      />
+                    </div>
+
+                    {/* Border Color and Style */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label className="text-xs mb-1 block">Border Color</Label>
+                        <Input
+                          type="color"
+                          value={editingConfig.borderColor || '#000000'}
+                          onChange={(e) => updateConfig({ borderColor: e.target.value })}
+                          className="h-8 p-0 cursor-pointer"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs mb-1 block">Border Style</Label>
+                        <Select 
+                          value={editingConfig.borderStyle || 'solid'} 
+                          onValueChange={(value: any) => updateConfig({ borderStyle: value })}
+                        >
+                          <SelectTrigger className="h-8 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="solid">Solid</SelectItem>
+                            <SelectItem value="dashed">Dashed</SelectItem>
+                            <SelectItem value="dotted">Dotted</SelectItem>
+                            <SelectItem value="double">Double</SelectItem>
+                            <SelectItem value="groove">Groove</SelectItem>
+                            <SelectItem value="ridge">Ridge</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => updateConfig({ 
+                        borderWidth: undefined,
+                        borderColor: undefined, 
+                        borderStyle: undefined
+                      })}
+                      className="text-xs h-7"
+                    >
+                      Reset Border Styling
+                    </Button>
+                  </div>
+                </div>
               </div>
-            )}
           </CardContent>
         </Card>
       )}

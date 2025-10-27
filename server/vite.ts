@@ -45,6 +45,16 @@ export async function setupVite(app: Express, server: Server) {
     const url = req.originalUrl;
 
     try {
+      // Check if this is a custom domain request that needs a redirect
+      const redirectToProfile = (req as any).locals?.redirectToProfile;
+      const customHandle = (req as any).locals?.customDomainHandle;
+      
+      if (redirectToProfile && customHandle) {
+        // This is a full custom domain - redirect to basker.bio with the handle
+        res.redirect(302, `http://localhost:3000/${customHandle}`);
+        return;
+      }
+
       const clientTemplate = path.resolve(
         import.meta.dirname,
         "..",
@@ -58,6 +68,13 @@ export async function setupVite(app: Express, server: Server) {
         `src="/src/main.tsx"`,
         `src="/src/main.tsx?v=${nanoid()}"`,
       );
+      
+      // Inject custom handle if present
+      if (customHandle) {
+        const scriptTag = `<script>window.__CUSTOM_DOMAIN_HANDLE__ = "${customHandle}";</script>`;
+        template = template.replace('</head>', `${scriptTag}</head>`);
+      }
+      
       const page = await vite.transformIndexHtml(url, template);
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
     } catch (e) {
@@ -79,7 +96,31 @@ export function serveStatic(app: Express) {
   app.use(express.static(distPath));
 
   // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
+  app.use("*", async (req, res) => {
+    const htmlPath = path.resolve(distPath, "index.html");
+    
+    // Check if this is a custom domain request that needs a redirect
+    const redirectToProfile = (req as any).locals?.redirectToProfile;
+    const customHandle = (req as any).locals?.customDomainHandle;
+    
+    if (redirectToProfile && customHandle) {
+      // This is a full custom domain - redirect to basker.bio with the handle
+      res.redirect(302, `https://basker.bio/${customHandle}`);
+      return;
+    }
+    
+    if (customHandle) {
+      // Read and inject the custom handle into the HTML
+      let html = await fs.promises.readFile(htmlPath, "utf-8");
+      
+      // Inject a script tag to make the custom handle available to the client
+      const scriptTag = `<script>window.__CUSTOM_DOMAIN_HANDLE__ = "${customHandle}";</script>`;
+      html = html.replace('</head>', `${scriptTag}</head>`);
+      
+      res.setHeader('Content-Type', 'text/html');
+      res.send(html);
+    } else {
+      res.sendFile(htmlPath);
+    }
   });
 }

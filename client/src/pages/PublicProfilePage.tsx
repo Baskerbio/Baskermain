@@ -28,6 +28,71 @@ import { SpinningWheelWidget } from '../components/widgets/SpinningWheelWidget';
 import { BeforeAfterSliderWidget } from '../components/widgets/BeforeAfterSliderWidget';
 import { MiniGameWidget } from '../components/widgets/MiniGameWidget';
 
+// Function to update SEO meta tags dynamically
+const updateMetaTags = (settings: any, profile: UserProfile) => {
+  const titleEl = document.getElementById('seo-title');
+  const descEl = document.getElementById('seo-description');
+  const keywordsEl = document.getElementById('seo-keywords');
+  const ogTitleEl = document.getElementById('og-title');
+  const ogDescEl = document.getElementById('og-description');
+  const ogImageEl = document.getElementById('og-image');
+  const ogSiteNameEl = document.getElementById('og-site-name');
+  const twitterTitleEl = document.getElementById('twitter-title');
+  const twitterDescEl = document.getElementById('twitter-description');
+  const twitterImageEl = document.getElementById('twitter-image');
+  const robotsEl = document.getElementById('robots');
+
+  // Update title and description
+  const displayName = profile.displayName || profile.handle;
+  const bio = profile.description || settings?.customBio || 'Check out my Basker profile';
+  const seoTitle = settings?.seoTitle || `${displayName} - Basker Profile`;
+  const seoDesc = settings?.seoDescription || bio;
+  const seoKeywords = settings?.seoKeywords?.join(', ') || `${displayName}, Basker, Links, Portfolio`;
+  const seoImage = settings?.seoImage || profile.avatar || profile.banner || '';
+  const ogSiteName = settings?.seoSiteName || 'Basker';
+  const twitterHandle = settings?.seoTwitterHandle || '';
+
+  // Update page title
+  if (titleEl) titleEl.textContent = seoTitle;
+  
+  // Update meta description
+  if (descEl) descEl.setAttribute('content', seoDesc);
+  
+  // Update keywords
+  if (keywordsEl) keywordsEl.setAttribute('content', seoKeywords);
+  
+  // Update Open Graph tags
+  if (ogTitleEl) ogTitleEl.setAttribute('content', seoTitle);
+  if (ogDescEl) ogDescEl.setAttribute('content', seoDesc);
+  if (ogImageEl) ogImageEl.setAttribute('content', seoImage);
+  if (ogSiteNameEl) ogSiteNameEl.setAttribute('content', ogSiteName);
+  
+  // Update Twitter Card tags
+  if (twitterTitleEl) twitterTitleEl.setAttribute('content', seoTitle);
+  if (twitterDescEl) twitterDescEl.setAttribute('content', seoDesc);
+  if (twitterImageEl) twitterImageEl.setAttribute('content', seoImage);
+  
+  // Add Twitter handle if provided
+  if (twitterHandle) {
+    const twitterSiteEl = document.getElementById('twitter-site');
+    if (!twitterSiteEl) {
+      const meta = document.createElement('meta');
+      meta.id = 'twitter-site';
+      meta.name = 'twitter:site';
+      meta.content = twitterHandle;
+      document.head.appendChild(meta);
+    } else {
+      twitterSiteEl.setAttribute('content', twitterHandle);
+    }
+  }
+
+  // Update robots meta tag based on allowIndexing setting
+  if (robotsEl) {
+    const allowIndexing = settings?.allowIndexing !== false; // Default to true
+    robotsEl.setAttribute('content', allowIndexing ? 'index, follow' : 'noindex, nofollow');
+  }
+};
+
 export default function PublicProfilePage() {
   const [, params] = useRoute('/:handle');
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -37,8 +102,13 @@ export default function PublicProfilePage() {
   const { user: currentUser } = useAuth();
   const { setTheme } = useTheme();
 
+  // Check if we're on a custom domain
+  const customHandle = (window as any).__CUSTOM_DOMAIN_HANDLE__;
+
   useEffect(() => {
-    if (!params?.handle) return;
+    const handleToUse = customHandle || params?.handle;
+    
+    if (!handleToUse) return;
 
     const loadProfile = async () => {
       try {
@@ -47,7 +117,7 @@ export default function PublicProfilePage() {
         
         // Extract handle from URL (e.g., "username.bsky.social")
         // Remove @ symbol if present (some URLs might have @username.bsky.social)
-        let handle = params.handle;
+        let handle = handleToUse;
         if (handle.startsWith('@')) {
           handle = handle.substring(1);
         }
@@ -103,6 +173,9 @@ export default function PublicProfilePage() {
             console.log('🎨 Theme background color:', loadedSettings.theme.backgroundColor);
             setTheme(loadedSettings.theme);
           }
+
+          // Update SEO meta tags from loaded settings
+          updateMetaTags(loadedSettings, userProfile);
         } catch (settingsErr: any) {
           console.error('Failed to load settings:', settingsErr);
           // Settings loading failure shouldn't break the profile page
@@ -117,7 +190,7 @@ export default function PublicProfilePage() {
     };
 
     loadProfile();
-  }, [params?.handle]);
+  }, [params?.handle, customHandle]);
 
   // Apply background image when settings change
   useEffect(() => {

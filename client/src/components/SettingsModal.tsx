@@ -240,6 +240,7 @@ const DEFAULT_FORM_DATA: Partial<Settings> = {
     style: 'default',
     size: 'medium',
   },
+  seoKeywords: [],
 };
 
 export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: SettingsModalProps) {
@@ -264,6 +265,7 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
       style: 'default',
       size: 'medium',
     },
+    seoKeywords: [],
   } as Settings));
 
   // Merge settings from backend with defaults so we never lose sections or theme fields
@@ -394,79 +396,79 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[95vh] overflow-hidden" data-testid="settings-modal">
+      <DialogContent className="max-w-6xl max-h-[95vh] overflow-hidden flex flex-col" data-testid="settings-modal">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <DialogTitle className="text-xl sm:text-2xl">
             Profile Settings
           </DialogTitle>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Customize your Basker profile appearance, content, and privacy settings
           </p>
         </DialogHeader>
         
-        <Tabs defaultValue="appearance" className="w-full">
-          <div className="flex flex-col lg:flex-row gap-6">
-            {/* Sidebar Navigation */}
-            <div className="w-full lg:w-64 flex-shrink-0">
-              <TabsList className="flex flex-col lg:flex-col h-auto w-full lg:w-64 p-1 bg-muted/50">
+        <Tabs defaultValue="appearance" className="w-full flex flex-col flex-1 min-h-0 overflow-hidden">
+          <div className="flex flex-col lg:flex-row gap-3 sm:gap-6 flex-1 min-h-0 overflow-hidden">
+            {/* Sidebar Navigation - More compact */}
+            <div className="w-full lg:w-48 flex-shrink-0 border-r">
+              <TabsList className="flex lg:flex-col h-auto w-full lg:w-48 p-1 sm:p-2 bg-muted/30 gap-1">
                 <TabsTrigger 
                   value="appearance" 
-                  className="w-full justify-start data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  className="w-full justify-start data-[state=active]:bg-primary data-[state=active]:text-primary-foreground h-8 sm:h-10 lg:h-12 px-2 sm:px-4 text-xs sm:text-sm"
                 >
-                  <div className="flex items-center gap-3 w-full">
-                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                    <span>Appearance</span>
+                  <div className="flex items-center gap-2 w-full">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                    <span className="font-medium truncate">Appearance</span>
                   </div>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="content" 
-                  className="w-full justify-start data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  className="w-full justify-start data-[state=active]:bg-primary data-[state=active]:text-primary-foreground h-8 sm:h-10 lg:h-12 px-2 sm:px-4 text-xs sm:text-sm"
                 >
-                  <div className="flex items-center gap-3 w-full">
-                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                    <span>Content</span>
+                  <div className="flex items-center gap-2 w-full">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                    <span className="font-medium truncate">Content</span>
                   </div>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="social" 
-                  className="w-full justify-start data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  className="w-full justify-start data-[state=active]:bg-primary data-[state=active]:text-primary-foreground h-8 sm:h-10 lg:h-12 px-2 sm:px-4 text-xs sm:text-sm"
                 >
-                  <div className="flex items-center gap-3 w-full">
-                    <div className="w-2 h-2 rounded-full bg-purple-500"></div>
-                    <span>Social Links</span>
+                  <div className="flex items-center gap-2 w-full">
+                    <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
+                    <span className="font-medium truncate">Social Links</span>
                   </div>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="privacy" 
-                  className="w-full justify-start data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  className="w-full justify-start data-[state=active]:bg-primary data-[state=active]:text-primary-foreground h-8 sm:h-10 lg:h-12 px-2 sm:px-4 text-xs sm:text-sm"
                 >
-                  <div className="flex items-center gap-3 w-full">
-                    <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                    <span>Privacy & SEO</span>
-                  </div>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="advanced" 
-                  className="w-full justify-start data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                >
-                  <div className="flex items-center gap-3 w-full">
-                    <div className="w-2 h-2 rounded-full bg-gray-500"></div>
-                    <span>Advanced</span>
+                  <div className="flex items-center gap-2 w-full">
+                    <div className="w-1.5 h-1.5 rounded-full bg-orange-500"></div>
+                    <span className="font-medium truncate">Privacy & SEO</span>
                   </div>
                 </TabsTrigger>
               </TabsList>
             </div>
 
-            {/* Content Area */}
-            <div className="flex-1 min-h-0">
-              <div className="h-[70vh] overflow-y-auto pr-2">
-                <div className="space-y-6">
+            {/* Content Area - Enhanced with better spacing */}
+            <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar" style={{ 
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'thin',
+              scrollbarColor: 'rgba(156, 163, 175, 0.8) transparent'
+            }}>
+              <div className="space-y-8 pb-4 px-2">
 
                   {/* Appearance Tab */}
                   <TabsContent value="appearance" className="space-y-6" data-section="theme">
-                    {/* Theme Settings */}
-                    <div>
-                      <h3 className="text-lg font-medium text-foreground mb-3">Theme</h3>
+                    {/* Theme Presets - Card Style */}
+                    <div className="border rounded-lg p-6 bg-card">
+                      <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                        <span className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500">🎨</span>
+                        Choose a Theme
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Select a pre-designed theme or customize colors below
+                      </p>
             <div className="grid grid-cols-5 gap-2 mb-4">
               {Object.entries(THEMES).map(([key, theme]) => (
                 <div key={key} className="relative">
@@ -907,6 +909,520 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
                         </div>
                       </div>
                     </div>
+
+                    {/* Social Icon Styling - Moved from Social Tab */}
+                    <div id="social-icons-section">
+                      <h3 className="text-lg font-medium text-foreground mb-4">Social Icon Styling</h3>
+                      <div className="space-y-4 border rounded-lg p-4 bg-muted/20">
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Customize the appearance of your social media icons
+                        </p>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <Label className="block text-sm mb-1">Border Width (px)</Label>
+                            <input
+                              type="range"
+                              min="0"
+                              max="10"
+                              value={(formData as any).socialIconsConfig?.borderWidth || 0}
+                              onChange={(e) => setFormData(prev => ({
+                                ...prev,
+                                socialIconsConfig: {
+                                  ...((prev as any).socialIconsConfig || {}),
+                                  borderWidth: parseInt(e.target.value),
+                                }
+                              } as any))}
+                              className="w-full"
+                            />
+                          </div>
+                          <div>
+                            <Label className="block text-sm mb-1">Border Color</Label>
+                            <Input
+                              type="color"
+                              value={(formData as any).socialIconsConfig?.borderColor || '#000000'}
+                              onChange={(e) => setFormData(prev => ({
+                                ...prev,
+                                socialIconsConfig: {
+                                  ...((prev as any).socialIconsConfig || {}),
+                                  borderColor: e.target.value,
+                                }
+                              } as any))}
+                              className="h-8 p-0 cursor-pointer"
+                            />
+                          </div>
+                          <div>
+                            <Label className="block text-sm mb-1">Border Style</Label>
+                            <Select 
+                              value={(formData as any).socialIconsConfig?.borderStyle || 'solid'} 
+                              onValueChange={(value) => setFormData(prev => ({
+                                ...prev,
+                                socialIconsConfig: {
+                                  ...((prev as any).socialIconsConfig || {}),
+                                  borderStyle: value,
+                                }
+                              } as any))}
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="solid">Solid</SelectItem>
+                                <SelectItem value="dashed">Dashed</SelectItem>
+                                <SelectItem value="dotted">Dotted</SelectItem>
+                                <SelectItem value="double">Double</SelectItem>
+                                <SelectItem value="groove">Groove</SelectItem>
+                                <SelectItem value="ridge">Ridge</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Profile Text Styling - Moved from Content Tab */}
+                    <div>
+                      <h3 className="text-lg font-medium text-foreground mb-4">Profile Text Styling</h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Add borders and background containers to your profile text elements
+                      </p>
+                      <div className="space-y-6">
+                        {/* Name Styling */}
+                        <div className="border rounded-lg p-4 space-y-3">
+                          <h4 className="font-medium">Name Styling</h4>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <Label className="block text-sm mb-1">Border Width (px)</Label>
+                              <input
+                                type="range"
+                                min="0"
+                                max="10"
+                                value={(formData as any).profileTextStyling?.nameBorderWidth || 0}
+                                onChange={(e) => setFormData(prev => ({
+                                  ...prev,
+                                  profileTextStyling: {
+                                    ...((prev as any).profileTextStyling || {}),
+                                    nameBorderWidth: parseInt(e.target.value),
+                                  }
+                                } as any))}
+                                className="w-full"
+                              />
+                            </div>
+                            <div>
+                              <Label className="block text-sm mb-1">Border Color</Label>
+                              <Input
+                                type="color"
+                                value={(formData as any).profileTextStyling?.nameBorderColor || '#000000'}
+                                onChange={(e) => setFormData(prev => ({
+                                  ...prev,
+                                  profileTextStyling: {
+                                    ...((prev as any).profileTextStyling || {}),
+                                    nameBorderColor: e.target.value,
+                                  }
+                                } as any))}
+                                className="h-8 p-0 cursor-pointer"
+                              />
+                            </div>
+                            <div>
+                              <Label className="block text-sm mb-1">Background Color</Label>
+                              <Input
+                                type="color"
+                                value={(formData as any).profileTextStyling?.nameBackgroundColor || '#ffffff'}
+                                onChange={(e) => setFormData(prev => ({
+                                  ...prev,
+                                  profileTextStyling: {
+                                    ...((prev as any).profileTextStyling || {}),
+                                    nameBackgroundColor: e.target.value,
+                                  }
+                                } as any))}
+                                className="h-8 p-0 cursor-pointer"
+                              />
+                            </div>
+                            <div>
+                              <Label className="block text-sm mb-1">Border Style</Label>
+                              <Select 
+                                value={(formData as any).profileTextStyling?.nameBorderStyle || 'solid'} 
+                                onValueChange={(value) => setFormData(prev => ({
+                                  ...prev,
+                                  profileTextStyling: {
+                                    ...((prev as any).profileTextStyling || {}),
+                                    nameBorderStyle: value,
+                                  }
+                                } as any))}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="solid">Solid</SelectItem>
+                                  <SelectItem value="dashed">Dashed</SelectItem>
+                                  <SelectItem value="dotted">Dotted</SelectItem>
+                                  <SelectItem value="double">Double</SelectItem>
+                                  <SelectItem value="groove">Groove</SelectItem>
+                                  <SelectItem value="ridge">Ridge</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label className="block text-sm mb-1">Container Shape</Label>
+                              <Select 
+                                value={(formData as any).profileTextStyling?.nameContainerShape || 'none'} 
+                                onValueChange={(value) => setFormData(prev => ({
+                                  ...prev,
+                                  profileTextStyling: {
+                                    ...((prev as any).profileTextStyling || {}),
+                                    nameContainerShape: value,
+                                  }
+                                } as any))}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="none">None</SelectItem>
+                                  <SelectItem value="rounded">Rounded</SelectItem>
+                                  <SelectItem value="square">Square</SelectItem>
+                                  <SelectItem value="pill">Pill</SelectItem>
+                                  <SelectItem value="rounded-corners">Rounded Corners</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Username Styling */}
+                        <div className="border rounded-lg p-4 space-y-3">
+                          <h4 className="font-medium">Username Styling</h4>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <Label className="block text-sm mb-1">Border Width (px)</Label>
+                              <input
+                                type="range"
+                                min="0"
+                                max="10"
+                                value={(formData as any).profileTextStyling?.usernameBorderWidth || 0}
+                                onChange={(e) => setFormData(prev => ({
+                                  ...prev,
+                                  profileTextStyling: {
+                                    ...((prev as any).profileTextStyling || {}),
+                                    usernameBorderWidth: parseInt(e.target.value),
+                                  }
+                                } as any))}
+                                className="w-full"
+                              />
+                            </div>
+                            <div>
+                              <Label className="block text-sm mb-1">Border Color</Label>
+                              <Input
+                                type="color"
+                                value={(formData as any).profileTextStyling?.usernameBorderColor || '#000000'}
+                                onChange={(e) => setFormData(prev => ({
+                                  ...prev,
+                                  profileTextStyling: {
+                                    ...((prev as any).profileTextStyling || {}),
+                                    usernameBorderColor: e.target.value,
+                                  }
+                                } as any))}
+                                className="h-8 p-0 cursor-pointer"
+                              />
+                            </div>
+                            <div>
+                              <Label className="block text-sm mb-1">Background Color</Label>
+                              <Input
+                                type="color"
+                                value={(formData as any).profileTextStyling?.usernameBackgroundColor || '#ffffff'}
+                                onChange={(e) => setFormData(prev => ({
+                                  ...prev,
+                                  profileTextStyling: {
+                                    ...((prev as any).profileTextStyling || {}),
+                                    usernameBackgroundColor: e.target.value,
+                                  }
+                                } as any))}
+                                className="h-8 p-0 cursor-pointer"
+                              />
+                            </div>
+                            <div>
+                              <Label className="block text-sm mb-1">Border Style</Label>
+                              <Select 
+                                value={(formData as any).profileTextStyling?.usernameBorderStyle || 'solid'} 
+                                onValueChange={(value) => setFormData(prev => ({
+                                  ...prev,
+                                  profileTextStyling: {
+                                    ...((prev as any).profileTextStyling || {}),
+                                    usernameBorderStyle: value,
+                                  }
+                                } as any))}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="solid">Solid</SelectItem>
+                                  <SelectItem value="dashed">Dashed</SelectItem>
+                                  <SelectItem value="dotted">Dotted</SelectItem>
+                                  <SelectItem value="double">Double</SelectItem>
+                                  <SelectItem value="groove">Groove</SelectItem>
+                                  <SelectItem value="ridge">Ridge</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label className="block text-sm mb-1">Container Shape</Label>
+                              <Select 
+                                value={(formData as any).profileTextStyling?.usernameContainerShape || 'none'} 
+                                onValueChange={(value) => setFormData(prev => ({
+                                  ...prev,
+                                  profileTextStyling: {
+                                    ...((prev as any).profileTextStyling || {}),
+                                    usernameContainerShape: value,
+                                  }
+                                } as any))}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="none">None</SelectItem>
+                                  <SelectItem value="rounded">Rounded</SelectItem>
+                                  <SelectItem value="square">Square</SelectItem>
+                                  <SelectItem value="pill">Pill</SelectItem>
+                                  <SelectItem value="rounded-corners">Rounded Corners</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Bio/Description Styling */}
+                        <div className="border rounded-lg p-4 space-y-3">
+                          <h4 className="font-medium">Bio/Description Styling</h4>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <Label className="block text-sm mb-1">Border Width (px)</Label>
+                              <input
+                                type="range"
+                                min="0"
+                                max="10"
+                                value={(formData as any).profileTextStyling?.bioBorderWidth || 0}
+                                onChange={(e) => setFormData(prev => ({
+                                  ...prev,
+                                  profileTextStyling: {
+                                    ...((prev as any).profileTextStyling || {}),
+                                    bioBorderWidth: parseInt(e.target.value),
+                                  }
+                                } as any))}
+                                className="w-full"
+                              />
+                            </div>
+                            <div>
+                              <Label className="block text-sm mb-1">Border Color</Label>
+                              <Input
+                                type="color"
+                                value={(formData as any).profileTextStyling?.bioBorderColor || '#000000'}
+                                onChange={(e) => setFormData(prev => ({
+                                  ...prev,
+                                  profileTextStyling: {
+                                    ...((prev as any).profileTextStyling || {}),
+                                    bioBorderColor: e.target.value,
+                                  }
+                                } as any))}
+                                className="h-8 p-0 cursor-pointer"
+                              />
+                            </div>
+                            <div>
+                              <Label className="block text-sm mb-1">Background Color</Label>
+                              <Input
+                                type="color"
+                                value={(formData as any).profileTextStyling?.bioBackgroundColor || '#ffffff'}
+                                onChange={(e) => setFormData(prev => ({
+                                  ...prev,
+                                  profileTextStyling: {
+                                    ...((prev as any).profileTextStyling || {}),
+                                    bioBackgroundColor: e.target.value,
+                                  }
+                                } as any))}
+                                className="h-8 p-0 cursor-pointer"
+                              />
+                            </div>
+                            <div>
+                              <Label className="block text-sm mb-1">Border Style</Label>
+                              <Select 
+                                value={(formData as any).profileTextStyling?.bioBorderStyle || 'solid'} 
+                                onValueChange={(value) => setFormData(prev => ({
+                                  ...prev,
+                                  profileTextStyling: {
+                                    ...((prev as any).profileTextStyling || {}),
+                                    bioBorderStyle: value,
+                                  }
+                                } as any))}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="solid">Solid</SelectItem>
+                                  <SelectItem value="dashed">Dashed</SelectItem>
+                                  <SelectItem value="dotted">Dotted</SelectItem>
+                                  <SelectItem value="double">Double</SelectItem>
+                                  <SelectItem value="groove">Groove</SelectItem>
+                                  <SelectItem value="ridge">Ridge</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label className="block text-sm mb-1">Container Shape</Label>
+                              <Select 
+                                value={(formData as any).profileTextStyling?.bioContainerShape || 'none'} 
+                                onValueChange={(value) => setFormData(prev => ({
+                                  ...prev,
+                                  profileTextStyling: {
+                                    ...((prev as any).profileTextStyling || {}),
+                                    bioContainerShape: value,
+                                  }
+                                } as any))}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="none">None</SelectItem>
+                                  <SelectItem value="rounded">Rounded</SelectItem>
+                                  <SelectItem value="square">Square</SelectItem>
+                                  <SelectItem value="pill">Pill</SelectItem>
+                                  <SelectItem value="rounded-corners">Rounded Corners</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Widget Global Styling - Moved from Content Tab */}
+                    <div>
+                      <h3 className="text-lg font-medium text-foreground mb-4">Widget Styling</h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Customize the appearance of all widgets on your profile
+                      </p>
+                      <div className="space-y-4 border rounded-lg p-4 bg-muted/20">
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <Label className="block text-sm mb-1">Background Color</Label>
+                            <Input
+                              type="color"
+                              value={(formData as any).widgetGlobalStyling?.backgroundColor || '#ffffff'}
+                              onChange={(e) => setFormData(prev => ({
+                                ...prev,
+                                widgetGlobalStyling: {
+                                  ...((prev as any).widgetGlobalStyling || {}),
+                                  backgroundColor: e.target.value,
+                                }
+                              } as any))}
+                              className="h-8 p-0 cursor-pointer"
+                            />
+                          </div>
+                          <div>
+                            <Label className="block text-sm mb-1">Border Width (px)</Label>
+                            <input
+                              type="range"
+                              min="0"
+                              max="10"
+                              value={(formData as any).widgetGlobalStyling?.borderWidth || 0}
+                              onChange={(e) => setFormData(prev => ({
+                                ...prev,
+                                widgetGlobalStyling: {
+                                  ...((prev as any).widgetGlobalStyling || {}),
+                                  borderWidth: parseInt(e.target.value),
+                                }
+                              } as any))}
+                              className="w-full"
+                            />
+                          </div>
+                          <div>
+                            <Label className="block text-sm mb-1">Border Color</Label>
+                            <Input
+                              type="color"
+                              value={(formData as any).widgetGlobalStyling?.borderColor || '#000000'}
+                              onChange={(e) => setFormData(prev => ({
+                                ...prev,
+                                widgetGlobalStyling: {
+                                  ...((prev as any).widgetGlobalStyling || {}),
+                                  borderColor: e.target.value,
+                                }
+                              } as any))}
+                              className="h-8 p-0 cursor-pointer"
+                            />
+                          </div>
+                          <div>
+                            <Label className="block text-sm mb-1">Border Style</Label>
+                            <Select 
+                              value={(formData as any).widgetGlobalStyling?.borderStyle || 'solid'} 
+                              onValueChange={(value) => setFormData(prev => ({
+                                ...prev,
+                                widgetGlobalStyling: {
+                                  ...((prev as any).widgetGlobalStyling || {}),
+                                  borderStyle: value,
+                                }
+                              } as any))}
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="solid">Solid</SelectItem>
+                                <SelectItem value="dashed">Dashed</SelectItem>
+                                <SelectItem value="dotted">Dotted</SelectItem>
+                                <SelectItem value="double">Double</SelectItem>
+                                <SelectItem value="groove">Groove</SelectItem>
+                                <SelectItem value="ridge">Ridge</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label className="block text-sm mb-1">Border Radius</Label>
+                            <Select 
+                              value={(formData as any).widgetGlobalStyling?.borderRadius || 'md'} 
+                              onValueChange={(value) => setFormData(prev => ({
+                                ...prev,
+                                widgetGlobalStyling: {
+                                  ...((prev as any).widgetGlobalStyling || {}),
+                                  borderRadius: value,
+                                }
+                              } as any))}
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">None</SelectItem>
+                                <SelectItem value="sm">Small</SelectItem>
+                                <SelectItem value="md">Medium</SelectItem>
+                                <SelectItem value="lg">Large</SelectItem>
+                                <SelectItem value="xl">Extra Large</SelectItem>
+                                <SelectItem value="full">Full (Pill)</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label className="block text-sm mb-1">Padding (px)</Label>
+                            <input
+                              type="range"
+                              min="0"
+                              max="50"
+                              value={(formData as any).widgetGlobalStyling?.padding || 0}
+                              onChange={(e) => setFormData(prev => ({
+                                ...prev,
+                                widgetGlobalStyling: {
+                                  ...((prev as any).widgetGlobalStyling || {}),
+                                  padding: parseInt(e.target.value),
+                                }
+                              } as any))}
+                              className="w-full"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </TabsContent>
 
                   {/* Content Tab */}
@@ -1158,6 +1674,84 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
                               </div>
                             </div>
 
+                            {/* Border Styling */}
+                            <div className="border-t pt-4 mt-4">
+                              <Label className="block text-sm font-medium text-foreground mb-3">
+                                Border Styling
+                              </Label>
+                              
+                              <div className="space-y-3">
+                                {/* Border Width */}
+                                <div>
+                                  <Label className="block text-sm font-medium text-foreground mb-2">
+                                    Border Width: {(formData as any).socialIconsConfig?.borderWidth || 0}px
+                                  </Label>
+                                  <input
+                                    type="range"
+                                    min="0"
+                                    max="10"
+                                    value={(formData as any).socialIconsConfig?.borderWidth || 0}
+                                    onChange={(e) => setFormData(prev => ({
+                                      ...prev,
+                                      socialIconsConfig: {
+                                        ...(prev as any).socialIconsConfig,
+                                        borderWidth: parseInt(e.target.value),
+                                      }
+                                    } as any))}
+                                    className="w-full"
+                                  />
+                                </div>
+
+                                {/* Border Color and Style */}
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <Label className="block text-sm font-medium text-foreground mb-2">
+                                      Border Color
+                                    </Label>
+                                    <Input
+                                      type="color"
+                                      value={(formData as any).socialIconsConfig?.borderColor || '#000000'}
+                                      onChange={(e) => setFormData(prev => ({
+                                        ...prev,
+                                        socialIconsConfig: {
+                                          ...(prev as any).socialIconsConfig,
+                                          borderColor: e.target.value,
+                                        }
+                                      } as any))}
+                                      className="w-full h-10 p-0 border cursor-pointer"
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label className="block text-sm font-medium text-foreground mb-2">
+                                      Border Style
+                                    </Label>
+                                    <Select 
+                                      value={(formData as any).socialIconsConfig?.borderStyle || 'solid'} 
+                                      onValueChange={(value) => setFormData(prev => ({
+                                        ...prev,
+                                        socialIconsConfig: {
+                                          ...(prev as any).socialIconsConfig,
+                                          borderStyle: value,
+                                        }
+                                      } as any))}
+                                    >
+                                      <SelectTrigger>
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="solid">Solid</SelectItem>
+                                        <SelectItem value="dashed">Dashed</SelectItem>
+                                        <SelectItem value="dotted">Dotted</SelectItem>
+                                        <SelectItem value="double">Double</SelectItem>
+                                        <SelectItem value="groove">Groove</SelectItem>
+                                        <SelectItem value="ridge">Ridge</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
                             {/* Social Links Manager */}
                             <div className="border-t pt-4 mt-4">
                               <div className="flex items-center justify-between mb-3">
@@ -1388,31 +1982,13 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
                           />
                         </div>
                         
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <Label className="text-sm font-medium text-foreground">Custom Domain</Label>
-                            <p className="text-xs text-muted-foreground">Use your own domain name</p>
-                          </div>
-                          <Switch
-                            checked={Boolean((formData as any).enableCustomDomain || false)}
-                            onCheckedChange={(checked) => setFormData(prev => ({ ...prev, enableCustomDomain: checked } as any))}
-                            data-testid="switch-custom-domain"
-                          />
+                        {/* Coming Soon Notice */}
+                        <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                          <p className="text-sm text-blue-900 dark:text-blue-100">
+                            <span className="font-semibold">Coming Soon:</span> Custom URLs and Custom Domain Redirects are currently in development. This will allow you to use custom subpaths and set up domain redirects for your Basker profile.
+                          </p>
                         </div>
-                        
-                        {(formData as any).enableCustomDomain && (
-                          <div>
-                            <Label className="block text-sm font-medium text-foreground mb-2">
-                              Custom Domain
-                            </Label>
-                            <Input
-                              placeholder="yourdomain.com"
-                              value={(formData as any).customDomain || ''}
-                              onChange={(e) => setFormData(prev => ({ ...prev, customDomain: e.target.value } as any))}
-                              data-testid="input-custom-domain"
-                            />
-                          </div>
-                        )}
+
                       </div>
                     </div>
 
@@ -1592,16 +2168,15 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
                         </div>
                       </div>
                     </TabsContent>
-                </div>
               </div>
             </div>
           </div>
         </Tabs>
         
-        <div className="flex gap-3 pt-6 border-t">
+        <div className="flex gap-2 sm:gap-3 pt-3 pb-2 mt-3 border-t sticky bottom-0 bg-background z-10">
           <Button 
             onClick={handleSave}
-            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground text-xs sm:text-sm h-8 sm:h-9"
             data-testid="button-save-settings"
           >
             Save Changes
@@ -1609,7 +2184,7 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
           <Button 
             variant="outline"
             onClick={onClose}
-            className="flex-1"
+            className="flex-1 text-xs sm:text-sm h-8 sm:h-9"
             data-testid="button-cancel-settings"
           >
             Cancel

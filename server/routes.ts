@@ -12,6 +12,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: "healthy", service: "basker" });
   });
 
+  // Endpoint to detect custom domain handle
+  app.get("/api/detect-handle", async (req, res) => {
+    try {
+      const customHandle = (req as any).customDomainHandle || (req as any).locals?.customDomainHandle;
+      
+      if (customHandle) {
+        res.json({ handle: customHandle, isCustomDomain: true });
+      } else {
+        res.json({ handle: null, isCustomDomain: false });
+      }
+    } catch (error: any) {
+      console.error('Failed to detect handle:', error);
+      res.status(500).json({ error: error.message || 'Failed to detect handle' });
+    }
+  });
+
   // Public profile endpoint that doesn't require authentication
   app.get("/api/public-profile/:handle", async (req, res) => {
     try {

@@ -185,17 +185,28 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
       {/* Banner Section */}
       {effectiveSettings?.showBanner !== false && (
         <div className="relative mb-6 mx-4 sm:mx-6 md:mx-8 lg:mx-12 xl:mx-16 2xl:mx-24">
-          <div className="relative h-24 sm:h-28 md:h-32 lg:h-36 bg-gradient-to-r from-yellow-400 to-orange-500 overflow-hidden rounded-xl">
+          <div 
+            className="relative h-24 sm:h-28 md:h-32 lg:h-36 bg-gradient-to-r from-yellow-400 to-orange-500 overflow-hidden"
+            style={{
+              borderWidth: effectiveSettings?.bannerBorderWidth ? `${effectiveSettings.bannerBorderWidth}px` : undefined,
+              borderColor: effectiveSettings?.bannerBorderColor,
+              borderStyle: effectiveSettings?.bannerBorderStyle,
+              borderRadius: effectiveSettings?.bannerBorderRadius ? `${effectiveSettings.bannerBorderRadius}px` : undefined,
+            }}
+          >
             {/* Use custom banner from settings if available, otherwise use profile banner */}
             {(effectiveSettings?.customBanner || profile.banner) && (
               <img 
                 src={effectiveSettings?.customBanner || profile.banner} 
                 alt="Profile banner" 
-                className="w-full h-full object-cover rounded-xl transition-transform"
-                style={effectiveSettings?.bannerAdjustment ? {
-                  transform: `scale(${effectiveSettings.bannerAdjustment.scale / 100}) rotate(${effectiveSettings.bannerAdjustment.rotation}deg)`,
-                  objectPosition: `${effectiveSettings.bannerAdjustment.positionX}% ${effectiveSettings.bannerAdjustment.positionY}%`,
-                } : undefined}
+                className="w-full h-full object-cover transition-transform"
+                style={{
+                  ...(effectiveSettings?.bannerAdjustment ? {
+                    transform: `scale(${effectiveSettings.bannerAdjustment.scale / 100}) rotate(${effectiveSettings.bannerAdjustment.rotation}deg)`,
+                    objectPosition: `${effectiveSettings.bannerAdjustment.positionX}% ${effectiveSettings.bannerAdjustment.positionY}%`,
+                  } : {}),
+                  borderRadius: effectiveSettings?.bannerBorderRadius ? `${effectiveSettings.bannerBorderRadius}px` : undefined,
+                }}
                 data-testid="img-banner"
               />
             )}
@@ -285,7 +296,22 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
       </div>
       
       <div className="flex items-center justify-center gap-2 mb-0">
-        <h2 className="text-2xl font-bold text-foreground" data-testid="text-display-name">
+        <h2 
+          className="text-2xl font-bold text-foreground" 
+          data-testid="text-display-name"
+          style={effectiveSettings?.profileTextStyling?.nameContainerShape ? {
+            borderWidth: effectiveSettings.profileTextStyling.nameBorderWidth ? `${effectiveSettings.profileTextStyling.nameBorderWidth}px` : undefined,
+            borderStyle: effectiveSettings.profileTextStyling.nameBorderStyle || undefined,
+            borderColor: effectiveSettings.profileTextStyling.nameBorderColor || undefined,
+            backgroundColor: effectiveSettings.profileTextStyling.nameBackgroundColor || undefined,
+            padding: effectiveSettings.profileTextStyling.nameBorderWidth ? '4px 12px' : undefined,
+            borderRadius: effectiveSettings.profileTextStyling.nameContainerShape === 'rounded' ? '8px' :
+                          effectiveSettings.profileTextStyling.nameContainerShape === 'square' ? '0' :
+                          effectiveSettings.profileTextStyling.nameContainerShape === 'pill' ? '9999px' :
+                          effectiveSettings.profileTextStyling.nameContainerShape === 'rounded-corners' ? '4px' : undefined,
+            display: 'inline-block',
+          } : undefined}
+        >
           {profile.displayName || profile.handle}
         </h2>
         {isVerifiedAccount(profile) && (
@@ -356,7 +382,22 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
         )}
       </div>
       
-      <p className="text-muted-foreground mb-0" data-testid="text-handle">
+      <p 
+        className="text-muted-foreground mb-0" 
+        data-testid="text-handle"
+        style={effectiveSettings?.profileTextStyling?.usernameContainerShape ? {
+          borderWidth: effectiveSettings.profileTextStyling.usernameBorderWidth ? `${effectiveSettings.profileTextStyling.usernameBorderWidth}px` : undefined,
+          borderStyle: effectiveSettings.profileTextStyling.usernameBorderStyle || undefined,
+          borderColor: effectiveSettings.profileTextStyling.usernameBorderColor || undefined,
+          backgroundColor: effectiveSettings.profileTextStyling.usernameBackgroundColor || undefined,
+          padding: effectiveSettings.profileTextStyling.usernameBorderWidth ? '2px 8px' : undefined,
+          borderRadius: effectiveSettings.profileTextStyling.usernameContainerShape === 'rounded' ? '8px' :
+                        effectiveSettings.profileTextStyling.usernameContainerShape === 'square' ? '0' :
+                        effectiveSettings.profileTextStyling.usernameContainerShape === 'pill' ? '9999px' :
+                        effectiveSettings.profileTextStyling.usernameContainerShape === 'rounded-corners' ? '4px' : undefined,
+          display: 'inline-block',
+        } : undefined}
+      >
         @{profile.handle}
       </p>
       
@@ -422,7 +463,22 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
       
       {(effectiveSettings?.customBio || profile.description) && !isEditingBio && (
         <div className="relative group mb-3 max-w-md mx-auto">
-          <p className="text-foreground" data-testid="text-bio">
+          <p 
+            className="text-foreground" 
+            data-testid="text-bio"
+            style={effectiveSettings?.profileTextStyling?.bioContainerShape && effectiveSettings.profileTextStyling.bioContainerShape !== 'none' ? {
+              borderWidth: effectiveSettings.profileTextStyling.bioBorderWidth ? `${effectiveSettings.profileTextStyling.bioBorderWidth}px` : undefined,
+              borderStyle: effectiveSettings.profileTextStyling.bioBorderStyle || undefined,
+              borderColor: effectiveSettings.profileTextStyling.bioBorderColor || undefined,
+              backgroundColor: effectiveSettings.profileTextStyling.bioBackgroundColor || undefined,
+              padding: effectiveSettings.profileTextStyling.bioBorderWidth ? '8px 16px' : undefined,
+              borderRadius: effectiveSettings.profileTextStyling.bioContainerShape === 'rounded' ? '8px' :
+                            effectiveSettings.profileTextStyling.bioContainerShape === 'square' ? '0' :
+                            effectiveSettings.profileTextStyling.bioContainerShape === 'pill' ? '9999px' :
+                            effectiveSettings.profileTextStyling.bioContainerShape === 'rounded-corners' ? '4px' : undefined,
+              display: 'block',
+            } : undefined}
+          >
             {effectiveSettings?.customBio || profile.description}
           </p>
           {isEditMode && !isPublicProfile && (

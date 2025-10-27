@@ -66,7 +66,7 @@ export default function Landing() {
     },
     {
       title: "Widgets",
-      description: "Add interactive widgets to enhance your profile",
+      description: "Add interactive widgets to n your profile",
       image: "/widgets-example.png",
       icon: Settings,
       color: "from-indigo-500 to-purple-500"

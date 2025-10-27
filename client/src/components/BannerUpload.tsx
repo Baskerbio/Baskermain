@@ -40,6 +40,12 @@ export function BannerUpload({ isOpen, onClose }: BannerUploadProps) {
   const [imagePositionX, setImagePositionX] = useState(50);
   const [imagePositionY, setImagePositionY] = useState(50);
   const [imageRotation, setImageRotation] = useState(0);
+  
+  // Banner border styling controls
+  const [bannerBorderWidth, setBannerBorderWidth] = useState(0);
+  const [bannerBorderColor, setBannerBorderColor] = useState('#000000');
+  const [bannerBorderStyle, setBannerBorderStyle] = useState('solid');
+  const [bannerBorderRadius, setBannerBorderRadius] = useState(12);
 
   // Load existing banner adjustments when editing current banner
   useEffect(() => {
@@ -219,6 +225,10 @@ export function BannerUpload({ isOpen, onClose }: BannerUploadProps) {
           positionY: imagePositionY,
           rotation: imageRotation,
         },
+        bannerBorderWidth: bannerBorderWidth,
+        bannerBorderColor: bannerBorderColor,
+        bannerBorderStyle: bannerBorderStyle,
+        bannerBorderRadius: bannerBorderRadius,
       };
       
       console.log('💾 Saving banner URL and adjustments to AT Protocol:', {
@@ -325,13 +335,24 @@ export function BannerUpload({ isOpen, onClose }: BannerUploadProps) {
               <p className="text-sm text-muted-foreground text-center">
                 Live Preview (exact banner size)
               </p>
-              <div className="relative w-full bg-muted rounded-xl overflow-hidden border-2 border-primary" 
-                   style={{ height: '200px' }}> {/* Match ProfileHeader banner height */}
+              <div 
+                className="relative w-full bg-muted overflow-hidden" 
+                style={{ 
+                  height: '200px',
+                  borderWidth: bannerBorderWidth ? `${bannerBorderWidth}px` : undefined,
+                  borderColor: bannerBorderColor,
+                  borderStyle: bannerBorderStyle,
+                  borderRadius: bannerBorderRadius ? `${bannerBorderRadius}px` : undefined,
+                }}
+              >
                 <img 
                   src={imageToEdit}
                   alt="Banner preview"
                   className="w-full h-full object-cover transition-all duration-100"
-                  style={getImageStyle()}
+                  style={{
+                    ...getImageStyle(),
+                    borderRadius: bannerBorderRadius ? `${bannerBorderRadius}px` : undefined,
+                  }}
                 />
                 
                 {/* Overlay grid to help with positioning */}
@@ -480,6 +501,71 @@ export function BannerUpload({ isOpen, onClose }: BannerUploadProps) {
                 >
                   Zoom Out
                 </Button>
+              </div>
+            </div>
+
+            {/* Banner Border Styling */}
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span className="text-2xl">🎨</span>
+                Banner Border Styling
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Border Width: {bannerBorderWidth}px</label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="20"
+                    value={bannerBorderWidth}
+                    onChange={(e) => setBannerBorderWidth(Number(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Border Radius: {bannerBorderRadius}px</label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="50"
+                    value={bannerBorderRadius}
+                    onChange={(e) => setBannerBorderRadius(Number(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Border Color</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={bannerBorderColor}
+                      onChange={(e) => setBannerBorderColor(e.target.value)}
+                      className="h-10 w-16 p-0 border rounded cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={bannerBorderColor}
+                      onChange={(e) => setBannerBorderColor(e.target.value)}
+                      className="flex-1 px-2 py-2 border rounded"
+                      placeholder="#000000"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Border Style</label>
+                  <select
+                    value={bannerBorderStyle}
+                    onChange={(e) => setBannerBorderStyle(e.target.value)}
+                    className="w-full px-3 py-2 border rounded"
+                  >
+                    <option value="solid">Solid</option>
+                    <option value="dashed">Dashed</option>
+                    <option value="dotted">Dotted</option>
+                    <option value="double">Double</option>
+                    <option value="groove">Groove</option>
+                    <option value="ridge">Ridge</option>
+                  </select>
+                </div>
               </div>
             </div>
 

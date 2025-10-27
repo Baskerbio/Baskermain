@@ -96,6 +96,17 @@ export function SocialIconsRow({ socialLinks, config, isEditMode = false }: Soci
         const bgColor = link.customBackgroundColor || activeConfig.backgroundColor || platformInfo.color + '15';
         const hoverColor = activeConfig.hoverColor || platformInfo.color;
 
+        // Build border style object
+        const borderStyle: any = {};
+        if (activeConfig.borderWidth && activeConfig.borderWidth > 0) {
+          borderStyle.borderWidth = `${activeConfig.borderWidth}px`;
+          borderStyle.borderStyle = activeConfig.borderStyle || 'solid';
+          borderStyle.borderColor = activeConfig.borderColor || iconColor;
+        } else if (style === 'minimal') {
+          borderStyle.borderWidth = '2px';
+          borderStyle.borderColor = iconColor;
+        }
+
         return (
           <button
             key={link.id}
@@ -103,7 +114,7 @@ export function SocialIconsRow({ socialLinks, config, isEditMode = false }: Soci
             className={`
               ${sizeClasses[size]} 
               ${styleClasses[style]}
-              ${style === 'minimal' ? 'bg-transparent border-2' : ''}
+              ${style === 'minimal' ? 'bg-transparent' : ''}
               flex items-center justify-center
               transition-all duration-200
               hover:scale-110 hover:shadow-lg
@@ -111,7 +122,7 @@ export function SocialIconsRow({ socialLinks, config, isEditMode = false }: Soci
             `}
             style={{
               backgroundColor: style === 'minimal' ? 'transparent' : bgColor,
-              borderColor: style === 'minimal' ? iconColor : 'transparent',
+              ...borderStyle,
             }}
             title={link.label || platformInfo.label}
             aria-label={link.label || platformInfo.label}

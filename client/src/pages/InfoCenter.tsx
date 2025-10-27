@@ -362,26 +362,78 @@ export default function InfoCenter() {
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Common Questions</h3>
+                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-900 dark:text-white">
+                    <AlertCircle className="w-5 h-5 text-blue-500" />
+                    Frequently Asked Questions
+                  </h3>
                   <div className="space-y-3">
                     <div className="p-4 bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-blue-200/50 dark:border-blue-800/50 rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                      <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">What is Basker?</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        Basker is a free link-in-bio platform powered by AT Protocol. It allows you to create a personalized profile where you can share all your important links in one place.
+                      </p>
+                    </div>
+                    
+                    <div className="p-4 bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                       <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">How do I create my profile?</h4>
                       <p className="text-sm text-gray-600 dark:text-gray-300">
                         Sign in with your Bluesky account and start adding links, widgets, and work history to customize your profile.
                       </p>
                     </div>
                     
-                    <div className="p-4 bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                    <div className="p-4 bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-pink-200/50 dark:border-pink-800/50 rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                       <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Can I customize my profile?</h4>
                       <p className="text-sm text-gray-600 dark:text-gray-300">
-                        Yes! You can customize colors, fonts, layouts, and add various widgets to make your profile unique.
+                        Yes! You can customize colors, fonts, layouts, social icons, widgets, and add borders and containers to make your profile unique.
                       </p>
                     </div>
                     
-                    <div className="p-4 bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-pink-200/50 dark:border-pink-800/50 rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                    <div className="p-4 bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-green-200/50 dark:border-green-800/50 rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                       <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Is my data secure?</h4>
                       <p className="text-sm text-gray-600 dark:text-gray-300">
-                        Absolutely. We use AT Protocol for data storage and follow industry best practices for security.
+                        Absolutely. We use AT Protocol for data storage and follow industry best practices for security. Your data is stored securely and you have full control over it.
+                      </p>
+                    </div>
+                    
+                    <div className="p-4 bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-orange-200/50 dark:border-orange-800/50 rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                      <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Is Basker really free?</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        Yes! Basker is completely free forever. There are no premium tiers, no hidden fees, and no usage limits.
+                      </p>
+                    </div>
+                    
+                    <div className="p-4 bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-cyan-200/50 dark:border-cyan-800/50 rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                      <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">How do I add links to my profile?</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        Click the "+ Add Link" button to add a new link. You can organize your links into groups and customize their appearance.
+                      </p>
+                    </div>
+                    
+                    <div className="p-4 bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-indigo-200/50 dark:border-indigo-800/50 rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                      <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">What widgets are available?</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        You can add text widgets, work history, and more. Each widget can be styled with custom colors, borders, and backgrounds.
+                      </p>
+                    </div>
+                    
+                    <div className="p-4 bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-red-200/50 dark:border-red-800/50 rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                      <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Can I share my profile publicly?</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        Yes! Your profile is publicly accessible at basker.bio/your-handle. You can share this URL anywhere.
+                      </p>
+                    </div>
+                    
+                    <div className="p-4 bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-yellow-200/50 dark:border-yellow-800/50 rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                      <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">How do I update my banner image?</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        Click the "Update Banner" button in your profile. You can upload a new image and adjust its position, scale, and border styles.
+                      </p>
+                    </div>
+                    
+                    <div className="p-4 bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-teal-200/50 dark:border-teal-800/50 rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                      <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Can I track who visits my profile?</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        You can enable view count tracking in your Privacy & Behavior settings. This will show how many people have viewed your profile.
                       </p>
                     </div>
                   </div>
