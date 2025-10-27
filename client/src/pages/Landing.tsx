@@ -8,6 +8,7 @@ import { LoginScreen } from '../components/LoginScreen';
 import { VersionInfo } from '../components/VersionInfo';
 import { Header } from '../components/Header';
 import { QuickActionsDashboard } from '../components/QuickActionsDashboard';
+import { QRCodeShare } from '../components/QRCodeShare';
 import { ArrowRight, Link as LinkIcon, Globe, Users, Zap, Star, Sparkles, Heart, Share2, Palette, StickyNote, Link2, Settings, Image as ImageIcon, ChevronDown, ChevronUp, Info, ExternalLink } from 'lucide-react';
 import { atprotocol } from '../lib/atprotocol';
 import { createPortal } from 'react-dom';
@@ -17,6 +18,7 @@ import LightRays from '../components/LightRays';
 import { SEOHead } from '../components/SEOHead';
 
 export default function Landing() {
+  const [showQRCode, setShowQRCode] = useState(false);
   const { isAuthenticated, user } = useAuth();
   const { toast } = useToast();
   const [searchHandle, setSearchHandle] = useState('');
@@ -374,6 +376,7 @@ export default function Landing() {
                     onViewPublicProfile={() => {
                       window.open(`/${user.handle}`, '_blank');
                     }}
+                    onShowQRCode={() => setShowQRCode(true)}
                     isEditMode={false}
                     linksCount={0} // We'll need to fetch this from the API
                     notesCount={0} // We'll need to fetch this from the API
@@ -1922,6 +1925,15 @@ export default function Landing() {
           animation: gradientShift 3s ease infinite;
         }
       `}</style>
+      
+      {/* QR Code Share Modal */}
+      {isAuthenticated && user?.handle && (
+        <QRCodeShare
+          profileUrl={`${window.location.origin}/${user.handle}`}
+          isOpen={showQRCode}
+          onClose={() => setShowQRCode(false)}
+        />
+      )}
     </div>
   );
 }

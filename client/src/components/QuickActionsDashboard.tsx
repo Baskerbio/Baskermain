@@ -33,7 +33,8 @@ import {
   Layout,
   Wand2,
   Sliders,
-  CreditCard
+  CreditCard,
+  QrCode
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -53,6 +54,7 @@ interface QuickActionsDashboardProps {
   onToggleEditMode: () => void;
   onCopyProfileURL: () => void;
   onViewPublicProfile: () => void;
+  onShowQRCode?: () => void;
   isEditMode: boolean;
   linksCount: number;
   notesCount: number;
@@ -65,6 +67,7 @@ export function QuickActionsDashboard({
   onToggleEditMode,
   onCopyProfileURL,
   onViewPublicProfile,
+  onShowQRCode,
   isEditMode,
   linksCount,
   notesCount,
@@ -92,6 +95,7 @@ export function QuickActionsDashboard({
         'customize-theme',
         'manage-widgets',
         'export-data',
+        'qr-code',
         'help'
       ];
       setEnabledActions(defaultActions);
@@ -314,6 +318,19 @@ export function QuickActionsDashboard({
           title: 'Ready to Share',
           description: 'Profile URL copied! You can now paste it on social media.',
         });
+      },
+      category: 'sharing'
+    },
+    {
+      id: 'qr-code',
+      title: 'QR Code',
+      description: 'Generate and share a QR code for your profile',
+      icon: <QrCode className="w-5 h-5" />,
+      color: 'bg-pink-600',
+      action: () => {
+        if (onShowQRCode) {
+          onShowQRCode();
+        }
       },
       category: 'sharing'
     },
