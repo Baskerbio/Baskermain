@@ -7,32 +7,45 @@ import { useHeatMap } from '@/hooks/use-heatmap';
 import { BarChart3, TrendingUp, Users, MousePointer, ExternalLink, Calendar, Download, Eye } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link } from 'wouter';
+import { Header } from '@/components/Header';
+import { SEOHead } from '@/components/SEOHead';
 
 export default function Analytics() {
   const { user } = useAuth();
   const [timeRange, setTimeRange] = useState('7d');
   const { heatMapData } = useHeatMap();
+  
+  // Ensure heatMapData is always an array
+  const data = Array.isArray(heatMapData) ? heatMapData : [];
 
   if (!user) {
     return (
-      <div className="container max-w-4xl mx-auto px-4 py-8">
-        <Card>
-          <CardContent className="p-8 text-center">
-            <p className="text-muted-foreground mb-4">Please log in to view analytics</p>
-            <Link href="/">
-              <Button>Go to Home</Button>
-            </Link>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+        <SEOHead 
+          title="Analytics Dashboard - Basker"
+          description="View your profile analytics and track engagement on Basker"
+          keywords="Basker analytics, profile analytics, link tracking, engagement metrics"
+        />
+        <Header />
+        <div className="container max-w-4xl mx-auto px-4 py-8">
+          <Card>
+            <CardContent className="p-8 text-center">
+              <p className="text-muted-foreground mb-4">Please log in to view analytics</p>
+              <Link href="/">
+                <Button>Go to Home</Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
 
   // Calculate stats from heat map data
-  const totalClicks = heatMapData.reduce((sum, item) => sum + item.clicks, 0);
-  const totalViews = heatMapData.reduce((sum, item) => sum + item.views, 0);
-  const linkClicks = heatMapData.filter(item => item.elementType === 'link');
-  const widgetClicks = heatMapData.filter(item => item.elementType === 'widget');
+  const totalClicks = data.reduce((sum, item) => sum + (item.clicks || 0), 0);
+  const totalViews = data.reduce((sum, item) => sum + (item.views || 0), 0);
+  const linkClicks = data.filter(item => item.elementType === 'link');
+  const widgetClicks = data.filter(item => item.elementType === 'widget');
 
   // Sort links by clicks
   const topLinks = [...linkClicks].sort((a, b) => b.clicks - a.clicks).slice(0, 5);
@@ -41,8 +54,16 @@ export default function Analytics() {
   const ctr = totalViews > 0 ? ((totalClicks / totalViews) * 100).toFixed(2) : '0';
 
   return (
-    <div className="container max-w-7xl mx-auto px-4 py-8">
-      <div className="mb-8">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+      <SEOHead 
+        title="Analytics Dashboard - Basker"
+        description="View your profile analytics and track engagement on Basker"
+        keywords="Basker analytics, profile analytics, link tracking, engagement metrics"
+      />
+      <Header />
+      
+      <main className="container max-w-7xl mx-auto px-4 py-8">
+        <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-3xl font-bold mb-2">Analytics Dashboard</h1>
@@ -244,6 +265,33 @@ export default function Analytics() {
           </Card>
         </TabsContent>
       </Tabs>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-border bg-background mt-16">
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <img 
+                src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
+                alt="Basker"
+                className="w-5 h-5 rounded-full"
+              />
+              <h3 className="text-lg font-bold text-primary">Basker</h3>
+              <span className="text-sm text-muted-foreground">© 2025</span>
+            </div>
+            
+            <div className="text-center md:text-right">
+              <p className="text-sm text-muted-foreground">
+                Built on the AT Protocol • Your data, your control
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Create your own link-in-bio page with basker
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
