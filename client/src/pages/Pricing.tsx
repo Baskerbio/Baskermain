@@ -3,7 +3,7 @@ import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '../contexts/AuthContext';
 import { Header } from '../components/Header';
-import { ArrowLeft, Gift, Check, Star, Zap, Heart, Coffee, QrCode } from 'lucide-react';
+import { ArrowLeft, Gift, Check, Star, Zap, Heart, Coffee, QrCode, ExternalLink } from 'lucide-react';
 
 export default function Pricing() {
   const { isAuthenticated } = useAuth();
@@ -117,15 +117,19 @@ export default function Pricing() {
               <p className="text-gray-600 dark:text-gray-300 mb-6">
                 While Basker is free, donations help us keep the service running and improve it for everyone.
               </p>
-              <div className="flex flex-wrap gap-3 justify-center">
-                <Button variant="outline" size="sm" className="flex items-center gap-2 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 hover:scale-105">
-                  <Coffee className="w-4 h-4" />
-                  Buy us a coffee
-                </Button>
-                <Button variant="outline" size="sm" className="flex items-center gap-2 border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-300 hover:scale-105">
-                  <Gift className="w-4 h-4" />
-                  Send a tip
-                </Button>
+              <div className="flex justify-center">
+                <a 
+                  href="https://buymeacoffee.com/basker" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.5 3H6c-1.1 0-2 .9-2 2v5.71c0 3.83 2.95 7.18 6.78 7.29 3.96.12 7.22-3.06 7.22-7v-1h.5c1.38 0 2.5-1.12 2.5-2.5S19.88 3 18.5 3zM16 5v1.5c0 .28-.22.5-.5.5h-3c-.28 0-.5-.22-.5-.5V5c0-.28.22-.5.5-.5h3c.28 0 .5.22.5.5z"/>
+                  </svg>
+                  <span>Support on Buy Me a Coffee</span>
+                  <ExternalLink className="w-4 h-4" />
+                </a>
               </div>
             </div>
           </div>
