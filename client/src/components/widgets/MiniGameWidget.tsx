@@ -6,13 +6,15 @@ import { SnakeGame } from './games/SnakeGame';
 import { MemoryGame } from './games/MemoryGame';
 import { Game2048 } from './games/Game2048';
 import { TetrisGame } from './games/TetrisGame';
+import { CustomGame } from './games/CustomGame';
 
 interface MiniGameWidgetProps {
   config: {
-    game?: 'snake' | 'memory' | '2048' | 'tetris';
+    game?: 'snake' | 'memory' | '2048' | 'tetris' | 'custom';
     title?: string;
     highScoreEnabled?: boolean;
     difficulty?: 'easy' | 'medium' | 'hard';
+    customCode?: string;
     theme?: string;
   };
 }
@@ -25,7 +27,20 @@ export function MiniGameWidget({ config }: MiniGameWidgetProps) {
   };
 
   const renderGame = () => {
-    switch (config.game || 'snake') {
+    // If no game is selected, show instructions
+    if (!config.game) {
+      return (
+        <div className="text-center space-y-4 py-8">
+          <Gamepad2 className="w-12 h-12 mx-auto text-muted-foreground" />
+          <p className="text-lg font-semibold">Choose Your Game</p>
+          <p className="text-sm text-muted-foreground">
+            Go to widget settings to select a game
+          </p>
+        </div>
+      );
+    }
+
+    switch (config.game) {
       case 'snake':
         return <SnakeGame key={gameKey} difficulty={config.difficulty} highScoreEnabled={config.highScoreEnabled} />;
       case 'memory':
@@ -34,13 +49,19 @@ export function MiniGameWidget({ config }: MiniGameWidgetProps) {
         return <Game2048 key={gameKey} highScoreEnabled={config.highScoreEnabled} />;
       case 'tetris':
         return <TetrisGame key={gameKey} difficulty={config.difficulty} highScoreEnabled={config.highScoreEnabled} />;
+      case 'custom':
+        return <CustomGame key={gameKey} customCode={config.customCode} highScoreEnabled={config.highScoreEnabled} />;
       default:
         return <div className="text-center text-muted-foreground">Game not found</div>;
     }
   };
 
   const getGameName = () => {
-    switch (config.game || 'snake') {
+    if (!config.game) {
+      return 'Mini Game';
+    }
+    
+    switch (config.game) {
       case 'snake':
         return 'Snake';
       case 'memory':
@@ -49,6 +70,8 @@ export function MiniGameWidget({ config }: MiniGameWidgetProps) {
         return '2048';
       case 'tetris':
         return 'Tetris';
+      case 'custom':
+        return 'Custom Game';
       default:
         return 'Game';
     }

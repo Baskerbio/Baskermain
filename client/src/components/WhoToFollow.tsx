@@ -52,6 +52,7 @@ export function WhoToFollow({
 }: WhoToFollowProps) {
   const [suggestedUsers, setSuggestedUsers] = useState<SuggestedUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showVerificationTooltip, setShowVerificationTooltip] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     const loadSuggestedUsers = async () => {
@@ -163,10 +164,34 @@ export function WhoToFollow({
                 </p>
                 {isVerifiedAccount(user) && (
                   <TooltipProvider>
-                    <Tooltip>
+                    <Tooltip open={showVerificationTooltip[user.did]} onOpenChange={(open) => setShowVerificationTooltip(prev => ({ ...prev, [user.did]: open }))}>
                       <TooltipTrigger asChild>
-                        <div className="flex items-center">
-                          {isTrustedVerifier(user) ? (
+                        <button 
+                          className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setShowVerificationTooltip(prev => ({ ...prev, [user.did]: !prev[user.did] }));
+                          }}
+                        >
+                          {isBaskerVerified(user) ? (
+                            // Yellow sun for Basker verified accounts with background circle
+                            <svg 
+                              width="16" 
+                              height="16" 
+                              viewBox="0 0 24 24" 
+                              fill="none" 
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="flex-shrink-0"
+                              data-testid="icon-basker-verified"
+                              aria-label="Verified Basker account"
+                            >
+                              {/* Background circle */}
+                              <circle cx="12" cy="12" r="10" fill="#FCD34D" stroke="#F59E0B" strokeWidth="1"/>
+                              {/* Sun rays */}
+                              <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round"/>
+                            </svg>
+                          ) : isTrustedVerifier(user) ? (
                             // 7-scalloped badge for trusted verifiers/labelers
                             <svg 
                               width="16" 
@@ -217,10 +242,70 @@ export function WhoToFollow({
                               />
                             </svg>
                           )}
-                        </div>
+                        </button>
                       </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{getVerificationTooltip(user)}</p>
+                      <TooltipContent className="max-w-xs p-3 bg-gray-900 border border-gray-700 shadow-lg rounded-md" side="top" align="center" sideOffset={8}>
+                        {(() => {
+                          const verificationInfo = getVerificationTooltip(user);
+                          return (
+                            <div className="space-y-2">
+                              {/* Header */}
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <svg width="14" height="14" viewBox="0 0 22 22" fill="none" className="text-blue-500 flex-shrink-0">
+                                    <circle cx="11" cy="11" r="9" fill="currentColor" />
+                                    <path d="M8 11L10 13L14 9" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                  <span className="font-semibold text-sm text-white">Verified Account</span>
+                                </div>
+                                <button 
+                                  className="text-gray-400 hover:text-gray-200 transition-colors"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowVerificationTooltip(prev => ({ ...prev, [user.did]: false }));
+                                  }}
+                                >
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                  </svg>
+                                </button>
+                              </div>
+                              
+                              {/* Verification Info */}
+                              <div className="text-xs text-gray-300 leading-relaxed">
+                                {verificationInfo.reason || "This account has a checkmark because it's been verified by trusted sources."}
+                              </div>
+                              
+                              {/* Verified By Section */}
+                              <div className="bg-gray-800 rounded p-2 border border-gray-600">
+                                <div className="text-xs font-medium text-gray-300 mb-1 text-center">Verified by:</div>
+                                <div className="flex items-center justify-center gap-2">
+                                  <div className="w-5 h-5 flex items-center justify-center">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="#1185fe"/>
+                                    </svg>
+                                  </div>
+                                  <div className="text-center">
+                                    <div className="text-xs font-medium text-gray-100">{verificationInfo.source}</div>
+                                    <div className="text-xs text-gray-400">{verificationInfo.date || '2024'}</div>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* Learn More Button */}
+                              <a 
+                                href="https://bsky.social/about/blog/04-21-2025-verification" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="block w-full text-center text-xs text-blue-400 hover:text-blue-300 underline transition-colors"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                Learn more at Bluesky
+                              </a>
+                            </div>
+                          );
+                        })()}
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>

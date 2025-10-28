@@ -497,35 +497,35 @@ export function Widgets({ isEditMode, effectiveSettings }: WidgetsProps) {
                   Add Widget
                 </Button>
               </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Add New Widget</DialogTitle>
-              </DialogHeader>
-              <div className="grid grid-cols-2 gap-4">
-                {WIDGET_TYPES.map((widgetType) => {
-                  const Icon = widgetType.icon;
-                  return (
-                    <Card
-                      key={widgetType.value}
-                      className="cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => handleAddWidget(widgetType.value)}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                          <Icon className="w-6 h-6 text-primary" />
-                          <div>
-                            <h3 className="font-medium">{widgetType.label}</h3>
-                            <p className="text-sm text-muted-foreground">{widgetType.description}</p>
+              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Add New Widget</DialogTitle>
+                </DialogHeader>
+                <div className="grid grid-cols-2 gap-4">
+                  {WIDGET_TYPES.map((widgetType) => {
+                    const Icon = widgetType.icon;
+                    return (
+                      <Card
+                        key={widgetType.value}
+                        className="cursor-pointer hover:bg-muted/50 transition-colors"
+                        onClick={() => handleAddWidget(widgetType.value)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-3">
+                            <Icon className="w-6 h-6 text-primary" />
+                            <div>
+                              <h3 className="font-medium">{widgetType.label}</h3>
+                              <p className="text-sm text-muted-foreground">{widgetType.description}</p>
+                            </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </DialogContent>
-          </Dialog>
-        )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
       </div>
 
       {widgets.length === 0 ? (
@@ -4128,6 +4128,7 @@ function WidgetEditor({
                   <SelectItem value="memory">Memory Match</SelectItem>
                   <SelectItem value="2048">2048</SelectItem>
                   <SelectItem value="tetris">Tetris</SelectItem>
+                  <SelectItem value="custom">Code Your Own</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -4165,6 +4166,45 @@ function WidgetEditor({
               />
               <Label htmlFor="highScoreEnabled">Enable high score tracking</Label>
             </div>
+            {editedWidget.config?.game === 'custom' && (
+              <div>
+                <Label>Custom Game Code</Label>
+                <Textarea
+                  value={editedWidget.config?.customCode || ''}
+                  onChange={(e) => 
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, customCode: e.target.value }
+                    }))
+                  }
+                  placeholder="// Simple Click Game Example
+let clicks = 0;
+let target = gameAPI.random(5, 15);
+
+gameAPI.log('Click Game! Target: ' + target);
+gameAPI.log('Click to score points!');
+
+// Simulate clicks (in real game, this would be triggered by user interaction)
+const gameLoop = setInterval(() => {
+  clicks++;
+  gameAPI.setScore(clicks);
+  gameAPI.log('Click ' + clicks + ' of ' + target);
+  
+  if (clicks >= target) {
+    gameAPI.log('Target reached! You win!');
+    gameAPI.addScore(100);
+    gameAPI.stop();
+    clearInterval(gameLoop);
+  }
+}, 500);"
+                  rows={12}
+                  className="font-mono text-sm"
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  Write JavaScript code for your custom game. Use gameAPI methods to interact with the game system.
+                </p>
+              </div>
+            )}
           </div>
         );
       

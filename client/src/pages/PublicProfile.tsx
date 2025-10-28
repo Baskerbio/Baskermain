@@ -38,6 +38,14 @@ export default function PublicProfile() {
   const { toast } = useToast();
   const { setTheme } = useTheme();
 
+  // Truncate username if longer than 19 characters
+  const truncateUsername = (username: string) => {
+    if (username.length > 19) {
+      return username.substring(0, 19) + '...';
+    }
+    return username;
+  };
+
   const handleLogout = async () => {
     try {
       // For public profiles, we don't need to handle logout
@@ -235,7 +243,7 @@ export default function PublicProfile() {
               <>
                 <span className="text-muted-foreground">|</span>
                 <span className="text-sm text-muted-foreground" data-testid="text-user-handle">
-                  @{profile.handle}
+                  @{truncateUsername(profile.handle)}
                 </span>
               </>
             )}

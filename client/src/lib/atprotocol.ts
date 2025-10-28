@@ -103,29 +103,207 @@ export class ATProtocolClient {
       throw new Error('Not authenticated');
     }
 
-    const response = await this.agent.getProfile({
-      actor: actor || this.did!,
-    });
-
-    return response.data;
+    try {
+      // Try without subscribedLabelers first to get all labels
+      const response = await this.agent.getProfile({
+        actor: actor || this.did!,
+      });
+      
+      console.log('✅ getProfile - Profile data:', response.data);
+      console.log('✅ getProfile - Labels:', response.data.labels);
+      console.log('✅ getProfile - Labels length:', response.data.labels?.length || 0);
+      
+      return response.data;
+    } catch (error) {
+      console.log('🔍 getProfile - Trying with atproto-accept-labelers header');
+      
+      // Try with atproto-accept-labelers header
+      const labelers = [
+        'did:plc:ar7c4by46qjdydhdev7ndg3c', // Bluesky official labeler
+        'did:plc:q6gjnaw2blt4fxgdvzw6w6xx', // Another official labeler
+        'did:plc:z72i7hdynmk6r22z27h6tvur'  // Additional labeler
+      ];
+      
+      try {
+        const response = await this.agent.getProfile({
+          actor: actor || this.did!,
+          headers: {
+            'atproto-accept-labelers': labelers.join(',')
+          }
+        });
+        
+        console.log('✅ getProfile (header) - Profile data:', response.data);
+        console.log('✅ getProfile (header) - Labels:', response.data.labels);
+        console.log('✅ getProfile (header) - Labels length:', response.data.labels?.length || 0);
+        
+        return response.data;
+      } catch (headerError) {
+        console.log('🔍 getProfile - Trying with subscribedLabelers as final fallback');
+        
+        // Final fallback to subscribedLabelers
+        const response = await this.agent.getProfile({
+          actor: actor || this.did!,
+          subscribedLabelers: labelers,
+        });
+        
+        console.log('✅ getProfile (fallback) - Profile data:', response.data);
+        console.log('✅ getProfile (fallback) - Labels:', response.data.labels);
+        console.log('✅ getProfile (fallback) - Labels length:', response.data.labels?.length || 0);
+        
+        return response.data;
+      }
+    }
   }
 
   // Public method for getting profiles without authentication
   async getPublicProfile(handle: string) {
     try {
-      // Use Bluesky's public AppView API (no authentication required)
-      // This is how the Bluesky web interface works for public profiles
-      const response = await fetch(`https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=${encodeURIComponent(handle)}`);
+      console.log('🔍 getPublicProfile called for handle:', handle);
+      
+      // Try using the AT Protocol client directly first
+      try {
+        console.log('🔍 Trying AT Protocol client approach...');
+        const response = await this.agent.getProfile({
+          actor: handle,
+        });
+        
+        console.log('✅ AT Protocol client - Profile data:', response.data);
+        console.log('✅ AT Protocol client - Labels:', response.data.labels);
+        console.log('✅ AT Protocol client - Labels length:', response.data.labels?.length || 0);
+        console.log('✅ AT Protocol client - Full response keys:', Object.keys(response.data));
+        
+        // Check if there are any verification-related fields in the response
+        console.log('🔍 Checking for verification fields in AT Protocol response...');
+        console.log('🔍 response.data.verified:', response.data.verified);
+        console.log('🔍 response.data.isVerified:', response.data.isVerified);
+        console.log('🔍 response.data.verification:', response.data.verification);
+        console.log('🔍 response.data.verificationStatus:', response.data.verificationStatus);
+        console.log('🔍 response.data.blueCheck:', response.data.blueCheck);
+        console.log('🔍 response.data.checkmark:', response.data.checkmark);
+        console.log('🔍 response.data.Verification:', response.data.Verification);
+        
+        // Check for any other potential verification fields
+        console.log('🔍 Checking all response.data properties for verification:');
+        Object.keys(response.data).forEach(key => {
+          if (key.toLowerCase().includes('verif') || key.toLowerCase().includes('check') || key.toLowerCase().includes('badge')) {
+            console.log(`🔍 Found potential verification field: ${key} =`, response.data[key]);
+          }
+        });
+        
+        return response.data;
+      } catch (atProtocolError) {
+        console.log('🔍 AT Protocol client failed, trying public API...', atProtocolError);
+      }
+      
+      // Try using getProfiles endpoint instead
+      try {
+        console.log('🔍 Trying getProfiles endpoint...');
+        const response = await this.agent.getProfiles({
+          actors: [handle],
+        });
+        
+        if (response.data.profiles && response.data.profiles.length > 0) {
+          const profileData = response.data.profiles[0];
+          console.log('✅ getProfiles - Profile data:', profileData);
+          console.log('✅ getProfiles - Labels:', profileData.labels);
+          console.log('✅ getProfiles - Labels length:', profileData.labels?.length || 0);
+          console.log('✅ getProfiles - Full response keys:', Object.keys(profileData));
+          
+          // Check if there are any verification-related fields in the response
+          console.log('🔍 Checking for verification fields in getProfiles response...');
+          console.log('🔍 profileData.verified:', profileData.verified);
+          console.log('🔍 profileData.isVerified:', profileData.isVerified);
+          console.log('🔍 profileData.verification:', profileData.verification);
+          console.log('🔍 profileData.verificationStatus:', profileData.verificationStatus);
+          console.log('🔍 profileData.blueCheck:', profileData.blueCheck);
+          console.log('🔍 profileData.checkmark:', profileData.checkmark);
+          console.log('🔍 profileData.Verification:', profileData.Verification);
+          
+          // Check for any other potential verification fields
+          console.log('🔍 Checking all profileData properties for verification:');
+          Object.keys(profileData).forEach(key => {
+            if (key.toLowerCase().includes('verif') || key.toLowerCase().includes('check') || key.toLowerCase().includes('badge')) {
+              console.log(`🔍 Found potential verification field: ${key} =`, profileData[key]);
+            }
+          });
+          
+          return profileData;
+        }
+      } catch (getProfilesError) {
+        console.log('🔍 getProfiles failed, trying public API...', getProfilesError);
+      }
+      
+      // Try multiple approaches to get verification labels
+      
+      // Approach 1: Try without any labeler headers first (should return all labels by default)
+      const url1 = `https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=${encodeURIComponent(handle)}`;
+      console.log('🔍 Trying approach 1 (default) - URL:', url1);
+      let response = await fetch(url1);
       
       if (response.ok) {
         const profileData = await response.json();
-        console.log('Successfully got public profile data from Bluesky AppView:', profileData);
-        console.log('Profile associated data:', profileData.associated);
-        console.log('Profile labels:', profileData.labels);
+        console.log('✅ Approach 1 - Profile data:', profileData);
+        console.log('✅ Approach 1 - Labels:', profileData.labels);
+        console.log('✅ Approach 1 - Labels length:', profileData.labels?.length || 0);
+        console.log('✅ Approach 1 - Full response keys:', Object.keys(profileData));
+        
+        // Check if there are any verification-related fields in the response
+        console.log('🔍 Checking for verification fields in response...');
+        console.log('🔍 profileData.verified:', profileData.verified);
+        console.log('🔍 profileData.isVerified:', profileData.isVerified);
+        console.log('🔍 profileData.verification:', profileData.verification);
+        console.log('🔍 profileData.verificationStatus:', profileData.verificationStatus);
+        console.log('🔍 profileData.blueCheck:', profileData.blueCheck);
+        console.log('🔍 profileData.checkmark:', profileData.checkmark);
+        
+        // Check for any other potential verification fields
+        console.log('🔍 Checking all profileData properties for verification:');
+        Object.keys(profileData).forEach(key => {
+          if (key.toLowerCase().includes('verif') || key.toLowerCase().includes('check') || key.toLowerCase().includes('badge')) {
+            console.log(`🔍 Found potential verification field: ${key} =`, profileData[key]);
+          }
+        });
+        
+        // Return the data even if no labels - the profile data is still valid
         return profileData;
-      } else {
-        throw new Error(`Failed to fetch profile: ${response.status} ${response.statusText}`);
       }
+      
+      // Approach 2: Try with atproto-accept-labelers header
+      const labelers = [
+        'did:plc:ar7c4by46qjdydhdev7ndg3c', // Bluesky official labeler
+        'did:plc:q6gjnaw2blt4fxgdvzw6w6xx', // Another official labeler
+        'did:plc:z72i7hdynmk6r22z27h6tvur'  // Additional labeler
+      ];
+      const url2 = `https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=${encodeURIComponent(handle)}`;
+      console.log('🔍 Trying approach 2 (with header) - URL:', url2);
+      response = await fetch(url2, {
+        headers: {
+          'atproto-accept-labelers': labelers.join(',')
+        }
+      });
+      
+      if (response.ok) {
+        const profileData = await response.json();
+        console.log('✅ Approach 2 - Profile data:', profileData);
+        console.log('✅ Approach 2 - Labels:', profileData.labels);
+        console.log('✅ Approach 2 - Labels length:', profileData.labels?.length || 0);
+        return profileData;
+      }
+      
+      // Approach 3: Try with subscribedLabelers parameter (fallback)
+      const url3 = `https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=${encodeURIComponent(handle)}&subscribedLabelers[]=${labelers.join('&subscribedLabelers[]=')}`;
+      console.log('🔍 Trying approach 3 (subscribedLabelers) - URL:', url3);
+      response = await fetch(url3);
+      
+      if (response.ok) {
+        const profileData = await response.json();
+        console.log('✅ Approach 3 - Profile data:', profileData);
+        console.log('✅ Approach 3 - Labels:', profileData.labels);
+        console.log('✅ Approach 3 - Labels length:', profileData.labels?.length || 0);
+        return profileData;
+      }
+      
+      throw new Error(`Failed to fetch profile: ${response.status} ${response.statusText}`);
     } catch (error: any) {
       console.error('Failed to get public profile from Bluesky AppView:', error);
       throw error;

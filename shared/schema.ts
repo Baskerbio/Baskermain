@@ -30,6 +30,16 @@ export const userProfileSchema = z.object({
   followsCount: z.number().optional(),
   postsCount: z.number().optional(),
   createdAt: z.string().optional(),
+  verification: z.object({
+    verifications: z.array(z.object({
+      issuer: z.string(),
+      uri: z.string(),
+      isValid: z.boolean(),
+      createdAt: z.string(),
+    })).optional(),
+    verifiedStatus: z.string().optional(),
+    trustedVerifierStatus: z.string().optional(),
+  }).optional(),
 });
 
 // Link schema

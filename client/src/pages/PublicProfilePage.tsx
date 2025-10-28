@@ -112,6 +112,14 @@ export default function PublicProfilePage() {
   const { setTheme } = useTheme();
   const { toast } = useToast();
 
+  // Truncate username if longer than 19 characters
+  const truncateUsername = (username: string) => {
+    if (username.length > 19) {
+      return username.substring(0, 19) + '...';
+    }
+    return username;
+  };
+
   // Check if we're on a custom domain
   const customHandle = (window as any).__CUSTOM_DOMAIN_HANDLE__;
 
@@ -191,17 +199,29 @@ export default function PublicProfilePage() {
         }
         
         console.log('Resolving handle:', handle);
+        console.log('🔍 PublicProfilePage - Starting profile fetch for:', handle);
         
         let profileData;
         let did;
         
         // If the user is viewing their own profile, use the authenticated user's data
         if (currentUser && currentUser.handle === handle) {
+          console.log('🔍 Using currentUser data (cached):', currentUser.handle);
           profileData = currentUser;
           did = currentUser.did;
         } else {
           // For other users, try to get public profile data
+          console.log('🔍 PublicProfilePage - About to call getPublicProfile for:', handle);
+          console.log('🔍 PublicProfilePage - currentUser handle:', currentUser?.handle);
+          console.log('🔍 PublicProfilePage - target handle:', handle);
+          console.log('🔍 PublicProfilePage - handles match:', currentUser?.handle === handle);
+          
+          // Force a fresh API call by adding a timestamp parameter
+          const timestamp = Date.now();
+          console.log('🔍 PublicProfilePage - Forcing fresh API call with timestamp:', timestamp);
+          
           profileData = await atprotocol.getPublicProfile(handle);
+          console.log('🔍 PublicProfilePage - getPublicProfile returned:', profileData);
           did = profileData.did;
         }
         
@@ -219,7 +239,34 @@ export default function PublicProfilePage() {
           followsCount: profileData.followsCount || 0,
           postsCount: profileData.postsCount || 0,
           createdAt: profileData.createdAt || new Date().toISOString(),
+          // Add verification data if it exists
+          verification: profileData.verification,
         };
+        
+        console.log('🔍 PublicProfilePage - Raw profileData:', JSON.stringify(profileData, null, 2));
+        console.log('🔍 PublicProfilePage - profileData.labels:', profileData.labels);
+        console.log('🔍 PublicProfilePage - profileData.associated:', profileData.associated);
+        console.log('🔍 PublicProfilePage - Created userProfile:', JSON.stringify(userProfile, null, 2));
+        
+        // Test verification detection directly
+        console.log('🔍 PublicProfilePage - Testing verification for:', userProfile.handle);
+        const { isVerifiedAccount } = await import('../lib/verification-utils');
+        const isVerified = isVerifiedAccount(userProfile);
+        console.log('🔍 PublicProfilePage - Verification result:', isVerified);
+        
+        // Check if this is cached data
+        console.log('🔍 PublicProfilePage - Profile data source:', currentUser && currentUser.handle === handle ? 'CURRENT_USER' : 'API_CALL');
+        console.log('🔍 PublicProfilePage - currentUser handle:', currentUser?.handle);
+        console.log('🔍 PublicProfilePage - target handle:', handle);
+        console.log('🔍 PublicProfilePage - handles match:', currentUser?.handle === handle);
+        
+        // Check if profileData has any verification-related properties
+        console.log('🔍 PublicProfilePage - Checking profileData for verification fields:');
+        Object.keys(profileData).forEach(key => {
+          if (key.toLowerCase().includes('verif') || key.toLowerCase().includes('check') || key.toLowerCase().includes('badge')) {
+            console.log(`🔍 PublicProfilePage - Found verification field: ${key} =`, profileData[key]);
+          }
+        });
         
         setProfile(userProfile);
         
@@ -419,7 +466,7 @@ export default function PublicProfilePage() {
             </Link>
             <span className="text-muted-foreground hidden sm:block">|</span>
             <span className="text-xs sm:text-sm text-muted-foreground" data-testid="text-user-handle">
-              @{profile.handle}
+              @{truncateUsername(profile.handle)}
             </span>
           </div>
           
