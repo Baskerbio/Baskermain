@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { Edit, Settings, LogOut, Copy, Menu, X } from 'lucide-react';
+import { Edit, Settings, LogOut, Copy, Menu, X, Share2, QrCode } from 'lucide-react';
+import { QRCodeShare } from '@/components/QRCodeShare';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { Notes } from '../components/Notes';
 import { LinksList } from '../components/LinksList';
@@ -30,6 +31,7 @@ export default function Profile() {
   const [showSettings, setShowSettings] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [settingsScrollTo, setSettingsScrollTo] = useState<string | undefined>(undefined);
+  const [showQRCode, setShowQRCode] = useState(false);
 
   // Cleanup expired stories on component mount
   useEffect(() => {
@@ -83,6 +85,30 @@ export default function Profile() {
         description: 'Failed to copy profile URL',
         variant: 'destructive',
       });
+    }
+  };
+
+  const handleShare = async () => {
+    if (!user?.handle) return;
+    
+    const profileURL = `${window.location.origin}/${user.handle}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${user.displayName || user.handle} - Basker Profile`,
+          text: `Check out my Basker profile: ${profileURL}`,
+          url: profileURL,
+        });
+      } catch (error) {
+        // User cancelled or error occurred
+        if ((error as any).name !== 'AbortError') {
+          console.error('Share failed:', error);
+        }
+      }
+    } else {
+      // Fallback to copying URL
+      await handleCopyProfileURL();
     }
   };
 
@@ -156,12 +182,23 @@ export default function Profile() {
               <Button
                 variant="secondary"
                 size="sm"
-                onClick={handleCopyProfileURL}
+                onClick={handleShare}
                 className="flex items-center gap-2 text-sm px-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-                data-testid="button-copy-url"
+                data-testid="button-share"
               >
-                <Copy className="w-4 h-4" />
-                Copy URL
+                <Share2 className="w-4 h-4" />
+                Share
+              </Button>
+              
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setShowQRCode(true)}
+                className="flex items-center gap-2 text-sm px-3 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
+                data-testid="button-qr-code"
+              >
+                <QrCode className="w-4 h-4" />
+                QR Code
               </Button>
               
               <Button
@@ -231,12 +268,26 @@ export default function Profile() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={handleCopyProfileURL}
+                    onClick={handleShare}
                     className="w-full justify-start gap-3"
-                    data-testid="button-copy-url-mobile"
+                    data-testid="button-share-mobile"
                   >
-                    <Copy className="w-4 h-4" />
-                    Copy Profile URL
+                    <Share2 className="w-4 h-4" />
+                    Share Profile
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setShowQRCode(true);
+                      setShowMobileMenu(false);
+                    }}
+                    className="w-full justify-start gap-3"
+                    data-testid="button-qr-code-mobile"
+                  >
+                    <QrCode className="w-4 h-4" />
+                    QR Code
                   </Button>
                   
                   <Button
@@ -477,6 +528,15 @@ export default function Profile() {
               onDragEnd={onDragEnd}
               scrollToSection={settingsScrollTo}
             />
+
+            {/* QR Code Share Modal */}
+            {user?.handle && (
+              <QRCodeShare
+                profileUrl={`${window.location.origin}/${user.handle}`}
+                isOpen={showQRCode}
+                onClose={() => setShowQRCode(false)}
+              />
+            )}
       </div>
     </DragDropProvider>
   );

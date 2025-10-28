@@ -15,7 +15,9 @@ import { Textarea } from '../components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog';
 import { Label } from '../components/ui/label';
 import { UserProfile } from '@shared/schema';
-import { ArrowLeft, Users, Cloud, Music, Heart, Image, Megaphone, Mail, X, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Users, Cloud, Music, Heart, Image, Megaphone, Mail, X, ExternalLink, Share2, Copy, QrCode } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { QRCodeShare } from '../components/QRCodeShare';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { WorkHistoryWidget } from '../components/WorkHistoryWidget';
@@ -104,11 +106,71 @@ export default function PublicProfilePage() {
   const [settings, setSettings] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showQRCode, setShowQRCode] = useState(false);
   const { user: currentUser } = useAuth();
   const { setTheme } = useTheme();
+  const { toast } = useToast();
 
   // Check if we're on a custom domain
   const customHandle = (window as any).__CUSTOM_DOMAIN_HANDLE__;
+
+  const handleShare = async () => {
+    if (!profile) return;
+    
+    const profileURL = `${window.location.origin}/${profile.handle}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${profile.displayName || profile.handle} - Basker Profile`,
+          text: `Check out ${profile.displayName || profile.handle}'s Basker profile: ${profileURL}`,
+          url: profileURL,
+        });
+      } catch (error) {
+        // User cancelled or error occurred
+        if ((error as any).name !== 'AbortError') {
+          console.error('Share failed:', error);
+        }
+      }
+    } else {
+      // Fallback to copying URL
+      try {
+        await navigator.clipboard.writeText(profileURL);
+        toast({
+          title: 'Profile URL copied!',
+          description: 'Share this profile URL with others',
+        });
+      } catch (error) {
+        console.error('Failed to copy URL:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to copy profile URL',
+          variant: 'destructive',
+        });
+      }
+    }
+  };
+
+  const handleCopyURL = async () => {
+    if (!profile) return;
+    
+    const profileURL = `${window.location.origin}/${profile.handle}`;
+    
+    try {
+      await navigator.clipboard.writeText(profileURL);
+      toast({
+        title: 'Profile URL copied!',
+        description: 'Share this profile URL with others',
+      });
+    } catch (error) {
+      console.error('Failed to copy URL:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to copy profile URL',
+        variant: 'destructive',
+      });
+    }
+  };
 
   useEffect(() => {
     const handleToUse = customHandle || params?.handle;
@@ -361,6 +423,36 @@ export default function PublicProfilePage() {
           </div>
           
           <div className="flex items-center gap-2 sm:gap-3">
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              onClick={handleShare}
+              className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+            >
+              <Share2 className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Share</span>
+            </Button>
+            
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              onClick={handleCopyURL}
+              className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
+            >
+              <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Copy</span>
+            </Button>
+            
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              onClick={() => setShowQRCode(true)}
+              className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
+            >
+              <QrCode className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">QR</span>
+            </Button>
+            
             <Link href="/">
               <Button variant="secondary" size="sm" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
                 <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -429,6 +521,15 @@ export default function PublicProfilePage() {
           </p>
         </footer>
       </main>
+
+      {/* QR Code Share Modal */}
+      {profile && (
+        <QRCodeShare
+          profileUrl={`${window.location.origin}/${profile.handle}`}
+          isOpen={showQRCode}
+          onClose={() => setShowQRCode(false)}
+        />
+      )}
     </div>
   );
 }
