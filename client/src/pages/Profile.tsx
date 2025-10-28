@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { Edit, Settings, LogOut, Copy, Menu, X, Share2, QrCode } from 'lucide-react';
+import { Edit, Settings, LogOut, Copy, Menu, X, Share2, QrCode, ChevronDown } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { QRCodeShare } from '@/components/QRCodeShare';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { Notes } from '../components/Notes';
@@ -265,30 +266,34 @@ export default function Profile() {
 
                 {/* Action buttons */}
                 <div className="space-y-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleShare}
-                    className="w-full justify-start gap-3"
-                    data-testid="button-share-mobile"
-                  >
-                    <Share2 className="w-4 h-4" />
-                    Share Profile
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setShowQRCode(true);
-                      setShowMobileMenu(false);
-                    }}
-                    className="w-full justify-start gap-3"
-                    data-testid="button-qr-code-mobile"
-                  >
-                    <QrCode className="w-4 h-4" />
-                    QR Code
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-between gap-2 py-2"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Share2 className="w-4 h-4" />
+                          Share Options
+                        </div>
+                        <ChevronDown className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-full">
+                      <DropdownMenuItem onClick={handleShare}>
+                        <Share2 className="w-4 h-4 mr-2" />
+                        Share Profile
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => {
+                        setShowQRCode(true);
+                        setShowMobileMenu(false);
+                      }}>
+                        <QrCode className="w-4 h-4 mr-2" />
+                        QR Code
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   
                   <Button
                     variant="outline"

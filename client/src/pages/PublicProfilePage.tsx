@@ -15,7 +15,8 @@ import { Textarea } from '../components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog';
 import { Label } from '../components/ui/label';
 import { UserProfile } from '@shared/schema';
-import { ArrowLeft, Users, Cloud, Music, Heart, Image, Megaphone, Mail, X, ExternalLink, Share2, Copy, QrCode } from 'lucide-react';
+import { ArrowLeft, Users, Cloud, Music, Heart, Image, Megaphone, Mail, X, ExternalLink, Share2, Copy, QrCode, ChevronDown } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { QRCodeShare } from '../components/QRCodeShare';
 import { useAuth } from '../contexts/AuthContext';
@@ -422,39 +423,72 @@ export default function PublicProfilePage() {
             </span>
           </div>
           
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Button 
-              variant="secondary" 
-              size="sm" 
-              onClick={handleShare}
-              className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-            >
-              <Share2 className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Share</span>
-            </Button>
-            
-            <Button 
-              variant="secondary" 
-              size="sm" 
-              onClick={handleCopyURL}
-              className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
-            >
-              <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Copy</span>
-            </Button>
-            
-            <Button 
-              variant="secondary" 
-              size="sm" 
-              onClick={() => setShowQRCode(true)}
-              className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
-            >
-              <QrCode className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">QR</span>
-            </Button>
+          <div className="flex items-center gap-1 sm:gap-3">
+            {/* Mobile dropdown for share options */}
+            <div className="sm:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="secondary" 
+                    size="sm" 
+                    className="flex items-center gap-1 text-xs px-2 py-1"
+                  >
+                    <Share2 className="w-3 h-3" />
+                    <ChevronDown className="w-3 h-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={handleShare}>
+                    <Share2 className="w-3 h-3 mr-2" />
+                    Share Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleCopyURL}>
+                    <Copy className="w-3 h-3 mr-2" />
+                    Copy URL
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setShowQRCode(true)}>
+                    <QrCode className="w-3 h-3 mr-2" />
+                    QR Code
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {/* Desktop individual buttons */}
+            <div className="hidden sm:flex items-center gap-3">
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                onClick={handleShare}
+                className="flex items-center gap-2 text-sm px-3 py-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+              >
+                <Share2 className="w-4 h-4" />
+                Share
+              </Button>
+              
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                onClick={handleCopyURL}
+                className="flex items-center gap-2 text-sm px-3 py-2 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
+              >
+                <Copy className="w-4 h-4" />
+                Copy
+              </Button>
+              
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                onClick={() => setShowQRCode(true)}
+                className="flex items-center gap-2 text-sm px-3 py-2 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
+              >
+                <QrCode className="w-4 h-4" />
+                QR
+              </Button>
+            </div>
             
             <Link href="/">
-              <Button variant="secondary" size="sm" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
+              <Button variant="secondary" size="sm" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-1 sm:px-3 py-1 sm:py-2">
                 <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span className="hidden sm:inline">Back to Home</span>
                 <span className="sm:hidden">Back</span>
