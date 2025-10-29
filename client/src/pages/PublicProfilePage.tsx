@@ -685,9 +685,25 @@ function PublicLinksList({ did }: { did: string }) {
                 {getIconComponent(link.icon || 'fas fa-link')}
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="font-medium text-foreground truncate">{link.title}</h4>
+                <h4 
+                  className="font-medium truncate"
+                  style={{ 
+                    color: linkStyling.textColor || undefined,
+                    fontWeight: linkStyling.fontWeight || undefined
+                  }}
+                >
+                  {link.title}
+                </h4>
                 {link.description && (
-                  <p className="text-sm text-muted-foreground truncate">{link.description}</p>
+                  <p 
+                    className="text-sm truncate"
+                    style={{ 
+                      color: linkStyling.textColor || undefined,
+                      fontWeight: linkStyling.fontWeight || undefined
+                    }}
+                  >
+                    {link.description}
+                  </p>
                 )}
                 <p className="text-[10px] sm:text-xs truncate max-w-[180px] sm:max-w-none">
                   {link.url}

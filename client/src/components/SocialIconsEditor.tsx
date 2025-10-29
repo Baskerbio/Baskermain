@@ -3,10 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SocialLink, SocialIconsConfig } from '@shared/schema';
-import { Plus, X, GripVertical, Palette } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { SocialIconsRow } from './SocialIconsRow';
+import { SocialIconsStylingMenu } from './SocialIconsStylingMenu';
 import { useToast } from '@/hooks/use-toast';
 
 interface SocialIconsEditorProps {
@@ -18,6 +18,7 @@ interface SocialIconsEditorProps {
 
 export function SocialIconsEditor({ socialLinks, config, onSave, onOpenSettings }: SocialIconsEditorProps) {
   const [isAdding, setIsAdding] = useState(false);
+  const [showStylingMenu, setShowStylingMenu] = useState(false);
   const [editingLinks, setEditingLinks] = useState<SocialLink[]>(socialLinks);
   const [editingConfig, setEditingConfig] = useState<SocialIconsConfig>(config || {
     enabled: true,
@@ -100,346 +101,41 @@ export function SocialIconsEditor({ socialLinks, config, onSave, onOpenSettings 
 
   return (
     <div className="mb-6">
-      {/* Preview of current icons - always show as clean icon row */}
+      {/* Preview of current icons with edit button */}
       {editingLinks.length > 0 && (
         <div className="mb-4">
           <SocialIconsRow 
             socialLinks={editingLinks}
             config={editingConfig}
-            isEditMode={false}
+            isEditMode={true}
+            onEditStyling={() => setShowStylingMenu(true)}
+            onUpdateLink={(updatedLink) => {
+              const updatedLinks = editingLinks.map(link =>
+                link.id === updatedLink.id ? updatedLink : link
+              );
+              setEditingLinks(updatedLinks);
+              onSave(updatedLinks, editingConfig);
+            }}
+            onRemoveLink={handleRemoveLink}
+            onToggleEnabled={handleToggleEnabled}
           />
         </div>
       )}
 
-      {/* Style Options - Always Visible with Clear Header */}
-      {editingLinks.length > 0 && (
-        <Card className="mb-4">
-          <CardContent className="p-4">
-            <div className="mb-4">
-              <h3 className="text-base font-semibold flex items-center gap-2">
-                <Palette className="w-5 h-5" />
-                Social Icons Styling
-              </h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Customize the appearance of your social media icons
-              </p>
-            </div>
-
-            <div className="space-y-4">
-                {/* Placement */}
-                <div>
-                  <Label className="text-xs text-muted-foreground mb-2 block">Placement</Label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[
-                      { value: 'under-bio', label: 'Under Bio' },
-                      { value: 'under-avatar', label: 'Under Avatar' },
-                      { value: 'above-sections', label: 'Above Content' },
-                    ].map((option) => (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => updateConfig({ placement: option.value as any })}
-                        className={`
-                          px-2 py-1.5 text-xs rounded border transition-colors
-                          ${editingConfig.placement === option.value
-                            ? 'bg-primary text-primary-foreground border-primary'
-                            : 'bg-background hover:bg-muted border-border'
-                          }
-                        `}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Style */}
-                <div>
-                  <Label className="text-xs text-muted-foreground mb-2 block">Icon Style</Label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {[
-                      { value: 'default', label: 'Default' },
-                      { value: 'rounded', label: 'Round' },
-                      { value: 'square', label: 'Square' },
-                      { value: 'minimal', label: 'Minimal' },
-                    ].map((option) => (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => updateConfig({ style: option.value as any })}
-                        className={`
-                          px-2 py-1.5 text-xs rounded border transition-colors
-                          ${editingConfig.style === option.value
-                            ? 'bg-primary text-primary-foreground border-primary'
-                            : 'bg-background hover:bg-muted border-border'
-                          }
-                        `}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Size */}
-                <div>
-                  <Label className="text-xs text-muted-foreground mb-2 block">Icon Size</Label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[
-                      { value: 'small', label: 'Small' },
-                      { value: 'medium', label: 'Medium' },
-                      { value: 'large', label: 'Large' },
-                    ].map((option) => (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => updateConfig({ size: option.value as any })}
-                        className={`
-                          px-2 py-1.5 text-xs rounded border transition-colors
-                          ${editingConfig.size === option.value
-                            ? 'bg-primary text-primary-foreground border-primary'
-                            : 'bg-background hover:bg-muted border-border'
-                          }
-                        `}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Colors */}
-                <div>
-                  <Label className="text-xs text-muted-foreground mb-2 block">Colors (Optional)</Label>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div>
-                      <Label className="text-xs mb-1 block">Background</Label>
-                      <Input
-                        type="color"
-                        value={editingConfig.backgroundColor || '#ffffff'}
-                        onChange={(e) => updateConfig({ backgroundColor: e.target.value })}
-                        className="h-8 p-0 cursor-pointer"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-xs mb-1 block">Icon</Label>
-                      <Input
-                        type="color"
-                        value={editingConfig.iconColor || '#000000'}
-                        onChange={(e) => updateConfig({ iconColor: e.target.value })}
-                        className="h-8 p-0 cursor-pointer"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-xs mb-1 block">Hover</Label>
-                      <Input
-                        type="color"
-                        value={editingConfig.hoverColor || '#6366f1'}
-                        onChange={(e) => updateConfig({ hoverColor: e.target.value })}
-                        className="h-8 p-0 cursor-pointer"
-                      />
-                    </div>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => updateConfig({ 
-                      backgroundColor: undefined, 
-                      iconColor: undefined, 
-                      hoverColor: undefined 
-                    })}
-                    className="text-xs mt-2 h-7"
-                  >
-                    Reset to Default Colors
-                  </Button>
-                </div>
-
-                {/* Border Styling */}
-                <div className="border-t pt-4 mt-4">
-                  <Label className="text-sm font-medium mb-3 block">Border Styling</Label>
-                  
-                  <div className="space-y-3">
-                    {/* Border Width */}
-                    <div>
-                      <Label className="text-xs mb-1 block">Border Width: {editingConfig.borderWidth || 0}px</Label>
-                      <input
-                        type="range"
-                        min="0"
-                        max="10"
-                        value={editingConfig.borderWidth || 0}
-                        onChange={(e) => updateConfig({ borderWidth: parseInt(e.target.value) })}
-                        className="w-full"
-                      />
-                    </div>
-
-                    {/* Border Color and Style */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <Label className="text-xs mb-1 block">Border Color</Label>
-                        <Input
-                          type="color"
-                          value={editingConfig.borderColor || '#000000'}
-                          onChange={(e) => updateConfig({ borderColor: e.target.value })}
-                          className="h-8 p-0 cursor-pointer"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-xs mb-1 block">Border Style</Label>
-                        <Select 
-                          value={editingConfig.borderStyle || 'solid'} 
-                          onValueChange={(value: any) => updateConfig({ borderStyle: value })}
-                        >
-                          <SelectTrigger className="h-8 text-xs">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="solid">Solid</SelectItem>
-                            <SelectItem value="dashed">Dashed</SelectItem>
-                            <SelectItem value="dotted">Dotted</SelectItem>
-                            <SelectItem value="double">Double</SelectItem>
-                            <SelectItem value="groove">Groove</SelectItem>
-                            <SelectItem value="ridge">Ridge</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => updateConfig({ 
-                        borderWidth: undefined,
-                        borderColor: undefined, 
-                        borderStyle: undefined
-                      })}
-                      className="text-xs h-7"
-                    >
-                      Reset Border Styling
-                    </Button>
-                  </div>
-                </div>
-              </div>
-          </CardContent>
-        </Card>
+      {/* Styling Menu */}
+      {showStylingMenu && (
+        <div className="mb-4">
+          <SocialIconsStylingMenu
+            config={editingConfig}
+            onConfigChange={(newConfig) => {
+              setEditingConfig(newConfig);
+              onSave(editingLinks, newConfig);
+            }}
+            onClose={() => setShowStylingMenu(false)}
+          />
+        </div>
       )}
 
-      {/* List of social links for editing */}
-      {editingLinks.length > 0 && (
-        <Card className="mb-4">
-          <CardContent className="p-4">
-            <div className="space-y-3">
-              {editingLinks.map((link) => (
-                <div 
-                  key={link.id} 
-                  className="p-3 rounded-md border bg-muted/30"
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium capitalize truncate">
-                        {link.platform}
-                      </div>
-                      <div className="text-xs text-muted-foreground truncate">
-                        {link.url}
-                      </div>
-                    </div>
-
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleToggleEnabled(link.id)}
-                      className={`text-xs ${link.enabled ? 'text-green-600' : 'text-muted-foreground'}`}
-                    >
-                      {link.enabled ? 'Visible' : 'Hidden'}
-                    </Button>
-
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleRemoveLink(link.id)}
-                      className="text-destructive hover:text-destructive h-8 w-8 p-0"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  
-                  {/* Per-icon color customization */}
-                  <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t">
-                    <div>
-                      <Label className="text-xs mb-1 block">Icon Color</Label>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          type="color"
-                          value={link.customColor || '#000000'}
-                          onChange={(e) => {
-                            const updatedLinks = editingLinks.map(l =>
-                              l.id === link.id ? { ...l, customColor: e.target.value } : l
-                            );
-                            setEditingLinks(updatedLinks);
-                            onSave(updatedLinks, editingConfig);
-                          }}
-                          className="h-8 w-16 p-0 cursor-pointer"
-                        />
-                        {link.customColor && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => {
-                              const updatedLinks = editingLinks.map(l =>
-                                l.id === link.id ? { ...l, customColor: undefined } : l
-                              );
-                              setEditingLinks(updatedLinks);
-                              onSave(updatedLinks, editingConfig);
-                            }}
-                            className="h-8 w-8 p-0 text-xs"
-                          >
-                            Reset
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <Label className="text-xs mb-1 block">Background</Label>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          type="color"
-                          value={link.customBackgroundColor || '#ffffff'}
-                          onChange={(e) => {
-                            const updatedLinks = editingLinks.map(l =>
-                              l.id === link.id ? { ...l, customBackgroundColor: e.target.value } : l
-                            );
-                            setEditingLinks(updatedLinks);
-                            onSave(updatedLinks, editingConfig);
-                          }}
-                          className="h-8 w-16 p-0 cursor-pointer"
-                        />
-                        {link.customBackgroundColor && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => {
-                              const updatedLinks = editingLinks.map(l =>
-                                l.id === link.id ? { ...l, customBackgroundColor: undefined } : l
-                              );
-                              setEditingLinks(updatedLinks);
-                              onSave(updatedLinks, editingConfig);
-                            }}
-                            className="h-8 w-8 p-0 text-xs"
-                          >
-                            Reset
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Add new link form */}
       {isAdding ? (

@@ -36,6 +36,7 @@ const linkFormSchema = z.object({
   backgroundColor: z.string().optional(),
   textColor: z.string().optional(),
   fontFamily: z.string().optional(),
+  fontWeight: z.enum(['normal', 'bold', 'bolder', 'lighter']).optional(),
   containerShape: z.enum(['rounded', 'square', 'pill', 'rounded-corners', 'diamond', 'ridged', 'wavy']).default('rounded'),
   autoTextColor: z.boolean().default(true),
   iconColor: z.string().optional(),
@@ -230,6 +231,7 @@ export function LinksList({ isEditMode }: LinksListProps) {
       backgroundColor: '',
       textColor: '',
       fontFamily: 'system',
+      fontWeight: 'normal',
       containerShape: 'rounded',
       autoTextColor: true,
       iconColor: '',
@@ -261,6 +263,7 @@ export function LinksList({ isEditMode }: LinksListProps) {
         backgroundColor: editingLink.backgroundColor || '',
         textColor: editingLink.textColor || '',
         fontFamily: editingLink.fontFamily || 'system',
+        fontWeight: editingLink.fontWeight || 'normal',
         containerShape: editingLink.containerShape || 'rounded',
         autoTextColor: editingLink.autoTextColor !== undefined ? editingLink.autoTextColor : true,
         iconColor: editingLink.iconColor || '',
@@ -291,6 +294,7 @@ export function LinksList({ isEditMode }: LinksListProps) {
         backgroundColor: '',
         textColor: '',
         fontFamily: 'system',
+        fontWeight: 'normal',
         containerShape: 'rounded',
         autoTextColor: true,
         iconColor: '',
@@ -389,6 +393,7 @@ export function LinksList({ isEditMode }: LinksListProps) {
           backgroundColor: '',
           textColor: '',
           fontFamily: 'system',
+          fontWeight: 'normal',
           containerShape: 'rounded',
           autoTextColor: true,
         });
@@ -468,7 +473,7 @@ export function LinksList({ isEditMode }: LinksListProps) {
   };
 
   const renderLinkCard = (link: any, isGrouped: boolean = false) => {
-    const linkStyling = getLinkStyling(link, settings);
+    const linkStyling = getLinkStyling(link, settings, settings?.theme);
     console.log('Link card debug:', {
       linkTitle: link.title,
       iconBorderShape: link.iconBorderShape,
@@ -493,9 +498,25 @@ export function LinksList({ isEditMode }: LinksListProps) {
               {getIconComponent(link.icon || 'fas fa-link')}
             </div>
             <div className="flex-1 min-w-0">
-              <h4 className="font-medium text-foreground truncate">{link.title}</h4>
+              <h4 
+                className="font-medium text-foreground truncate" 
+                style={{ 
+                  fontWeight: linkStyling.fontWeight,
+                  color: linkStyling.color || undefined
+                }}
+              >
+                {link.title}
+              </h4>
               {link.description && (
-                <p className="text-sm text-muted-foreground truncate">{link.description}</p>
+                <p 
+                  className="text-sm text-muted-foreground truncate"
+                  style={{ 
+                    fontWeight: linkStyling.fontWeight,
+                    color: linkStyling.color || undefined
+                  }}
+                >
+                  {link.description}
+                </p>
               )}
               <p className="text-[10px] sm:text-xs truncate max-w-[180px] sm:max-w-none">
                 {link.url}
@@ -554,7 +575,7 @@ export function LinksList({ isEditMode }: LinksListProps) {
   };
 
   const renderDraggableLinkCard = (link: any, provided: any, snapshot: any, isGrouped: boolean = false) => {
-    const linkStyling = getLinkStyling(link, settings);
+    const linkStyling = getLinkStyling(link, settings, settings?.theme);
     const linkContent = (
       <div className="relative">
         <div
@@ -591,9 +612,25 @@ export function LinksList({ isEditMode }: LinksListProps) {
                 {getIconComponent(link.icon || 'fas fa-link')}
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="font-medium text-foreground truncate">{link.title}</h4>
+                <h4 
+                  className="font-medium text-foreground truncate" 
+                  style={{ 
+                    fontWeight: linkStyling.fontWeight,
+                    color: linkStyling.color || undefined
+                  }}
+                >
+                  {link.title}
+                </h4>
                 {link.description && (
-                  <p className="text-sm text-muted-foreground truncate">{link.description}</p>
+                  <p 
+                    className="text-sm text-muted-foreground truncate"
+                    style={{ 
+                      fontWeight: linkStyling.fontWeight,
+                      color: linkStyling.color || undefined
+                    }}
+                  >
+                    {link.description}
+                  </p>
                 )}
                 <p className="text-xs text-muted-foreground truncate max-w-[200px]">
                   {link.url}
@@ -618,7 +655,7 @@ export function LinksList({ isEditMode }: LinksListProps) {
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDeleteLink(link.id);
+                      deleteLink(link.id);
                     }}
                     data-testid={`delete-link-${link.id}`}
                   >
@@ -756,6 +793,7 @@ export function LinksList({ isEditMode }: LinksListProps) {
                 backgroundColor: '',
                 textColor: '',
                 fontFamily: 'system',
+                fontWeight: 'normal',
                 containerShape: 'rounded',
                 autoTextColor: true,
         borderWidth: 2,
@@ -1061,6 +1099,30 @@ export function LinksList({ isEditMode }: LinksListProps) {
                                       onChange={(e) => field.onChange(e.target.value)}
                                     />
                                   </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="fontWeight"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Font Weight</FormLabel>
+                                <FormControl>
+                                  <Select value={field.value || 'normal'} onValueChange={field.onChange}>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select font weight" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="normal">Normal</SelectItem>
+                                      <SelectItem value="bold">Bold</SelectItem>
+                                      <SelectItem value="bolder">Bolder</SelectItem>
+                                      <SelectItem value="lighter">Lighter</SelectItem>
+                                    </SelectContent>
+                                  </Select>
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>

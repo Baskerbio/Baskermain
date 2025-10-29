@@ -445,7 +445,8 @@ export class ATProtocolClient {
         // Customization options
         backgroundColor: record.value.backgroundColor || '',
         textColor: record.value.textColor || '',
-        fontFamily: record.value.fontFamily || 'system',
+        fontFamily: record.value.fontFamily ? record.value.fontFamily.split('|')[0] : 'system',
+        fontWeight: record.value.fontFamily ? record.value.fontFamily.split('|')[1] || 'normal' : 'normal',
         containerShape: record.value.containerShape || 'rounded',
         autoTextColor: record.value.autoTextColor !== undefined ? record.value.autoTextColor : true,
         iconColor: record.value.iconColor || '',
@@ -501,6 +502,7 @@ export class ATProtocolClient {
       
       // Create or update links
       for (const link of links) {
+        console.log('🔍 Saving link with fontWeight:', link.fontWeight);
         const record = {
           title: link.title,
           url: link.url,
@@ -512,7 +514,7 @@ export class ATProtocolClient {
           // Customization options
           backgroundColor: link.backgroundColor || '',
           textColor: link.textColor || '',
-          fontFamily: link.fontFamily || 'system',
+          fontFamily: `${link.fontFamily || 'system'}|${link.fontWeight || 'normal'}`,
           containerShape: link.containerShape || 'rounded',
         autoTextColor: link.autoTextColor !== undefined ? link.autoTextColor : true,
         iconColor: link.iconColor || '',
@@ -533,21 +535,38 @@ export class ATProtocolClient {
           updatedAt: new Date().toISOString(),
         };
         
+        console.log('🔍 Record being saved:', record);
+        console.log('🔍 Record fontWeight:', record.fontWeight);
+        
         if (link.id && existingRecords.find(existing => existing.id === link.id)) {
           // Update existing record
-          await this.agent.api.com.atproto.repo.putRecord({
-            repo: this.did,
-            collection: 'app.basker.links',
-            rkey: link.id,
-            record,
-          });
+          console.log('🔍 Updating existing record for link:', link.id);
+          try {
+            await this.agent.api.com.atproto.repo.putRecord({
+              repo: this.did,
+              collection: 'app.basker.links',
+              rkey: link.id,
+              record,
+            });
+            console.log('🔍 Successfully updated record');
+          } catch (error) {
+            console.error('🔍 Error updating record:', error);
+            throw error;
+          }
         } else {
           // Create new record
-          await this.agent.api.com.atproto.repo.createRecord({
-            repo: this.did,
-            collection: 'app.basker.links',
-            record,
-          });
+          console.log('🔍 Creating new record for link:', link.id);
+          try {
+            await this.agent.api.com.atproto.repo.createRecord({
+              repo: this.did,
+              collection: 'app.basker.links',
+              record,
+            });
+            console.log('🔍 Successfully created record');
+          } catch (error) {
+            console.error('🔍 Error creating record:', error);
+            throw error;
+          }
         }
       }
       
@@ -1088,7 +1107,8 @@ export class ATProtocolClient {
         // Customization options
         backgroundColor: record.value.backgroundColor || '',
         textColor: record.value.textColor || '',
-        fontFamily: record.value.fontFamily || 'system',
+        fontFamily: record.value.fontFamily ? record.value.fontFamily.split('|')[0] : 'system',
+        fontWeight: record.value.fontFamily ? record.value.fontFamily.split('|')[1] || 'normal' : 'normal',
         containerShape: record.value.containerShape || 'rounded',
         autoTextColor: record.value.autoTextColor !== undefined ? record.value.autoTextColor : true,
         iconColor: record.value.iconColor || '',

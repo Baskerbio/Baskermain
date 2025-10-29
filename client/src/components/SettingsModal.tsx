@@ -23,207 +23,54 @@ interface SettingsModalProps {
 // Default values
 const DEFAULT_SECTIONS: ('widgets' | 'notes' | 'links')[] = ['widgets', 'notes', 'links'];
 
-// Theme definitions with comprehensive color options
-const THEMES: Record<string, Theme> = {
-  light: {
-    name: 'light' as const,
-    primaryColor: '#3b82f6',
-    accentColor: '#10b981',
-    backgroundColor: '#ffffff',
-    textColor: '#1f2937',
-    cardBackground: '#f9fafb',
-    cardText: '#1f2937',
-    headingColor: '#111827',
-    mutedTextColor: '#6b7280',
-    borderColor: '#e5e7eb',
-    fontFamily: 'Inter',
-    layout: 'default',
-  },
-  dark: {
-    name: 'dark' as const,
-    primaryColor: '#8b5cf6',
-    accentColor: '#22c55e',
-    backgroundColor: '#0f0f14',
-    textColor: '#fafafa',
-    cardBackground: '#1a1a1f',
-    cardText: '#fafafa',
-    headingColor: '#ffffff',
-    mutedTextColor: '#a1a1aa',
-    borderColor: '#27272a',
-    fontFamily: 'Inter',
-    layout: 'default',
-  },
-  gradient: {
-    name: 'gradient' as const,
-    primaryColor: '#8b5cf6',
-    accentColor: '#ec4899',
-    backgroundColor: '#1e1b4b',
-    textColor: '#ffffff',
-    cardBackground: '#312e81',
-    cardText: '#ffffff',
-    headingColor: '#fae8ff',
-    mutedTextColor: '#c4b5fd',
-    borderColor: '#4c1d95',
-    fontFamily: 'Inter',
-    layout: 'default',
-  },
-  halloween: {
-    name: 'halloween' as const,
-    primaryColor: '#f97316',
-    accentColor: '#ef4444',
-    backgroundColor: '#0f0f0f',
-    textColor: '#fbbf24',
-    cardBackground: '#1c1c1c',
-    cardText: '#fbbf24',
-    headingColor: '#fb923c',
-    mutedTextColor: '#a16207',
-    borderColor: '#422006',
-    fontFamily: 'Inter',
-    layout: 'default',
-  },
-  christmas: {
-    name: 'christmas' as const,
-    primaryColor: '#dc2626',
-    accentColor: '#16a34a',
-    backgroundColor: '#1e293b',
-    textColor: '#f8fafc',
-    cardBackground: '#334155',
-    cardText: '#f8fafc',
-    headingColor: '#fecaca',
-    mutedTextColor: '#cbd5e1',
-    borderColor: '#475569',
-    fontFamily: 'Inter',
-    layout: 'default',
-  },
-  ocean: {
-    name: 'ocean' as const,
-    primaryColor: '#0ea5e9',
-    accentColor: '#06b6d4',
-    backgroundColor: '#0f172a',
-    textColor: '#e0f2fe',
-    cardBackground: '#1e293b',
-    cardText: '#e0f2fe',
-    headingColor: '#bae6fd',
-    mutedTextColor: '#7dd3fc',
-    borderColor: '#334155',
-    fontFamily: 'Inter',
-    layout: 'default',
-  },
-  sunset: {
-    name: 'sunset' as const,
-    primaryColor: '#f59e0b',
-    accentColor: '#ef4444',
-    backgroundColor: '#1c1917',
-    textColor: '#fef3c7',
-    cardBackground: '#292524',
-    cardText: '#fef3c7',
-    headingColor: '#fde68a',
-    mutedTextColor: '#fcd34d',
-    borderColor: '#44403c',
-    fontFamily: 'Inter',
-    layout: 'default',
-  },
-  forest: {
-    name: 'forest' as const,
-    primaryColor: '#22c55e',
-    accentColor: '#84cc16',
-    backgroundColor: '#0f1419',
-    textColor: '#f0fdf4',
-    cardBackground: '#1a2328',
-    cardText: '#f0fdf4',
-    headingColor: '#bbf7d0',
-    mutedTextColor: '#86efac',
-    borderColor: '#14532d',
-    fontFamily: 'Inter',
-    layout: 'default',
-  },
-  cosmic: {
-    name: 'cosmic' as const,
-    primaryColor: '#a855f7',
-    accentColor: '#ec4899',
-    backgroundColor: '#0f0b1f',
-    textColor: '#f3f4f6',
-    cardBackground: '#1e1535',
-    cardText: '#f3f4f6',
-    headingColor: '#e9d5ff',
-    mutedTextColor: '#d8b4fe',
-    borderColor: '#4c1d95',
-    fontFamily: 'Inter',
-    layout: 'default',
-  },
-  neon: {
-    name: 'neon' as const,
-    primaryColor: '#00ff88',
-    accentColor: '#ff0080',
-    backgroundColor: '#000000',
-    textColor: '#ffffff',
-    cardBackground: '#0a0a0a',
-    cardText: '#ffffff',
-    headingColor: '#00ff88',
-    mutedTextColor: '#cccccc',
-    borderColor: '#00ff8844',
-    fontFamily: 'Inter',
-    layout: 'default',
-  },
-  vintage: {
-    name: 'vintage' as const,
-    primaryColor: '#b45309',
-    accentColor: '#d97706',
-    backgroundColor: '#fef3c7',
-    textColor: '#451a03',
-    cardBackground: '#fef9e7',
-    cardText: '#451a03',
-    headingColor: '#78350f',
-    mutedTextColor: '#92400e',
-    borderColor: '#fde047',
-    fontFamily: 'Inter',
-    layout: 'default',
-  },
-  minimal: {
-    name: 'minimal' as const,
-    primaryColor: '#374151',
-    accentColor: '#6b7280',
-    backgroundColor: '#ffffff',
-    textColor: '#111827',
-    cardBackground: '#f9fafb',
-    cardText: '#111827',
-    headingColor: '#000000',
-    mutedTextColor: '#9ca3af',
-    borderColor: '#e5e7eb',
-    fontFamily: 'Inter',
-    layout: 'default',
-  },
-  retro: {
-    name: 'retro' as const,
-    primaryColor: '#ef4444',
-    accentColor: '#3b82f6',
-    backgroundColor: '#fef3c7',
-    textColor: '#1f2937',
-    cardBackground: '#fff7ed',
-    cardText: '#1f2937',
-    headingColor: '#dc2626',
-    mutedTextColor: '#6b7280',
-    borderColor: '#fed7aa',
-    fontFamily: 'Inter',
-    layout: 'default',
-  },
-  modern: {
-    name: 'modern' as const,
-    primaryColor: '#6366f1',
-    accentColor: '#8b5cf6',
-    backgroundColor: '#0f172a',
-    textColor: '#f1f5f9',
-    cardBackground: '#1e293b',
-    cardText: '#f1f5f9',
-    headingColor: '#e0e7ff',
-    mutedTextColor: '#cbd5e1',
-    borderColor: '#334155',
-    fontFamily: 'Inter',
-    layout: 'default',
-  },
+// Comprehensive Halloween theme with all styling options
+const HALLOWEEN_THEME: Theme = {
+  name: 'halloween' as const,
+  // Core colors - spooky orange/black theme
+  primaryColor: '#f97316', // Pumpkin orange
+  accentColor: '#ef4444', // Blood red
+  backgroundColor: '#0f0f0f', // Deep black
+  textColor: '#fbbf24', // Golden text
+  
+  // Card styling
+  cardBackground: '#1c1c1c', // Dark grey cards
+  cardText: '#fbbf24', // Golden card text
+  
+  // Text variations
+  headingColor: '#fb923c', // Brighter orange for headings
+  mutedTextColor: '#a16207', // Darker gold for muted text
+  linkColor: '#f97316', // Orange links
+  linkHoverColor: '#ef4444', // Red on hover
+  
+  // UI elements
+  borderColor: '#422006', // Dark brown borders
+  buttonBackground: '#f97316', // Orange buttons
+  buttonText: '#0f0f0f', // Black button text
+  buttonHoverBackground: '#ef4444', // Red on hover
+  
+  // Input elements
+  inputBackground: '#1c1c1c',
+  inputText: '#fbbf24',
+  inputBorder: '#422006',
+  
+  // Layout
+  fontFamily: 'Creepster, Inter, sans-serif',
+  layout: 'default',
+  backgroundImage: undefined, // Can be set by user
+  
+  // Theme-specific styling
+  enableThemePatterns: true,
+  defaultLinkBackground: '#1c1c1c', // Dark grey for links
+  defaultLinkTextColor: '#fbbf24', // Golden text for links
+  patternStyle: 'themed', // Use themed patterns
 };
 
-const DEFAULT_THEME: Partial<Theme> = THEMES.dark;
+// Theme map
+const THEMES: Record<string, Theme> = {
+  halloween: HALLOWEEN_THEME,
+};
+
+const DEFAULT_THEME: Partial<Theme> = HALLOWEEN_THEME;
 
 const DEFAULT_FORM_DATA: Partial<Settings> = {
   theme: DEFAULT_THEME as Theme,
@@ -248,6 +95,9 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
   const { mutate: saveSettings } = useSaveSettings();
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
+  
+  // Store user's custom colors separately from theme presets
+  const [customTheme, setCustomTheme] = useState<Theme | null>(null);
   
   const [formData, setFormData] = useState<Settings>(() => ({
     // cast because Settings type comes from shared schema; ensure required fields exist
@@ -377,21 +227,62 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
 
 
   const updateTheme = (themeName: string) => {
-    const theme = THEMES[themeName as keyof typeof THEMES] || THEMES.dark;
-    setFormData(prev => ({
-      ...prev,
-      theme: theme as Theme,
-    }));
+    console.log('🎨 updateTheme called with:', themeName);
+    console.log('🎨 Current formData.theme:', formData.theme);
+    
+    // If clicking the same theme, disable it (toggle off)
+    if (formData.theme?.name === themeName) {
+      console.log('🎨 Disabling theme:', themeName);
+      // Restore custom theme if it exists, otherwise use current theme
+      const themeToUse = customTheme || formData.theme || THEMES.halloween;
+      const disabledTheme = {
+        ...themeToUse, // Use custom theme or current theme
+        name: 'none' as any, // Use 'none' to indicate "no theme"
+        enableThemePatterns: false, // Disable theme patterns
+      };
+      setFormData(prev => ({
+        ...prev,
+        theme: disabledTheme,
+      }));
+      setTheme(disabledTheme); // Update theme context immediately
+    } else {
+      // Select new theme
+      console.log('🎨 Selecting new theme:', themeName);
+      
+      // If switching from "no theme" or custom colors, save them as custom theme
+      if (!formData.theme?.name || formData.theme?.name === 'none' || !THEMES[formData.theme?.name as keyof typeof THEMES]) {
+        console.log('🎨 Saving current colors as custom theme');
+        setCustomTheme(formData.theme || THEMES.halloween);
+      }
+      
+      const theme = THEMES[themeName as keyof typeof THEMES] || THEMES.halloween;
+      console.log('🎨 Theme object:', theme);
+      setFormData(prev => ({
+        ...prev,
+        theme: theme as Theme,
+      }));
+      setTheme(theme as Theme); // Update theme context immediately
+    }
   };
 
   const updateThemeProperty = (updates: Partial<Theme>) => {
-    setFormData(prev => ({
-      ...prev,
-      theme: {
-        ...(prev.theme || THEMES.dark),
+    setFormData(prev => {
+      const newTheme = {
+        ...(prev.theme || THEMES.halloween),
         ...updates,
-      },
-    }));
+      };
+      
+      // If user is customizing colors and not using a preset theme, save as custom theme
+      if (!prev.theme?.name || prev.theme?.name === 'none' || !THEMES[prev.theme?.name as keyof typeof THEMES]) {
+        console.log('🎨 Saving color changes as custom theme');
+        setCustomTheme(newTheme);
+      }
+      
+      return {
+        ...prev,
+        theme: newTheme,
+      };
+    });
   };
 
   return (
@@ -416,7 +307,7 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
                   className="w-full justify-start data-[state=active]:bg-primary data-[state=active]:text-primary-foreground h-8 sm:h-10 lg:h-12 px-2 sm:px-4 text-xs sm:text-sm"
                 >
                   <div className="flex items-center gap-2 w-full">
-                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
                     <span className="font-medium truncate">Appearance</span>
                   </div>
                 </TabsTrigger>
@@ -425,7 +316,7 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
                   className="w-full justify-start data-[state=active]:bg-primary data-[state=active]:text-primary-foreground h-8 sm:h-10 lg:h-12 px-2 sm:px-4 text-xs sm:text-sm"
                 >
                   <div className="flex items-center gap-2 w-full">
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                    <div className="w-1.5 h-1.5 rounded-full bg-accent"></div>
                     <span className="font-medium truncate">Content</span>
                   </div>
                 </TabsTrigger>
@@ -434,7 +325,7 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
                   className="w-full justify-start data-[state=active]:bg-primary data-[state=active]:text-primary-foreground h-8 sm:h-10 lg:h-12 px-2 sm:px-4 text-xs sm:text-sm"
                 >
                   <div className="flex items-center gap-2 w-full">
-                    <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary/70"></div>
                     <span className="font-medium truncate">Social Links</span>
                   </div>
                 </TabsTrigger>
@@ -443,7 +334,7 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
                   className="w-full justify-start data-[state=active]:bg-primary data-[state=active]:text-primary-foreground h-8 sm:h-10 lg:h-12 px-2 sm:px-4 text-xs sm:text-sm"
                 >
                   <div className="flex items-center gap-2 w-full">
-                    <div className="w-1.5 h-1.5 rounded-full bg-orange-500"></div>
+                    <div className="w-1.5 h-1.5 rounded-full bg-accent/70"></div>
                     <span className="font-medium truncate">Privacy & SEO</span>
                   </div>
                 </TabsTrigger>
@@ -469,44 +360,128 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
                       <p className="text-sm text-muted-foreground mb-4">
                         Select a pre-designed theme or customize colors below
                       </p>
-            <div className="grid grid-cols-5 gap-2 mb-4">
-              {Object.entries(THEMES).map(([key, theme]) => (
-                <div key={key} className="relative">
-                  <input
-                    type="radio"
-                    name="theme"
-                    value={key}
-                    id={`theme-${key}`}
-                    className="sr-only peer"
-                    checked={(formData.theme?.name || '') === key}
-                    onChange={() => updateTheme(key)}
-                  />
-                  <label
-                    htmlFor={`theme-${key}`}
-                    className="block p-2 border-2 border-border peer-checked:border-primary rounded-lg cursor-pointer hover:border-muted-foreground transition-colors"
-                    data-testid={`theme-${key}`}
-                  >
-                    <div 
-                      className="rounded-md p-1.5 mb-1.5 h-12 flex flex-col justify-end"
-                      style={{ backgroundColor: theme.backgroundColor }}
-                    >
-                      <div 
-                        className="h-1.5 rounded mb-0.5" 
-                        style={{ backgroundColor: theme.textColor }}
-                      ></div>
-                      <div 
-                        className="h-0.5 rounded mb-0.5" 
-                        style={{ backgroundColor: theme.primaryColor }}
-                      ></div>
-                      <div 
-                        className="h-0.5 rounded" 
-                        style={{ backgroundColor: theme.accentColor }}
-                      ></div>
+            <div className="grid grid-cols-6 gap-2 mb-4">
+              {/* No Theme Option */}
+              <div className="relative">
+                <input
+                  type="radio"
+                  name="theme"
+                  value="none"
+                  id="theme-none"
+                  className="sr-only peer"
+                  checked={!formData.theme?.name || formData.theme?.name === 'none'}
+                  onChange={() => {
+                    // Restore custom theme if it exists, otherwise use current theme
+                    const themeToUse = customTheme || formData.theme || THEMES.halloween;
+                    const noTheme = {
+                      ...themeToUse, // Use custom theme or current theme
+                      name: 'none' as any, // Use 'none' to indicate "no theme"
+                      enableThemePatterns: false,
+                    };
+                    setFormData(prev => ({
+                      ...prev,
+                      theme: noTheme,
+                    }));
+                    setTheme(noTheme); // Update theme context immediately
+                  }}
+                />
+                <label
+                  htmlFor="theme-none"
+                  className={`block p-2 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
+                    !formData.theme?.name || formData.theme?.name === 'none'
+                      ? 'border-gray-500 bg-gray-500/5 shadow-md' 
+                      : 'border-border hover:border-muted-foreground'
+                  }`}
+                  data-testid="theme-none"
+                >
+                  {/* Selection indicator */}
+                  {(!formData.theme?.name || formData.theme?.name === 'none') && (
+                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-gray-500 rounded-full flex items-center justify-center">
+                      <div className="w-2 h-2 bg-white rounded-full"></div>
                     </div>
-                    <p className="text-[10px] font-medium text-center capitalize">{key}</p>
-                  </label>
-                </div>
-              ))}
+                  )}
+                  
+                  <div className="rounded-md p-1.5 mb-1.5 h-12 flex flex-col justify-center items-center bg-gray-100 dark:bg-gray-800">
+                    <div className="w-4 h-4 rounded border-2 border-gray-400"></div>
+                  </div>
+                  <p className={`text-[10px] font-medium text-center ${
+                    !formData.theme?.name || formData.theme?.name === 'none' ? 'text-gray-500' : ''
+                  }`}>
+                    No Theme
+                  </p>
+                </label>
+              </div>
+              
+              {Object.entries(THEMES).map(([key, theme]) => {
+                const isSelected = (formData.theme?.name || '') === key;
+                const isDisabled = formData.theme?.enableThemePatterns === false;
+                const isActive = isSelected && !isDisabled;
+                
+                return (
+                  <div key={key} className="relative">
+                    <input
+                      type="radio"
+                      name="theme"
+                      value={key}
+                      id={`theme-${key}`}
+                      className="sr-only peer"
+                      checked={isSelected}
+                      onChange={() => updateTheme(key)}
+                    />
+                    <label
+                      htmlFor={`theme-${key}`}
+                      className={`block p-2 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
+                        isActive 
+                          ? 'border-primary bg-primary/5 shadow-md' 
+                          : isSelected && isDisabled
+                          ? 'border-muted-foreground bg-muted-foreground/5'
+                          : 'border-border hover:border-muted-foreground'
+                      }`}
+                      data-testid={`theme-${key}`}
+                    >
+                      {/* Selection indicator */}
+                      {isActive && (
+                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                          <div className="w-2 h-2 bg-white rounded-full"></div>
+                        </div>
+                      )}
+                      {isSelected && isDisabled && (
+                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-muted-foreground rounded-full flex items-center justify-center">
+                          <div className="w-2 h-2 bg-white rounded-full"></div>
+                        </div>
+                      )}
+                      
+                      <div 
+                        className={`rounded-md p-1.5 mb-1.5 h-12 flex flex-col justify-end transition-opacity ${
+                          isSelected && isDisabled ? 'opacity-50' : ''
+                        }`}
+                        style={{ backgroundColor: theme.backgroundColor }}
+                      >
+                        <div 
+                          className="h-1.5 rounded mb-0.5" 
+                          style={{ backgroundColor: theme.textColor }}
+                        ></div>
+                        <div 
+                          className="h-0.5 rounded mb-0.5" 
+                          style={{ backgroundColor: theme.primaryColor }}
+                        ></div>
+                        <div 
+                          className="h-0.5 rounded" 
+                          style={{ backgroundColor: theme.accentColor }}
+                        ></div>
+                      </div>
+                      <p className={`text-[10px] font-medium text-center capitalize ${
+                        isActive ? 'text-primary' : isSelected && isDisabled ? 'text-muted-foreground' : ''
+                      }`}>
+                        {key}
+                        {isSelected && isDisabled && (
+                          <span className="block text-[8px] text-muted-foreground">(disabled)</span>
+                        )}
+                      </p>
+                    </label>
+                  </div>
+                );
+              })}
             </div>
           </div>
           
@@ -768,7 +743,7 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    const resetTheme: Theme = THEMES.dark;
+                    const resetTheme: Theme = THEMES.halloween;
                     setTheme(resetTheme);
                     setFormData(prev => ({ ...prev, theme: resetTheme }));
                     toast({
@@ -2139,7 +2114,7 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
                                 variant="outline"
                                 size="sm"
                                 onClick={() => {
-                                  const resetTheme: Theme = THEMES.dark;
+                                  const resetTheme: Theme = THEMES.halloween;
                                   setTheme(resetTheme);
                                   setFormData(prev => ({ ...prev, theme: resetTheme }));
                                   toast({

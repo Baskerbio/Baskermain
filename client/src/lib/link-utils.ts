@@ -39,14 +39,30 @@ export const getShapeClasses = (shape: string) => {
 };
 
 // Get link styling based on customization
-export const getLinkStyling = (link: Link, settings?: any) => {
-  const backgroundColor = link.backgroundColor || undefined;
+export const getLinkStyling = (link: Link, settings?: any, theme?: any) => {
+  // Only apply theme defaults if:
+  // 1. Theme patterns are enabled
+  // 2. Link has NO custom background color (not just empty string, but truly undefined/null)
+  // 3. Theme has default background color defined
+  const useThemeDefault = theme?.enableThemePatterns && 
+                         (link.backgroundColor === undefined || link.backgroundColor === null || link.backgroundColor === '') && 
+                         theme?.defaultLinkBackground;
+  
+  const backgroundColor = link.backgroundColor || (useThemeDefault ? theme.defaultLinkBackground : undefined);
+  
+  // Only apply theme default text color if link has no custom text color
+  const useThemeTextDefault = theme?.enableThemePatterns && 
+                             (link.textColor === undefined || link.textColor === null || link.textColor === '') && 
+                             theme?.defaultLinkTextColor;
+  const defaultTextColor = useThemeTextDefault ? theme.defaultLinkTextColor : undefined;
+  
   const textColor = link.autoTextColor && backgroundColor 
     ? getContrastColor(backgroundColor) 
-    : link.textColor || undefined;
+    : link.textColor || defaultTextColor || undefined;
   const fontFamily = link.fontFamily && link.fontFamily !== 'system' 
     ? link.fontFamily 
     : undefined;
+  const fontWeight = link.fontWeight || undefined;
   const iconColor = link.iconColor || undefined;
   const shapeClasses = getShapeClasses(link.containerShape || 'rounded');
   
@@ -55,6 +71,7 @@ export const getLinkStyling = (link: Link, settings?: any) => {
   if (backgroundColor) style.backgroundColor = backgroundColor;
   if (textColor) style.color = textColor;
   if (fontFamily) style.fontFamily = fontFamily;
+  if (fontWeight) style.fontWeight = fontWeight;
   
   // Border styling - Apply only via inline styles to avoid double borders
   const borderWidth = link.borderWidth || 0;
@@ -75,51 +92,82 @@ export const getLinkStyling = (link: Link, settings?: any) => {
   const iconBorderColor = link.iconBorderColor || '#000000';
   const iconBorderShape = link.iconBorderShape || 'rounded';
   
-  console.log('Icon border shape debug:', {
-    iconBorderShape: link.iconBorderShape,
-    processedShape: iconBorderShape,
-    cssClass: `icon-border-${iconBorderShape}`
-  });
+  // Debug logging commented out for performance
+  // console.log('Icon border shape debug:', {
+  //   iconBorderShape: link.iconBorderShape,
+  //   processedShape: iconBorderShape,
+  //   cssClass: `icon-border-${iconBorderShape}`
+  // });
   
-  // Special border effects
-  if (link.borderEffect) {
-    switch (link.borderEffect) {
-      case 'gradient':
-        borderClasses.push('border-gradient');
-        break;
-      case 'animated':
-        borderClasses.push('border-animated');
-        break;
-      case 'neon':
-        borderClasses.push('border-neon');
-        break;
-      case 'glow':
-        borderClasses.push('border-glow');
-        break;
-    }
-  }
+  // Special border effects (to be applied via CSS classes if needed in the future)
+  // const borderClasses: string[] = [];
+  // if (link.borderEffect) {
+  //   switch (link.borderEffect) {
+  //     case 'gradient':
+  //       borderClasses.push('border-gradient');
+  //       break;
+  //     case 'animated':
+  //       borderClasses.push('border-animated');
+  //       break;
+  //     case 'neon':
+  //       borderClasses.push('border-neon');
+  //       break;
+  //     case 'glow':
+  //       borderClasses.push('border-glow');
+  //       break;
+  //   }
+  // }
   
   // Pattern styling
+  let patternApplied = false;
   if (link.pattern && link.pattern !== 'none') {
     const patternColor = link.patternColor || link.textColor || '#000000';
     switch (link.pattern) {
       case 'dots':
         style.backgroundImage = `radial-gradient(circle, ${patternColor} 1px, transparent 1px)`;
         style.backgroundSize = '10px 10px';
+        patternApplied = true;
         break;
       case 'lines':
         style.backgroundImage = `repeating-linear-gradient(45deg, transparent, transparent 10px, ${patternColor} 10px, ${patternColor} 20px)`;
+        patternApplied = true;
         break;
       case 'grid':
         style.backgroundImage = `linear-gradient(${patternColor} 1px, transparent 1px), linear-gradient(90deg, ${patternColor} 1px, transparent 1px)`;
         style.backgroundSize = '20px 20px';
+        patternApplied = true;
         break;
       case 'diagonal':
         style.backgroundImage = `repeating-linear-gradient(45deg, transparent, transparent 5px, ${patternColor} 5px, ${patternColor} 10px)`;
+        patternApplied = true;
         break;
       case 'waves':
         style.backgroundImage = `repeating-linear-gradient(0deg, transparent, transparent 10px, ${patternColor} 10px, ${patternColor} 20px)`;
+        patternApplied = true;
         break;
+      case 'themed':
+        // Apply theme-specific patterns if theme is enabled
+        if (theme?.name === 'halloween' && !patternApplied) {
+          const halloweenColor = theme.accentColor || '#ef4444';
+          style.backgroundImage = `
+            radial-gradient(circle, ${halloweenColor}33 1px, transparent 1px),
+            repeating-linear-gradient(45deg, transparent, transparent 5px, ${halloweenColor}22 5px, ${halloweenColor}22 10px)
+          `;
+          style.backgroundSize = '15px 15px, 20px 20px';
+          patternApplied = true;
+        }
+        break;
+    }
+  } else if (theme?.patternStyle === 'themed' && theme?.enableThemePatterns && (link.backgroundColor === undefined || link.backgroundColor === null || link.backgroundColor === '') && theme?.enableThemePatterns !== false) {
+    // Apply theme patterns when pattern is 'none' or undefined but theme has themed patterns
+    if (theme.name === 'halloween') {
+      const halloweenColor = theme.accentColor || '#ef4444';
+      style.backgroundImage = `
+        radial-gradient(circle, ${halloweenColor}33 1px, transparent 1px),
+        repeating-linear-gradient(45deg, transparent, transparent 5px, ${halloweenColor}22 5px, ${halloweenColor}22 10px)
+      `;
+      style.backgroundSize = '15px 15px, 20px 20px';
+      patternApplied = true;
     }
   }
   
@@ -137,5 +185,6 @@ export const getLinkStyling = (link: Link, settings?: any) => {
     pixelTransitionColor: link.pixelTransitionColor || '#000000',
     pixelTransitionGridSize: link.pixelTransitionGridSize || 7,
     pixelTransitionDuration: link.pixelTransitionDuration || 0.3,
+    fontWeight: fontWeight,
   };
 };

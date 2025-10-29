@@ -62,6 +62,8 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     root.style.setProperty('--background', activeTheme.backgroundColor);
     root.style.setProperty('--foreground', activeTheme.textColor);
     
+    console.log('🎨 ThemeContext: Applied primary color:', activeTheme.primaryColor);
+    
     // Apply card colors
     if (activeTheme.cardBackground) {
       root.style.setProperty('--card', activeTheme.cardBackground);
@@ -109,18 +111,50 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       root.style.setProperty('--input-border', activeTheme.inputBorder);
     }
     
-    // Apply background image ONLY on profile pages
-    if (isProfilePage && activeTheme.backgroundImage) {
-      console.log('🎨 ThemeContext: Applying background image:', activeTheme.backgroundImage);
-      body.style.setProperty('background-image', `url(${activeTheme.backgroundImage})`, 'important');
-      body.style.setProperty('background-size', 'cover', 'important');
-      body.style.setProperty('background-position', 'center', 'important');
-      body.style.setProperty('background-repeat', 'no-repeat', 'important');
-      body.style.setProperty('background-attachment', 'fixed', 'important');
-      body.style.setProperty('background-color', 'transparent', 'important');
-    } else if (!isProfilePage) {
-      // Only clear background image when NOT on profile pages
-      console.log('🎨 ThemeContext: Clearing background image (not profile page)');
+    // Apply background styling to body
+    // Check if theme is disabled
+    const isThemeDisabled = activeTheme.enableThemePatterns === false || activeTheme.name === 'none';
+    
+    if (isProfilePage && !isThemeDisabled) {
+      // 1. Apply background image if provided
+      if (activeTheme.backgroundImage) {
+        console.log('🎨 ThemeContext: Applying background image:', activeTheme.backgroundImage);
+        body.style.setProperty('background-image', `url(${activeTheme.backgroundImage})`, 'important');
+        body.style.setProperty('background-size', 'cover', 'important');
+        body.style.setProperty('background-position', 'center', 'important');
+        body.style.setProperty('background-repeat', 'no-repeat', 'important');
+        body.style.setProperty('background-attachment', 'fixed', 'important');
+        body.style.setProperty('background-color', 'transparent', 'important');
+      } 
+      // 2. Apply theme patterns if enabled and no background image
+      else if (activeTheme.enableThemePatterns && activeTheme.patternStyle === 'themed') {
+        // Halloween-themed patterns
+        if (activeTheme.name === 'halloween') {
+          // Spooky web-like pattern
+          const patternColor = activeTheme.accentColor || '#ef4444';
+          body.style.setProperty('background-color', activeTheme.backgroundColor, 'important');
+          body.style.setProperty('background-image', `
+            radial-gradient(circle at 20% 50%, ${patternColor}11 0%, transparent 50%),
+            radial-gradient(circle at 80% 50%, ${patternColor}11 0%, transparent 50%),
+            repeating-linear-gradient(0deg, transparent, transparent 5px, ${patternColor}08 5px, ${patternColor}08 10px),
+            repeating-linear-gradient(90deg, transparent, transparent 5px, ${patternColor}08 5px, ${patternColor}08 10px)
+          `, 'important');
+          body.style.setProperty('background-size', '200px 200px, 200px 200px, 50px 50px, 50px 50px', 'important');
+          body.style.setProperty('background-position', '0 0, 0 0, 0 0, 0 0', 'important');
+        }
+      }
+      // 3. Apply solid background color if no image or pattern
+      else {
+        body.style.setProperty('background-color', activeTheme.backgroundColor, 'important');
+        body.style.removeProperty('background-image');
+        body.style.removeProperty('background-size');
+        body.style.removeProperty('background-position');
+        body.style.removeProperty('background-repeat');
+        body.style.removeProperty('background-attachment');
+      }
+    } else {
+      // Clear all background styles when theme is disabled or not on profile pages
+      console.log('🎨 ThemeContext: Clearing background (theme disabled or not profile page)');
       body.style.removeProperty('background-image');
       body.style.removeProperty('background-size');
       body.style.removeProperty('background-position');

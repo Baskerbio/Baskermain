@@ -60,6 +60,7 @@ export const linkSchema = z.object({
   backgroundColor: z.string().optional(),
   textColor: z.string().optional(),
   fontFamily: z.string().optional(),
+  fontWeight: z.enum(['normal', 'bold', 'bolder', 'lighter']).optional(),
   containerShape: z.enum(['rounded', 'square', 'pill', 'rounded-corners', 'diamond', 'ridged', 'wavy']).default('rounded'),
   autoTextColor: z.boolean().default(true), // Auto-detect text color based on background
   iconColor: z.string().optional(), // Custom icon color
@@ -252,11 +253,7 @@ export const groupSchema = z.object({
 // Theme schema - comprehensive color customization
 export const themeSchema = z.object({
   name: z.enum([
-    "light", "dark", "gradient", 
-    "halloween", "christmas", "ocean", 
-    "sunset", "forest", "cosmic", 
-    "neon", "vintage", "minimal", 
-    "retro", "modern", "custom"
+    "halloween", "custom1", "custom2", "none"
   ]),
   // Core colors
   primaryColor: z.string(),
@@ -286,6 +283,41 @@ export const themeSchema = z.object({
   inputBorder: z.string().optional(),
   
   // Layout
+  fontFamily: z.string(),
+  layout: z.string(),
+  backgroundImage: z.string().optional(),
+  
+  // Theme-specific styling
+  enableThemePatterns: z.boolean().default(true), // Enable theme-specific background patterns
+  defaultLinkBackground: z.string().optional(), // Default background color for links when theme is enabled
+  defaultLinkTextColor: z.string().optional(), // Default text color for links when theme is enabled
+  patternStyle: z.enum(['none', 'dots', 'lines', 'grid', 'diagonal', 'waves', 'themed']).optional(), // Pattern style
+});
+
+// Custom theme schema for user-created themes
+export const customThemeSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  // Reuse theme schema structure
+  primaryColor: z.string(),
+  accentColor: z.string(),
+  backgroundColor: z.string(),
+  textColor: z.string(),
+  cardBackground: z.string().optional(),
+  cardText: z.string().optional(),
+  headingColor: z.string().optional(),
+  mutedTextColor: z.string().optional(),
+  linkColor: z.string().optional(),
+  linkHoverColor: z.string().optional(),
+  borderColor: z.string().optional(),
+  buttonBackground: z.string().optional(),
+  buttonText: z.string().optional(),
+  buttonHoverBackground: z.string().optional(),
+  inputBackground: z.string().optional(),
+  inputText: z.string().optional(),
+  inputBorder: z.string().optional(),
   fontFamily: z.string(),
   layout: z.string(),
   backgroundImage: z.string().optional(),
