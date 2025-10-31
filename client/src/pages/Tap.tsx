@@ -35,64 +35,95 @@ export default function Solaris() {
   const [dragRotation, setDragRotation] = useState({ steve: 0, tony: 0, ron: 0 });
   const [isDragging, setIsDragging] = useState({ steve: false, tony: false, ron: false });
   const [dragStart, setDragStart] = useState({ x: 0, y: 0, rotation: 0 });
+  const [isMobile, setIsMobile] = useState(false);
   const steveRef = useRef<HTMLDivElement>(null);
   const tonyRef = useRef<HTMLDivElement>(null);
   const ronRef = useRef<HTMLDivElement>(null);
 
+  // Detect mobile on mount and resize
   useEffect(() => {
-    const handleScroll = () => {
-      const calculateProgress = (ref: React.RefObject<HTMLDivElement>) => {
-        if (!ref.current) return 0;
-        const rect = ref.current.getBoundingClientRect();
-        const windowHeight = window.innerHeight;
-        const elementTop = rect.top;
-        const elementBottom = rect.bottom;
-        const elementCenter = elementTop + (elementBottom - elementTop) * 0.5;
-        
-        // If element is completely above viewport (not yet visible), show front (0)
-        if (elementBottom < 0) return 0;
-        
-        // If element is completely below viewport, show front (0) until it enters
-        if (elementTop > windowHeight) return 0;
-        
-        // When element is in viewport, animate based on its position
-        // Start flipping when element center passes viewport center
-        // Use viewport as the scroll range for smooth animation
-        const viewportCenter = windowHeight * 0.5;
-        
-        // Animation range: from when element center is at top 70% of viewport to bottom 30%
-        const animationStart = windowHeight * 0.7; // Start flipping here (upper viewport)
-        const animationEnd = windowHeight * 0.3;   // Finish flipping here (lower viewport)
-        
-        // If element center is above animation start - show front (0)
-        if (elementCenter > animationStart) return 0;
-        
-        // If element center is below animation end - show back (1)
-        if (elementCenter < animationEnd) return 1;
-        
-        // Calculate smooth progress between start and end
-        // Progress goes from 0 (at start) to 1 (at end)
-        const rawProgress = (animationStart - elementCenter) / (animationStart - animationEnd);
-        // Apply smoothstep easing for buttery smooth animation
-        const easedProgress = rawProgress * rawProgress * (3 - 2 * rawProgress);
-        
-        return Math.max(0, Math.min(1, easedProgress));
-      };
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
-      // Use requestAnimationFrame for smoother updates
-      requestAnimationFrame(() => {
-        setScrollProgress({
-          steve: calculateProgress(steveRef),
-          tony: calculateProgress(tonyRef),
-          ron: calculateProgress(ronRef)
+  useEffect(() => {
+    let rafId: number | null = null;
+    let lastScrollY = window.scrollY;
+    const throttleDelay = 16; // ~60fps on desktop, but we'll throttle more on mobile
+    let ticking = false;
+
+    const handleScroll = () => {
+      if (!ticking) {
+        const currentScrollY = window.scrollY;
+        const scrollDelta = Math.abs(currentScrollY - lastScrollY);
+        
+        // Throttle more aggressively on mobile or when scrolling fast
+        const isMobile = window.innerWidth < 768;
+        const shouldThrottle = isMobile || scrollDelta > 50;
+        
+        if (shouldThrottle && rafId !== null) {
+          return; // Skip if already scheduled
+        }
+
+        ticking = true;
+        
+        rafId = requestAnimationFrame(() => {
+          const calculateProgress = (ref: React.RefObject<HTMLDivElement>) => {
+            if (!ref.current) return 0;
+            const rect = ref.current.getBoundingClientRect();
+            const windowHeight = window.innerHeight;
+            const elementTop = rect.top;
+            const elementBottom = rect.bottom;
+            const elementCenter = elementTop + (elementBottom - elementTop) * 0.5;
+            
+            // If element is completely above viewport (not yet visible), show front (0)
+            if (elementBottom < 0) return 0;
+            
+            // If element is completely below viewport, show front (0) until it enters
+            if (elementTop > windowHeight) return 0;
+            
+            // When element is in viewport, animate based on its position
+            const viewportCenter = windowHeight * 0.5;
+            const animationStart = windowHeight * 0.7;
+            const animationEnd = windowHeight * 0.3;
+            
+            // If element center is above animation start - show front (0)
+            if (elementCenter > animationStart) return 0;
+            
+            // If element center is below animation end - show back (1)
+            if (elementCenter < animationEnd) return 1;
+            
+            // Calculate smooth progress between start and end
+            const rawProgress = (animationStart - elementCenter) / (animationStart - animationEnd);
+            const easedProgress = rawProgress * rawProgress * (3 - 2 * rawProgress);
+            
+            return Math.max(0, Math.min(1, easedProgress));
+          };
+
+          setScrollProgress({
+            steve: calculateProgress(steveRef),
+            tony: calculateProgress(tonyRef),
+            ron: calculateProgress(ronRef)
+          });
+          
+          lastScrollY = currentScrollY;
+          ticking = false;
+          rafId = null;
         });
-      });
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll(); // Initial calculation
     
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+    };
   }, []);
 
   // Drag handlers for card interaction
@@ -208,7 +239,8 @@ export default function Solaris() {
   // Generate stable top-level particle configurations
   const topParticleConfigs = useMemo(() => {
     const rng = seededRandom(12345);
-    return Array.from({ length: 15 }, (_, i) => {
+    const particleCount = isMobile ? 5 : 15; // Reduce from 15 to 5 on mobile
+    return Array.from({ length: particleCount }, (_, i) => {
       return {
         key: i,
         left: rng() * 100,
@@ -217,10 +249,13 @@ export default function Solaris() {
         duration: 12 + rng() * 8
       };
     });
-  }, []);
+  }, [isMobile]);
 
   // Generate stable particle configurations (only once, not on every render)
+  // Will be recalculated if isMobile changes
   const particleConfigs = useMemo(() => {
+    const particleCount = isMobile ? 20 : 60; // Reduce from 60 to 20 on mobile
+    
     const particleColors = [
       { bg: 'bg-gray-600', opacity: 0.25 },
       { bg: 'bg-blue-500', opacity: 0.2 },
@@ -235,7 +270,7 @@ export default function Solaris() {
     ];
     
     const rng = seededRandom(67890);
-    return Array.from({ length: 60 }, (_, i) => {
+    return Array.from({ length: particleCount }, (_, i) => {
       const color = particleColors[Math.floor(rng() * particleColors.length)];
       const size = 1 + rng() * 3;
       const left = rng() * 100;
@@ -253,7 +288,7 @@ export default function Solaris() {
         duration
       };
     });
-  }, []);
+  }, [isMobile]);
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 relative">
@@ -276,16 +311,16 @@ export default function Solaris() {
               top: `${particle.top}%`,
               animationDelay: `${particle.delay}s`,
               animationDuration: `${particle.duration}s`,
-              animation: 'float 12s ease-in-out infinite',
-              willChange: 'transform'
+              animation: isMobile ? 'none' : 'float 12s ease-in-out infinite', // Disable animation on mobile
+              willChange: isMobile ? 'auto' : 'transform'
             }}
           ></div>
         ))}
         
-        {/* Animated gradient orbs */}
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-r from-pink-400/20 to-rose-400/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-gradient-to-r from-cyan-400/15 to-blue-400/15 rounded-full blur-2xl animate-pulse"></div>
+        {/* Animated gradient orbs - hidden on mobile for performance */}
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse hidden sm:block"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-r from-pink-400/20 to-rose-400/20 rounded-full blur-3xl animate-pulse hidden sm:block"></div>
+        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-gradient-to-r from-cyan-400/15 to-blue-400/15 rounded-full blur-2xl animate-pulse hidden md:block"></div>
       </div>
       
       {/* Header */}
@@ -333,7 +368,7 @@ export default function Solaris() {
                     className="w-full sm:w-auto border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-8 sm:px-12 py-5 sm:py-6 text-base sm:text-lg md:text-xl font-semibold rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-300"
                   >
                     Learn More
-                  </Button>
+                </Button>
                 </Link>
               </div>
             </div>
@@ -344,17 +379,17 @@ export default function Solaris() {
         <section className="pb-12 relative overflow-hidden bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800" style={{paddingTop: '1rem'}}>
           {/* Background particles and gradients */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {/* Animated gradient orbs on edges - more visible */}
-            <div className="absolute -top-20 -left-20 w-96 h-96 bg-gradient-to-r from-red-500/15 to-orange-500/15 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-gradient-to-r from-blue-500/15 to-purple-500/15 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
-            <div className="absolute top-1/2 -right-40 w-80 h-80 bg-gradient-to-r from-pink-500/15 to-rose-500/15 rounded-full blur-2xl animate-pulse" style={{animationDelay: '2s'}}></div>
-            <div className="absolute bottom-1/4 -left-40 w-80 h-80 bg-gradient-to-r from-cyan-500/15 to-blue-500/15 rounded-full blur-2xl animate-pulse" style={{animationDelay: '1.5s'}}></div>
-            <div className="absolute top-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-yellow-500/15 to-amber-500/15 rounded-full blur-2xl animate-pulse" style={{animationDelay: '2.5s'}}></div>
-            <div className="absolute bottom-1/3 right-1/3 w-64 h-64 bg-gradient-to-r from-green-500/15 to-emerald-500/15 rounded-full blur-2xl animate-pulse" style={{animationDelay: '3s'}}></div>
-            <div className="absolute top-2/3 left-1/2 w-88 h-88 bg-gradient-to-r from-indigo-500/15 to-violet-500/15 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1.2s'}}></div>
-            <div className="absolute top-1/4 right-1/4 w-60 h-60 bg-gradient-to-r from-teal-500/15 to-cyan-500/15 rounded-full blur-2xl animate-pulse" style={{animationDelay: '2.2s'}}></div>
-            <div className="absolute bottom-1/2 left-1/3 w-70 h-70 bg-gradient-to-r from-fuchsia-500/15 to-pink-500/15 rounded-full blur-2xl animate-pulse" style={{animationDelay: '1.8s'}}></div>
-            <div className="absolute top-3/4 right-1/2 w-56 h-56 bg-gradient-to-r from-lime-500/15 to-green-500/15 rounded-full blur-xl animate-pulse" style={{animationDelay: '2.8s'}}></div>
+            {/* Animated gradient orbs on edges - reduced on mobile for performance */}
+            <div className="absolute -top-20 -left-20 w-96 h-96 bg-gradient-to-r from-red-500/15 to-orange-500/15 rounded-full blur-3xl animate-pulse hidden sm:block"></div>
+            <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-gradient-to-r from-blue-500/15 to-purple-500/15 rounded-full blur-3xl animate-pulse hidden sm:block" style={{animationDelay: '1s'}}></div>
+            <div className="absolute top-1/2 -right-40 w-80 h-80 bg-gradient-to-r from-pink-500/15 to-rose-500/15 rounded-full blur-2xl animate-pulse hidden md:block" style={{animationDelay: '2s'}}></div>
+            <div className="absolute bottom-1/4 -left-40 w-80 h-80 bg-gradient-to-r from-cyan-500/15 to-blue-500/15 rounded-full blur-2xl animate-pulse hidden md:block" style={{animationDelay: '1.5s'}}></div>
+            <div className="absolute top-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-yellow-500/15 to-amber-500/15 rounded-full blur-2xl animate-pulse hidden lg:block" style={{animationDelay: '2.5s'}}></div>
+            <div className="absolute bottom-1/3 right-1/3 w-64 h-64 bg-gradient-to-r from-green-500/15 to-emerald-500/15 rounded-full blur-2xl animate-pulse hidden lg:block" style={{animationDelay: '3s'}}></div>
+            <div className="absolute top-2/3 left-1/2 w-88 h-88 bg-gradient-to-r from-indigo-500/15 to-violet-500/15 rounded-full blur-3xl animate-pulse hidden lg:block" style={{animationDelay: '1.2s'}}></div>
+            <div className="absolute top-1/4 right-1/4 w-60 h-60 bg-gradient-to-r from-teal-500/15 to-cyan-500/15 rounded-full blur-2xl animate-pulse hidden lg:block" style={{animationDelay: '2.2s'}}></div>
+            <div className="absolute bottom-1/2 left-1/3 w-70 h-70 bg-gradient-to-r from-fuchsia-500/15 to-pink-500/15 rounded-full blur-2xl animate-pulse hidden lg:block" style={{animationDelay: '1.8s'}}></div>
+            <div className="absolute top-3/4 right-1/2 w-56 h-56 bg-gradient-to-r from-lime-500/15 to-green-500/15 rounded-full blur-xl animate-pulse hidden lg:block" style={{animationDelay: '2.8s'}}></div>
             
             {/* Floating particles with varied colors - adjusted for light background */}
             {particleConfigs.map((particle) => (
@@ -369,9 +404,9 @@ export default function Solaris() {
                   top: `${particle.top}%`,
                   animationDelay: `${particle.delay}s`,
                   animationDuration: `${particle.duration}s`,
-                  animation: 'float 15s ease-in-out infinite',
-                  willChange: 'transform',
-                  boxShadow: `0 0 ${particle.size * 2}px ${particle.color.bg.replace('bg-', '')}`
+                  animation: isMobile ? 'none' : 'float 15s ease-in-out infinite', // Disable animation on mobile
+                  willChange: isMobile ? 'auto' : 'transform',
+                  boxShadow: isMobile ? 'none' : `0 0 ${particle.size * 2}px ${particle.color.bg.replace('bg-', '')}`
                 }}
               ></div>
             ))}
@@ -414,23 +449,32 @@ export default function Solaris() {
                     style={{
                       transformStyle: 'preserve-3d',
                       transform: `rotateY(${scrollProgress.steve * 180 + dragRotation.steve}deg)`,
-                      transition: isDragging.steve ? 'none' : 'transform 0.3s ease-out',
+                      transition: isDragging.steve ? 'none' : (isMobile ? 'none' : 'transform 0.2s ease-out'),
+                      willChange: 'transform',
+                      backfaceVisibility: 'hidden',
+                      WebkitBackfaceVisibility: 'hidden',
+                      WebkitTransform: `rotateY(${scrollProgress.steve * 180 + dragRotation.steve}deg)`,
+                      WebkitPerspective: '1000px',
                     }}
                     onMouseDown={(e) => handleMouseDown(e, 'steve')}
                     onTouchStart={(e) => handleTouchStart(e, 'steve')}
                   >
-                    <div className="absolute inset-0 rounded-lg shadow-lg overflow-hidden" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(0deg) translateZ(1px)' }}>
+                    <div className="absolute inset-0 rounded-lg shadow-lg overflow-hidden" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(0deg) translateZ(1px)', willChange: 'transform' }}>
                       <img 
                         src="/stevecardfrontd.png" 
                         alt="Solaris card front design - Steve" 
                         className="w-full h-full object-cover rounded-lg"
+                        style={{ willChange: 'transform' }}
+                        loading="lazy"
                       />
                     </div>
-                    <div className="absolute inset-0 rounded-lg shadow-lg overflow-hidden" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg) translateZ(1px)' }}>
+                    <div className="absolute inset-0 rounded-lg shadow-lg overflow-hidden" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg) translateZ(1px)', willChange: 'transform' }}>
                       <img 
                         src="/stevecardbackd.png" 
                         alt="Solaris card back design - Steve" 
                         className="w-full h-full object-cover rounded-lg"
+                        style={{ willChange: 'transform' }}
+                        loading="lazy"
                       />
                     </div>
                   </div>
@@ -450,23 +494,32 @@ export default function Solaris() {
                     style={{
                       transformStyle: 'preserve-3d',
                       transform: `rotateY(${scrollProgress.tony * 180 + dragRotation.tony}deg)`,
-                      transition: isDragging.tony ? 'none' : 'transform 0.3s ease-out',
+                      transition: isDragging.tony ? 'none' : (isMobile ? 'none' : 'transform 0.2s ease-out'),
+                      willChange: 'transform',
+                      backfaceVisibility: 'hidden',
+                      WebkitBackfaceVisibility: 'hidden',
+                      WebkitTransform: `rotateY(${scrollProgress.tony * 180 + dragRotation.tony}deg)`,
+                      WebkitPerspective: '1000px',
                     }}
                     onMouseDown={(e) => handleMouseDown(e, 'tony')}
                     onTouchStart={(e) => handleTouchStart(e, 'tony')}
                   >
-                    <div className="absolute inset-0 rounded-lg shadow-lg overflow-hidden" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(0deg) translateZ(1px)' }}>
+                    <div className="absolute inset-0 rounded-lg shadow-lg overflow-hidden" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(0deg) translateZ(1px)', willChange: 'transform' }}>
                       <img 
                         src="/tonycardfront.png" 
                         alt="Solaris card front design - Tony" 
                         className="w-full h-full object-cover rounded-lg"
+                        style={{ willChange: 'transform' }}
+                        loading="lazy"
                       />
                     </div>
-                    <div className="absolute inset-0 rounded-lg shadow-lg overflow-hidden" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg) translateZ(1px)' }}>
+                    <div className="absolute inset-0 rounded-lg shadow-lg overflow-hidden" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg) translateZ(1px)', willChange: 'transform' }}>
                       <img 
                         src="/tonycardback.png" 
                         alt="Solaris card back design - Tony" 
                         className="w-full h-full object-cover rounded-lg"
+                        style={{ willChange: 'transform' }}
+                        loading="lazy"
                       />
                     </div>
                   </div>
@@ -486,23 +539,32 @@ export default function Solaris() {
                     style={{
                       transformStyle: 'preserve-3d',
                       transform: `rotateY(${scrollProgress.ron * 180 + dragRotation.ron}deg)`,
-                      transition: isDragging.ron ? 'none' : 'transform 0.3s ease-out',
+                      transition: isDragging.ron ? 'none' : (isMobile ? 'none' : 'transform 0.2s ease-out'),
+                      willChange: 'transform',
+                      backfaceVisibility: 'hidden',
+                      WebkitBackfaceVisibility: 'hidden',
+                      WebkitTransform: `rotateY(${scrollProgress.ron * 180 + dragRotation.ron}deg)`,
+                      WebkitPerspective: '1000px',
                     }}
                     onMouseDown={(e) => handleMouseDown(e, 'ron')}
                     onTouchStart={(e) => handleTouchStart(e, 'ron')}
                   >
-                    <div className="absolute inset-0 rounded-lg shadow-lg overflow-hidden" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(0deg) translateZ(1px)' }}>
+                    <div className="absolute inset-0 rounded-lg shadow-lg overflow-hidden" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(0deg) translateZ(1px)', willChange: 'transform' }}>
                       <img 
                         src="/roncardfront.png" 
                         alt="Solaris card front design - Ron" 
                         className="w-full h-full object-cover rounded-lg"
+                        style={{ willChange: 'transform' }}
+                        loading="lazy"
                       />
                     </div>
-                    <div className="absolute inset-0 rounded-lg shadow-lg overflow-hidden" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg) translateZ(1px)' }}>
+                    <div className="absolute inset-0 rounded-lg shadow-lg overflow-hidden" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg) translateZ(1px)', willChange: 'transform' }}>
                       <img 
                         src="/roncardback.png" 
                         alt="Solaris card back design - Ron" 
                         className="w-full h-full object-cover rounded-lg"
+                        style={{ willChange: 'transform' }}
+                        loading="lazy"
                       />
                     </div>
                   </div>
