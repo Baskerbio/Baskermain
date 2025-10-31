@@ -317,30 +317,49 @@
   animation: float 6s ease-in-out infinite;
 }
 
-/* Physical Card Examples - From Uiverse.io by mihocsaszilard */
+/* Card flip 3D styles */
+.backface-hidden {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Physical Card Examples - Standard ISO/IEC 7810 ID-1 Credit Card Size */
 .physical-card-container {
   font-family: "Trebuchet MS", sans-serif;
   position: relative;
-  height: 203px;
-  aspect-ratio: 1.579;
-  border-radius: 1em;
+  width: 323px !important; /* 85.60mm in pixels at 96 DPI */
+  height: 204px !important; /* 53.98mm in pixels at 96 DPI */
+  aspect-ratio: 1.586 !important; /* Standard credit card ratio */
+  border-radius: 0.75em !important; /* 12px radius for credit card feel */
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 300ms ease-in;
+  max-width: none !important; /* Override any max-width constraints */
+}
+
+/* Tablet optimizations */
+@media (max-width: 768px) {
+  .physical-card-container {
+    width: 280px; /* Medium size for tablets */
+    height: 176px; /* Maintains 1.586 aspect ratio */
+    max-width: 90vw;
+    margin: 0 auto;
+  }
 }
 
 /* Mobile optimizations */
 @media (max-width: 640px) {
   .physical-card-container {
-    height: 200px;
-    max-width: 320px;
+    width: 250px; /* Smaller but maintains credit card proportions */
+    height: 157px; /* Maintains 1.586 aspect ratio */
+    max-width: 90vw; /* Don't exceed viewport width */
     margin: 0 auto;
   }
   
   .physical-card {
-    height: 12em;
+    height: 100%; /* Fill the container */
   }
   
   .physical-card-container:nth-child(1),
@@ -405,9 +424,10 @@
 } */
 
 .physical-card {
-  height: 12.5em;
-  aspect-ratio: 1.586;
-  border-radius: 1em;
+  width: 100% !important; /* Fill the container */
+  height: 100% !important; /* Fill the container */
+  aspect-ratio: 1.586 !important; /* Standard credit card ratio */
+  border-radius: 0.75em !important; /* 12px radius for credit card feel */
   opacity: 1;
 }
 

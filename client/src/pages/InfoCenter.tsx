@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,12 +23,27 @@ import {
   ArrowLeft,
   Gift,
   Coffee,
-  Heart
+  Heart,
+  CreditCard
 } from 'lucide-react';
 
 export default function InfoCenter() {
   const { isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState('legal');
+
+  // Handle hash navigation to cards tab
+  useEffect(() => {
+    if (window.location.hash === '#cards') {
+      setActiveTab('cards');
+      // Smooth scroll to tabs section
+      setTimeout(() => {
+        const tabsElement = document.querySelector('[role="tablist"]');
+        if (tabsElement) {
+          tabsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 relative overflow-hidden">
@@ -104,7 +119,7 @@ export default function InfoCenter() {
         <div className="max-w-4xl mx-auto px-4 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="mb-8">
-            <TabsList className="grid w-full grid-cols-3 bg-white/60 dark:bg-gray-800/60 backdrop-blur-2xl border border-blue-200/50 dark:border-blue-800/50 shadow-lg rounded-xl p-0.5">
+            <TabsList className="grid w-full grid-cols-5 bg-white/60 dark:bg-gray-800/60 backdrop-blur-2xl border border-blue-200/50 dark:border-blue-800/50 shadow-lg rounded-xl p-0.5">
               <TabsTrigger 
                 value="legal" 
                 className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg font-medium transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=inactive]:text-gray-600 data-[state=inactive]:dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-xs sm:text-sm"
@@ -125,6 +140,20 @@ export default function InfoCenter() {
               >
                 <Users className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Support</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="verification" 
+                className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg font-medium transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=inactive]:text-gray-600 data-[state=inactive]:dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-xs sm:text-sm"
+              >
+                <CheckCircle className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Verification</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="cards" 
+                className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg font-medium transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=inactive]:text-gray-600 data-[state=inactive]:dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-xs sm:text-sm"
+              >
+                <CreditCard className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Cards</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -449,6 +478,235 @@ export default function InfoCenter() {
               </CardContent>
             </Card>
         </TabsContent>
+
+          {/* Verification Tab */}
+          <TabsContent value="verification" className="space-y-6">
+            <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-2xl border border-blue-200/50 dark:border-blue-800/50 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                  About Verification
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                    Verification badges help users identify authentic accounts and trusted sources on Basker. 
+                    We support two types of verification systems.
+                  </p>
+                </div>
+
+                {/* Bluesky Verification */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Bluesky Verification</h3>
+                  </div>
+                  <div className="pl-11 space-y-3">
+                    <p className="text-gray-600 dark:text-gray-300">
+                      <strong>Blue Checkmark:</strong> Accounts verified by trusted sources on Bluesky automatically 
+                      display their verification status on Basker. This includes verification by Bluesky itself 
+                      and other trusted labelers.
+                    </p>
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                      <p className="text-sm text-blue-800 dark:text-blue-200">
+                        <strong>How it works:</strong> When you hover over or click a blue verification badge, 
+                        you'll see details about who verified the account and when. This information comes 
+                        directly from Bluesky's decentralized verification system.
+                      </p>
+                    </div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Learn more about Bluesky verification at{' '}
+                      <a 
+                        href="https://bsky.social/about/blog/04-21-2025-verification" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 dark:text-blue-400 hover:underline"
+                      >
+                        bsky.social/about/blog/04-21-2025-verification
+                      </a>
+                    </p>
+                  </div>
+                </div>
+
+                {/* Basker Verification */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 flex items-center justify-center">
+                      <svg 
+                        width="32" 
+                        height="32" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="flex-shrink-0"
+                      >
+                        {/* Blue background circle (Bluesky blue) */}
+                        <circle cx="12" cy="12" r="11" fill="#0F73FF" stroke="#0F73FF" strokeWidth="1"/>
+                        {/* White sun icon - properly centered and scaled */}
+                        <g transform="scale(0.4) translate(5.4, 5.4)">
+                          <path fill="#FFFFFF" d="M11 11H37V37H11z"></path>
+                          <path fill="#FFFFFF" d="M11.272 11.272H36.728V36.728H11.272z" transform="rotate(-45.001 24 24)"></path>
+                          <path fill="#FFFFFF" d="M13,24c0,6.077,4.923,11,11,11c6.076,0,11-4.923,11-11s-4.924-11-11-11C17.923,13,13,17.923,13,24"></path>
+                        </g>
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Basker Verification</h3>
+                  </div>
+                  <div className="pl-11 space-y-3">
+                    <p className="text-gray-600 dark:text-gray-300">
+                      <strong>Blue Circle with White Sun:</strong> Accounts affiliated with Basker receive a special 
+                      verification badge to indicate their official status within the Basker ecosystem.
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Basker verification is manually assigned to official team members and partners.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Verification Benefits */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Why Verification Matters</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                      <h4 className="font-semibold text-green-800 dark:text-green-200 mb-2">Trust & Authenticity</h4>
+                      <p className="text-sm text-green-700 dark:text-green-300">
+                        Verification badges help users identify authentic accounts and avoid impersonators.
+                      </p>
+                    </div>
+                    <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                      <h4 className="font-semibold text-purple-800 dark:text-purple-200 mb-2">Credibility</h4>
+                      <p className="text-sm text-purple-700 dark:text-purple-300">
+                        Verified accounts are more likely to be trusted by visitors to your profile.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Cards Tab */}
+          <TabsContent value="cards" className="space-y-6">
+            <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-2xl border border-blue-200/50 dark:border-blue-800/50 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
+                  <CreditCard className="w-5 h-5 text-red-500" />
+                  Basker Solaris - Professional Cards
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-semibold text-red-800 dark:text-red-200 mb-1">Coming Soon</p>
+                        <p className="text-sm text-red-700 dark:text-red-300">
+                          Basker Solaris is currently in development and not yet available for users. 
+                          The designs shown on the Solaris page are previews and concepts only.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">What is Basker Solaris?</h3>
+                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                    Basker Solaris will be a revolutionary professional networking solution that transforms 
+                    how you share your professional presence. It combines physical business cards with digital 
+                    identity technology, allowing you to share your entire professional profile with a single tap.
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Key Features (Planned)</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Zap className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <h4 className="font-semibold text-blue-900 dark:text-blue-200">Instant Sharing</h4>
+                      </div>
+                      <p className="text-sm text-blue-800 dark:text-blue-300">
+                        Share your entire professional profile with a single tap or scan.
+                      </p>
+                    </div>
+                    <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Users className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                        <h4 className="font-semibold text-purple-900 dark:text-purple-200">Smart Networking</h4>
+                      </div>
+                      <p className="text-sm text-purple-800 dark:text-purple-300">
+                        Build meaningful business relationships effortlessly.
+                      </p>
+                    </div>
+                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Heart className="w-5 h-5 text-green-600 dark:text-green-400" />
+                        <h4 className="font-semibold text-green-900 dark:text-green-200">Analytics Insights</h4>
+                      </div>
+                      <p className="text-sm text-green-800 dark:text-green-300">
+                        Track engagement and optimize your professional presence.
+                      </p>
+                    </div>
+                    <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <ExternalLink className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                        <h4 className="font-semibold text-orange-900 dark:text-orange-200">Premium Materials</h4>
+                      </div>
+                      <p className="text-sm text-orange-800 dark:text-orange-300">
+                        High-quality cards that reflect your professional standards.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Integration with BaskerBio</h3>
+                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                    Solaris will integrate seamlessly with BaskerBio to create a complete professional 
+                    networking solution. Your BaskerBio profile will automatically sync with your Solaris 
+                    card, ensuring your information is always up to date.
+                  </p>
+                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                      <strong>Note:</strong> Since Solaris is not yet available, you can create your professional 
+                      profile on BaskerBio today. When Solaris launches, your existing BaskerBio profile will 
+                      be ready to integrate.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Preview Designs</h3>
+                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                    The designs shown on the Solaris preview page are concept designs only. These are 
+                    early previews of potential card designs that may be available when Solaris launches. 
+                    Final designs, features, and availability will be announced closer to launch.
+                  </p>
+                  <Link href="/solaris">
+                    <Button variant="outline" className="w-full sm:w-auto">
+                      View Preview Designs
+                      <ExternalLink className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Stay Updated</h3>
+                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                    We're working hard to bring you the most innovative professional networking solution. 
+                    Follow our development progress and be among the first to experience Solaris when it launches.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
       </Tabs>
         </div>
       </main>
