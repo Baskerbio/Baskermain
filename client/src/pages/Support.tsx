@@ -74,7 +74,7 @@ export default function Support() {
           
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 sm:gap-4">
-              <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="/info#about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 About
               </Link>
               <Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
@@ -322,6 +322,8 @@ export default function Support() {
               />
               <h3 className="text-lg font-bold text-primary">Basker</h3>
               <span className="text-sm text-muted-foreground">© 2025</span>
+              <span className="text-sm text-muted-foreground">•</span>
+              <span className="text-sm text-muted-foreground">v2.0.0.0</span>
             </div>
             
             <div className="text-center md:text-right">

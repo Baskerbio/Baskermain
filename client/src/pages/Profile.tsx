@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { Edit, Settings, LogOut, Copy, Menu, X, Share2, QrCode, ChevronDown } from 'lucide-react';
+import { Edit, Settings, LogOut, Copy, Menu, X, Share2, QrCode, ChevronDown, Upload, BarChart3, CreditCard, Link as LinkIcon, FileText, Grid3X3, Code } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { QRCodeShare } from '@/components/QRCodeShare';
 import { ProfileHeader } from '../components/ProfileHeader';
@@ -180,27 +180,35 @@ export default function Profile() {
             
             {/* Desktop buttons */}
             <div className="hidden sm:flex items-center gap-2 lg:gap-3">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={handleShare}
-                className="flex items-center gap-2 text-sm px-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-                data-testid="button-share"
-              >
-                <Share2 className="w-4 h-4" />
-                Share
-              </Button>
-              
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => setShowQRCode(true)}
-                className="flex items-center gap-2 text-sm px-3 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
-                data-testid="button-qr-code"
-              >
-                <QrCode className="w-4 h-4" />
-                QR Code
-              </Button>
+              {/* Desktop dropdown for share options */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="secondary" 
+                    size="sm" 
+                    className="flex items-center gap-2 text-sm px-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                    data-testid="button-share"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Share
+                    <ChevronDown className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleCopyProfileURL}>
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copy Profile URL
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleShare}>
+                    <Share2 className="w-4 h-4 mr-2" />
+                    Share Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setShowQRCode(true)}>
+                    <QrCode className="w-4 h-4 mr-2" />
+                    Show QR Code
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               
               <Button
                 variant="secondary"
@@ -281,6 +289,10 @@ export default function Profile() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-full">
+                      <DropdownMenuItem onClick={handleCopyProfileURL}>
+                        <Copy className="w-4 h-4 mr-2" />
+                        Copy Profile URL
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={handleShare}>
                         <Share2 className="w-4 h-4 mr-2" />
                         Share Profile
@@ -338,6 +350,121 @@ export default function Profile() {
             </div>
           )}
         </header>
+
+        {/* Dashboard Navigation */}
+        <nav className="sticky top-[57px] sm:top-[65px] z-40 bg-card border-b border-border shadow-sm">
+          <div className="max-w-4xl mx-auto px-3 sm:px-4">
+            <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto py-2.5 sm:py-2 nav-scrollbar">
+              {/* Page Navigation */}
+              <Link href="/import">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
+                >
+                  <Upload className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Import</span>
+                  <span className="sm:hidden">Import</span>
+                </Button>
+              </Link>
+              
+              <Link href="/analytics">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
+                >
+                  <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Analytics</span>
+                  <span className="sm:hidden">Stats</span>
+                </Button>
+              </Link>
+              
+              <Link href="/solaris">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
+                >
+                  <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Solaris</span>
+                  <span className="sm:hidden">Solaris</span>
+                </Button>
+              </Link>
+
+              <Link href="/submit-widget">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
+                >
+                  <Code className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Submit a Widget</span>
+                  <span className="sm:hidden">Submit Widget</span>
+                </Button>
+              </Link>
+
+              <div className="h-4 sm:h-6 w-px bg-border mx-1 flex-shrink-0" />
+
+              {/* Settings Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowSettings(true)}
+                className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
+              >
+                <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Settings</span>
+                <span className="sm:hidden">Settings</span>
+              </Button>
+
+              <div className="h-4 sm:h-6 w-px bg-border mx-1 flex-shrink-0" />
+
+              {/* Section Navigation */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const linksSection = document.querySelector('[data-section="links"]');
+                  linksSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
+              >
+                <LinkIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Links</span>
+                <span className="sm:hidden">Links</span>
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const notesSection = document.querySelector('[data-section="notes"]');
+                  notesSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
+              >
+                <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Notes</span>
+                <span className="sm:hidden">Notes</span>
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const widgetsSection = document.querySelector('[data-section="widgets"]');
+                  widgetsSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
+              >
+                <Grid3X3 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Widgets</span>
+                <span className="sm:hidden">Widgets</span>
+              </Button>
+            </div>
+          </div>
+        </nav>
 
         <main className="max-w-2xl mx-auto px-4 py-8">
           <ProfileHeader onOpenSettings={() => {
@@ -517,6 +644,8 @@ export default function Profile() {
               />
               <span className="text-sm">basker</span>
               <span className="text-sm text-muted-foreground">© 2025</span>
+              <span className="text-sm text-muted-foreground">•</span>
+              <span className="text-sm text-muted-foreground">v2.0.0.0</span>
             </div>
             <p className="text-xs text-muted-foreground">
               Create your own link-in-bio page with basker

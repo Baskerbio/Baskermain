@@ -95,6 +95,7 @@ export function QuickActionsDashboard({
         'customize-theme',
         'manage-widgets',
         'export-data',
+        'import-data',
         'qr-code',
         'help'
       ];
@@ -252,12 +253,7 @@ export function QuickActionsDashboard({
       icon: <BarChart3 className="w-5 h-5" />,
       color: 'bg-emerald-500',
       action: () => {
-        onOpenSettings();
-        // Scroll to analytics section
-        setTimeout(() => {
-          const analyticsSection = document.querySelector('[data-section="analytics"]');
-          analyticsSection?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
+        window.location.href = '/analytics';
       },
       category: 'analytics'
     },
@@ -371,10 +367,7 @@ export function QuickActionsDashboard({
       icon: <Upload className="w-5 h-5" />,
       color: 'bg-slate-600',
       action: () => {
-        toast({
-          title: 'Import Data',
-          description: 'Import feature coming soon!',
-        });
+        window.location.href = '/import';
       },
       category: 'tools'
     },

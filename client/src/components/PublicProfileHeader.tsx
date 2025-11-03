@@ -1,5 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { BadgeCheck, CheckCircle2 } from 'lucide-react';
 import { PublicStoriesRing } from './PublicStoriesRing';
 import { SocialIconsRow } from './SocialIconsRow';
@@ -66,18 +66,12 @@ export function PublicProfileHeader({ profile }: PublicProfileHeaderProps) {
           {profile.displayName || profile.handle}
         </h2>
         {isVerifiedAccount(profile) && (
-          <TooltipProvider>
-            <Tooltip open={showVerificationTooltip} onOpenChange={setShowVerificationTooltip}>
-              <TooltipTrigger asChild>
-                <button 
-                  className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setShowVerificationTooltip(!showVerificationTooltip);
-                  }}
-                >
-                  {isBaskerVerified(profile) ? (
+          <Popover open={showVerificationTooltip} onOpenChange={setShowVerificationTooltip}>
+            <PopoverTrigger asChild>
+              <button 
+                className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
+              >
+                {isBaskerVerified(profile) ? (
                     // Yellow sun for Basker verified accounts with black background circle
                     <svg 
                       width="20" 
@@ -152,8 +146,8 @@ export function PublicProfileHeader({ profile }: PublicProfileHeaderProps) {
                     </svg>
                   )}
                 </button>
-              </TooltipTrigger>
-              <TooltipContent className="max-w-xs p-3 bg-gray-900 border border-gray-700 shadow-lg rounded-md" side="top" align="center" sideOffset={8}>
+              </PopoverTrigger>
+              <PopoverContent className="max-w-xs p-3 bg-gray-900 border border-gray-700 shadow-lg rounded-md" side="top" align="center" sideOffset={8}>
                 {(() => {
                   const verificationInfo = getVerificationTooltip(profile);
                   return (
@@ -215,9 +209,8 @@ export function PublicProfileHeader({ profile }: PublicProfileHeaderProps) {
                     </div>
                   );
                 })()}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+              </PopoverContent>
+            </Popover>
         )}
       </div>
       

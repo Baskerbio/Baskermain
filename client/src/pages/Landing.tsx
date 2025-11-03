@@ -9,7 +9,7 @@ import { VersionInfo } from '../components/VersionInfo';
 import { Header } from '../components/Header';
 import { QuickActionsDashboard } from '../components/QuickActionsDashboard';
 import { QRCodeShare } from '../components/QRCodeShare';
-import { ArrowRight, Link as LinkIcon, Globe, Users, Zap, Star, Sparkles, Heart, Share2, Palette, StickyNote, Link2, Settings, Image as ImageIcon, ChevronDown, ChevronUp, Info, ExternalLink } from 'lucide-react';
+import { ArrowRight, Link as LinkIcon, Globe, Users, Zap, Star, Sparkles, Heart, Share2, Palette, StickyNote, Link2, Settings, Image as ImageIcon, ChevronDown, ChevronUp, Info, ExternalLink, Upload, BarChart3, CreditCard, FileText, Grid3X3, Code } from 'lucide-react';
 import { atprotocol } from '../lib/atprotocol';
 import { createPortal } from 'react-dom';
 import DecryptedText from '../components/DecryptedText';
@@ -264,6 +264,116 @@ export default function Landing() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 relative overflow-hidden">
         <Header />
+        
+        {/* Dashboard Navigation */}
+        <nav className="sticky top-[57px] sm:top-[73px] z-40 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-b border-white/20 dark:border-gray-700/30 shadow-sm">
+          <div className="max-w-7xl mx-auto px-3 sm:px-4">
+            <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto py-2.5 sm:py-2 nav-scrollbar">
+              {/* Page Navigation */}
+              <Link href="/import">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
+                >
+                  <Upload className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Import</span>
+                  <span className="sm:hidden">Import</span>
+                </Button>
+              </Link>
+              
+              <Link href="/analytics">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
+                >
+                  <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Analytics</span>
+                  <span className="sm:hidden">Stats</span>
+                </Button>
+              </Link>
+              
+              <Link href="/solaris">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
+                >
+                  <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Solaris</span>
+                  <span className="sm:hidden">Solaris</span>
+                </Button>
+              </Link>
+
+              <Link href="/submit-widget">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
+                >
+                  <Code className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Submit a Widget</span>
+                  <span className="sm:hidden">Submit Widget</span>
+                </Button>
+              </Link>
+
+              <div className="h-4 sm:h-6 w-px bg-border mx-1 flex-shrink-0" />
+
+              {/* Settings Button - Navigate to Profile */}
+              <Link href="/profile">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
+                >
+                  <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Settings</span>
+                  <span className="sm:hidden">Settings</span>
+                </Button>
+              </Link>
+
+              <div className="h-4 sm:h-6 w-px bg-border mx-1 flex-shrink-0" />
+
+              {/* Section Navigation - Navigate to Profile */}
+              <Link href="/profile">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
+                >
+                  <LinkIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Links</span>
+                  <span className="sm:hidden">Links</span>
+                </Button>
+              </Link>
+
+              <Link href="/profile">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
+                >
+                  <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Notes</span>
+                  <span className="sm:hidden">Notes</span>
+                </Button>
+              </Link>
+
+              <Link href="/profile">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
+                >
+                  <Grid3X3 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Widgets</span>
+                  <span className="sm:hidden">Widgets</span>
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </nav>
         
         {/* Enhanced Animated Background */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
@@ -1557,7 +1667,7 @@ export default function Landing() {
             <div>
               <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Support</h4>
               <ul className="space-y-3">
-                <li><Link href="/about" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">About Us</Link></li>
+                <li><Link href="/info#about" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">About Us</Link></li>
                 <li><a href="https://bsky.app" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Bluesky</a></li>
                 <li><a href="https://atproto.com" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">AT Protocol</a></li>
                 <li><a href="mailto:support@basker.bio" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Contact</a></li>

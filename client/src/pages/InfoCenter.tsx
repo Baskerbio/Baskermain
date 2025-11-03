@@ -24,17 +24,24 @@ import {
   Gift,
   Coffee,
   Heart,
-  CreditCard
+  CreditCard,
+  Info,
+  Shield,
+  Code,
+  Lock,
+  Eye,
+  Globe
 } from 'lucide-react';
 
 export default function InfoCenter() {
   const { isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState('legal');
+  const [activeTab, setActiveTab] = useState('about');
 
-  // Handle hash navigation to cards tab
+  // Handle hash navigation
   useEffect(() => {
-    if (window.location.hash === '#cards') {
-      setActiveTab('cards');
+    const hash = window.location.hash.slice(1); // Remove the # symbol
+    if (hash === 'cards' || hash === 'legal' || hash === 'pricing' || hash === 'support' || hash === 'verification' || hash === 'about') {
+      setActiveTab(hash);
       // Smooth scroll to tabs section
       setTimeout(() => {
         const tabsElement = document.querySelector('[role="tablist"]');
@@ -119,7 +126,14 @@ export default function InfoCenter() {
         <div className="max-w-4xl mx-auto px-4 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="mb-8">
-            <TabsList className="grid w-full grid-cols-5 bg-white/60 dark:bg-gray-800/60 backdrop-blur-2xl border border-blue-200/50 dark:border-blue-800/50 shadow-lg rounded-xl p-0.5">
+            <TabsList className="grid w-full grid-cols-6 bg-white/60 dark:bg-gray-800/60 backdrop-blur-2xl border border-blue-200/50 dark:border-blue-800/50 shadow-lg rounded-xl p-0.5">
+              <TabsTrigger 
+                value="about" 
+                className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg font-medium transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=inactive]:text-gray-600 data-[state=inactive]:dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-xs sm:text-sm"
+              >
+                <Info className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">About</span>
+              </TabsTrigger>
               <TabsTrigger 
                 value="legal" 
                 className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg font-medium transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=inactive]:text-gray-600 data-[state=inactive]:dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-xs sm:text-sm"
@@ -157,6 +171,351 @@ export default function InfoCenter() {
               </TabsTrigger>
             </TabsList>
           </div>
+
+          {/* About Tab */}
+          <TabsContent value="about" className="space-y-6">
+            {/* Hero Section */}
+            <div className="text-center mb-8">
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                About <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Basker</span>
+              </h2>
+              <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
+                We're building the future of link-in-bio pages on the decentralized web
+              </p>
+            </div>
+
+            {/* Mission Section */}
+            <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-2xl border border-blue-200/50 dark:border-blue-800/50 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
+                  <Info className="w-5 h-5 text-blue-500" />
+                  Our Mission
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
+                      Our mission is to create the best free and truly decentralized link-in-bio platform. A platform where users own their data and have complete control over their online presence.
+                    </p>
+                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                      We believe that your online identity should never be limited by paywalls or hidden fees. That's why Basker gives you full access to themes, widgets, customization and so much more! All for the low low price of $0
+                    </p>
+                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                      Your digital identity should be truly yours, truly portable, and truly secure.
+                    </p>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl rounded-2xl p-6 border border-blue-200/50 dark:border-blue-800/50 hover:shadow-xl transition-all duration-300">
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <Info className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Decentralized</h3>
+                          <p className="text-gray-600 dark:text-gray-300">
+                            Your data belongs to you, not to us. Built on the AT Protocol for true decentralization.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl rounded-2xl p-6 border border-purple-200/50 dark:border-purple-800/50 hover:shadow-xl transition-all duration-300">
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <Zap className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Fast & Reliable</h3>
+                          <p className="text-gray-600 dark:text-gray-300">
+                            Lightning-fast performance with 99.9% uptime, powered by the AT Protocol network.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Security Section */}
+            <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-2xl border border-blue-200/50 dark:border-blue-800/50 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
+                  <Shield className="w-5 h-5 text-green-500" />
+                  Security & Privacy
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <p className="text-lg text-gray-600 dark:text-gray-300 text-center max-w-2xl mx-auto">
+                  Your security and privacy are our top priorities. Here's how we protect you.
+                </p>
+
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-blue-200/50 dark:border-blue-800/50 rounded-xl p-6 hover:shadow-xl transition-all duration-300">
+                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Lock className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 text-center">End-to-End Encryption</h3>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm text-center">
+                      All data is encrypted in transit and at rest using industry-standard encryption protocols.
+                    </p>
+                  </div>
+
+                  <div className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 rounded-xl p-6 hover:shadow-xl transition-all duration-300">
+                    <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Eye className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 text-center">Zero-Knowledge Architecture</h3>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm text-center">
+                      We can't see your private data. Your content is stored on the decentralized AT Protocol network.
+                    </p>
+                  </div>
+
+                  <div className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-pink-200/50 dark:border-pink-800/50 rounded-xl p-6 hover:shadow-xl transition-all duration-300">
+                    <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Shield className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 text-center">Content Security Policy</h3>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm text-center">
+                      Strict CSP headers prevent XSS attacks and unauthorized script execution.
+                    </p>
+                  </div>
+
+                  <div className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-cyan-200/50 dark:border-cyan-800/50 rounded-xl p-6 hover:shadow-xl transition-all duration-300">
+                    <div className="w-16 h-16 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <AlertCircle className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 text-center">Rate Limiting</h3>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm text-center">
+                      Advanced rate limiting protects against DDoS attacks and abuse.
+                    </p>
+                  </div>
+
+                  <div className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-indigo-200/50 dark:border-indigo-800/50 rounded-xl p-6 hover:shadow-xl transition-all duration-300">
+                    <div className="w-16 h-16 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <CheckCircle className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 text-center">Input Validation</h3>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm text-center">
+                      All user inputs are validated and sanitized to prevent injection attacks.
+                    </p>
+                  </div>
+
+                  <div className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-teal-200/50 dark:border-teal-800/50 rounded-xl p-6 hover:shadow-xl transition-all duration-300">
+                    <div className="w-16 h-16 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Globe className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 text-center">HTTPS Everywhere</h3>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm text-center">
+                      All connections are encrypted with TLS 1.3 and HSTS headers for maximum security.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-blue-200/50 dark:border-blue-800/50 rounded-2xl p-8">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">Security Measures</h3>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Data Protection</h4>
+                      <ul className="space-y-2 text-gray-600 dark:text-gray-300">
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>End-to-end encryption for all data transmission</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>No personal data collection or tracking</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Decentralized storage on AT Protocol</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Regular security audits and updates</span>
+                        </li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Technical Security</h4>
+                      <ul className="space-y-2 text-gray-600 dark:text-gray-300">
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Content Security Policy (CSP) headers</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>XSS and injection attack prevention</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Rate limiting and DDoS protection</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>Secure CORS and authentication</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Values Section */}
+            <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-2xl border border-blue-200/50 dark:border-blue-800/50 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
+                  <Heart className="w-5 h-5 text-pink-500" />
+                  Our Values
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-lg text-gray-600 dark:text-gray-300 text-center mb-8 max-w-2xl mx-auto">
+                  The principles that guide everything we do
+                </p>
+
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="text-center bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-blue-200/50 dark:border-blue-800/50 rounded-xl p-6 hover:shadow-xl transition-all duration-300">
+                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Shield className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Privacy First</h3>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm">
+                      Your data is yours. We don't track, sell, or misuse your personal information.
+                    </p>
+                  </div>
+
+                  <div className="text-center bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 rounded-xl p-6 hover:shadow-xl transition-all duration-300">
+                    <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Globe className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Interoperable</h3>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm">
+                      Works across the entire AT Protocol ecosystem. No vendor lock-in.
+                    </p>
+                  </div>
+
+                  <div className="text-center bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-pink-200/50 dark:border-pink-800/50 rounded-xl p-6 hover:shadow-xl transition-all duration-300">
+                    <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Users className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Community Driven</h3>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm">
+                      Built by the community, for the community. Your feedback shapes our future.
+                    </p>
+                  </div>
+
+                  <div className="text-center bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-cyan-200/50 dark:border-cyan-800/50 rounded-xl p-6 hover:shadow-xl transition-all duration-300">
+                    <div className="w-16 h-16 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Code className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Transparent</h3>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm">
+                      Open source code, transparent development process, and clear communication.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Widget Submission Section */}
+            <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-2xl border border-blue-200/50 dark:border-blue-800/50 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
+                  <Code className="w-5 h-5 text-green-500" />
+                  Submit a Widget
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <p className="text-lg text-gray-600 dark:text-gray-300 text-center max-w-2xl mx-auto">
+                  Share your custom widget creations with the Basker community. Coming soon!
+                </p>
+
+                <div className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-green-200/50 dark:border-green-800/50 rounded-2xl p-6 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Code className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Widget Submission Platform</h3>
+                      <p className="text-gray-600 dark:text-gray-300 mb-4">
+                        We're currently developing a platform where you can submit your custom HTML, CSS, and JavaScript widgets to share with the Basker community. This feature will allow developers to contribute their creations and help expand the available widget library.
+                      </p>
+                      <div className="space-y-2 mb-4">
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm text-gray-600 dark:text-gray-300">Submit widgets using HTML, CSS, and JavaScript</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm text-gray-600 dark:text-gray-300">Share your creations with the community</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm text-gray-600 dark:text-gray-300">Collaborate with other developers</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm text-gray-600 dark:text-gray-300">Help expand the widget library</span>
+                        </div>
+                      </div>
+                      <Link href="/submit-widget">
+                        <Button variant="outline" className="mt-4 border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20">
+                          <Code className="w-4 h-4 mr-2" />
+                          Visit Widget Submission Page
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Team Section */}
+            <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-2xl border border-blue-200/50 dark:border-blue-800/50 shadow-lg">
+              <CardContent className="p-8 text-center">
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Built with ❤️</h2>
+                <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                  Basker is developed by people who wanted a new, better, free and decentralized Link in bio platform
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* CTA Section */}
+            <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-2xl border border-blue-200/50 dark:border-blue-800/50 shadow-lg">
+              <CardContent className="p-8 text-center">
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Ready to get started?</h2>
+                <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                  Join thousands of users who have already created their decentralized link-in-bio pages
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  {isAuthenticated ? (
+                    <Link href="/profile">
+                      <Button size="lg" className="w-full sm:w-auto h-12 px-8 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white transition-all duration-300 hover:scale-105 shadow-lg">
+                        <Users className="w-4 h-4 mr-2" />
+                        Go to My Profile
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Link href="/login">
+                      <Button size="lg" className="w-full sm:w-auto h-12 px-8 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white transition-all duration-300 hover:scale-105 shadow-lg">
+                        <Zap className="w-4 h-4 mr-2" />
+                        Create Your Profile
+                      </Button>
+                    </Link>
+                  )}
+                  <Link href="/faq">
+                    <Button variant="outline" size="lg" className="w-full sm:w-auto h-12 px-8 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 hover:scale-105">
+                      <Info className="w-4 h-4 mr-2" />
+                      Read FAQ
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* Legal Tab */}
           <TabsContent value="legal" className="space-y-6">

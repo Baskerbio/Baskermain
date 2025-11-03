@@ -1146,3 +1146,75 @@
     background: transparent !important;
   }
 }
+
+/* Navigation scrollbar - theme-aware with smooth scrolling */
+.nav-scrollbar {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  /* Use theme colors for scrollbar */
+  scrollbar-color: hsl(var(--muted-foreground) / 0.4) transparent;
+}
+
+.nav-scrollbar::-webkit-scrollbar {
+  height: 6px;
+  display: block;
+}
+
+.nav-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 3px;
+}
+
+.nav-scrollbar::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 3px;
+  border: none;
+  transition: background-color 0.2s ease;
+}
+
+.nav-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--muted-foreground) / 0.5);
+}
+
+.nav-scrollbar::-webkit-scrollbar-thumb:active {
+  background-color: hsl(var(--muted-foreground) / 0.6);
+}
+
+/* Enhanced mobile navigation scrollbar */
+@media (max-width: 768px) {
+  .nav-scrollbar {
+    scrollbar-width: auto;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.5) hsl(var(--muted) / 0.3);
+    -webkit-overflow-scrolling: touch;
+    /* Ensure smooth scrolling on mobile */
+    overscroll-behavior-x: contain;
+  }
+  
+  .nav-scrollbar::-webkit-scrollbar {
+    height: 8px;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  .nav-scrollbar::-webkit-scrollbar-track {
+    background: hsl(var(--muted) / 0.2);
+    border-radius: 4px;
+    margin: 0 4px;
+  }
+  
+  .nav-scrollbar::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground) / 0.5);
+    border-radius: 4px;
+    border: none;
+  }
+  
+  .nav-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--muted-foreground) / 0.7);
+  }
+  
+  .nav-scrollbar::-webkit-scrollbar-thumb:active {
+    background-color: hsl(var(--muted-foreground) / 0.8);
+  }
+}

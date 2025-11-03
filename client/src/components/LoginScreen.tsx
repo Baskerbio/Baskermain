@@ -276,7 +276,7 @@ export function LoginScreen() {
             <div>
               <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Support</h4>
               <ul className="space-y-3">
-                <li><Link href="/about" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">About Us</Link></li>
+                <li><Link href="/info#about" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">About Us</Link></li>
                 <li><a href="https://bsky.app" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Bluesky</a></li>
                 <li><a href="https://atproto.com" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">AT Protocol</a></li>
                 <li><a href="mailto:support@basker.bio" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Contact</a></li>
@@ -303,6 +303,9 @@ export function LoginScreen() {
                 </div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">
                   Made with ❤️ for the decentralized web
+                </div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  v2.0.0.0
                 </div>
               </div>
             </div>

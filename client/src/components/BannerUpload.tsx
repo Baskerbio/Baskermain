@@ -33,6 +33,7 @@ export function BannerUpload({ isOpen, onClose }: BannerUploadProps) {
   const [gifs, setGifs] = useState<GifResult[]>([]);
   const [isLoadingGifs, setIsLoadingGifs] = useState(false);
   const [selectedGif, setSelectedGif] = useState<string | null>(null);
+  const [nextPos, setNextPos] = useState<string | null>(null);
   const [showEditor, setShowEditor] = useState(false);
   const [imageToEdit, setImageToEdit] = useState<string | null>(null);
   // Image adjustment controls
@@ -61,17 +62,42 @@ export function BannerUpload({ isOpen, onClose }: BannerUploadProps) {
   useEffect(() => {
     if (isOpen && activeTab === 'browse' && gifs.length === 0) {
       loadTrendingGifs();
+      setNextPos(null);
     }
   }, [isOpen, activeTab]);
+  
+  // Reset pagination when search query changes
+  useEffect(() => {
+    if (activeTab === 'browse') {
+      setNextPos(null);
+    }
+  }, [searchQuery, activeTab]);
+  
+  // Handle infinite scroll for GIFs
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const scrollBottom = target.scrollHeight - target.scrollTop - target.clientHeight;
+    
+    // Load more when scrolled near bottom (within 200px)
+    if (scrollBottom < 200 && !isLoadingGifs && nextPos) {
+      if (searchQuery.trim()) {
+        searchGifs(true);
+      } else {
+        loadTrendingGifs(true);
+      }
+    }
+  };
 
-  const loadTrendingGifs = async () => {
+  const loadTrendingGifs = async (append = false) => {
     setIsLoadingGifs(true);
     try {
       // Using Tenor API (Google's GIF API) - free public access
       const apiKey = 'AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ'; // Demo key - works without auth
-      const response = await fetch(
-        `https://tenor.googleapis.com/v2/featured?key=${apiKey}&limit=24&contentfilter=high&media_filter=gif`
-      );
+      const url = append && nextPos
+        ? `https://tenor.googleapis.com/v2/featured?key=${apiKey}&limit=50&contentfilter=high&media_filter=gif&pos=${nextPos}`
+        : `https://tenor.googleapis.com/v2/featured?key=${apiKey}&limit=50&contentfilter=high&media_filter=gif`;
+      
+      const response = await fetch(url);
       
       if (!response.ok) {
         throw new Error(`Tenor API error: ${response.status}`);
@@ -81,7 +107,8 @@ export function BannerUpload({ isOpen, onClose }: BannerUploadProps) {
       console.log('Tenor trending response:', data);
       
       if (!data.results || data.results.length === 0) {
-        throw new Error('No GIFs found');
+        if (!append) throw new Error('No GIFs found');
+        return;
       }
       
       const gifResults: GifResult[] = data.results
@@ -95,21 +122,31 @@ export function BannerUpload({ isOpen, onClose }: BannerUploadProps) {
       
       console.log('Loaded GIFs:', gifResults.length);
       console.log('Sample GIF:', gifResults[0]);
-      setGifs(gifResults);
+      
+      if (append) {
+        setGifs(prev => [...prev, ...gifResults]);
+      } else {
+        setGifs(gifResults);
+      }
+      
+      setNextPos(data.next || null);
     } catch (error: any) {
       console.error('Failed to load GIFs:', error);
-      toast({
-        title: 'Failed to load GIFs',
-        description: error.message || 'Could not connect to GIF service',
-        variant: 'destructive',
-      });
+      if (!append) {
+        toast({
+          title: 'Failed to load GIFs',
+          description: error.message || 'Could not connect to GIF service',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setIsLoadingGifs(false);
     }
   };
 
-  const searchGifs = async () => {
+  const searchGifs = async (append = false) => {
     if (!searchQuery.trim()) {
+      setNextPos(null);
       loadTrendingGifs();
       return;
     }
@@ -117,9 +154,11 @@ export function BannerUpload({ isOpen, onClose }: BannerUploadProps) {
     setIsLoadingGifs(true);
     try {
       const apiKey = 'AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ';
-      const response = await fetch(
-        `https://tenor.googleapis.com/v2/search?key=${apiKey}&q=${encodeURIComponent(searchQuery)}&limit=24&contentfilter=high&media_filter=gif`
-      );
+      const url = append && nextPos
+        ? `https://tenor.googleapis.com/v2/search?key=${apiKey}&q=${encodeURIComponent(searchQuery)}&limit=50&contentfilter=high&media_filter=gif&pos=${nextPos}`
+        : `https://tenor.googleapis.com/v2/search?key=${apiKey}&q=${encodeURIComponent(searchQuery)}&limit=50&contentfilter=high&media_filter=gif`;
+      
+      const response = await fetch(url);
       
       if (!response.ok) {
         throw new Error(`Tenor API error: ${response.status}`);
@@ -129,11 +168,13 @@ export function BannerUpload({ isOpen, onClose }: BannerUploadProps) {
       console.log('Tenor search response:', data);
       
       if (!data.results || data.results.length === 0) {
-        toast({
-          title: 'No results',
-          description: `No GIFs found for "${searchQuery}"`,
-        });
-        setGifs([]);
+        if (!append) {
+          toast({
+            title: 'No results',
+            description: `No GIFs found for "${searchQuery}"`,
+          });
+          setGifs([]);
+        }
         return;
       }
       
@@ -148,14 +189,23 @@ export function BannerUpload({ isOpen, onClose }: BannerUploadProps) {
       
       console.log('Found GIFs:', gifResults.length);
       console.log('Sample GIF:', gifResults[0]);
-      setGifs(gifResults);
+      
+      if (append) {
+        setGifs(prev => [...prev, ...gifResults]);
+      } else {
+        setGifs(gifResults);
+      }
+      
+      setNextPos(data.next || null);
     } catch (error: any) {
       console.error('Failed to search GIFs:', error);
-      toast({
-        title: 'Search failed',
-        description: error.message || 'Could not search GIFs',
-        variant: 'destructive',
-      });
+      if (!append) {
+        toast({
+          title: 'Search failed',
+          description: error.message || 'Could not search GIFs',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setIsLoadingGifs(false);
     }
@@ -734,24 +784,45 @@ export function BannerUpload({ isOpen, onClose }: BannerUploadProps) {
                 ))}
               </div>
 
-              {/* Selected GIF Preview */}
+              {/* Selected GIF Preview with Action Buttons */}
               {selectedGif && (
-                <div className="w-full h-32 bg-muted rounded-lg overflow-hidden border-2 border-primary">
-                  <img 
-                    src={selectedGif} 
-                    alt="Selected GIF"
-                    className="w-full h-full object-cover"
-                  />
+                <div className="space-y-3">
+                  <div className="w-full h-32 bg-muted rounded-lg overflow-hidden border-2 border-primary">
+                    <img 
+                      src={selectedGif} 
+                      alt="Selected GIF"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => handleSelectForEditing(selectedGif)}
+                      className="flex-1"
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Adjust & Set Banner
+                    </Button>
+                    <Button
+                      onClick={() => setSelectedGif(null)}
+                      variant="outline"
+                    >
+                      Clear
+                    </Button>
+                  </div>
                 </div>
               )}
 
               {/* GIF Grid */}
-              {isLoadingGifs ? (
+              {isLoadingGifs && gifs.length === 0 ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="w-8 h-8 animate-spin text-primary" />
                 </div>
               ) : (
-                <div className="grid grid-cols-3 gap-3 max-h-96 overflow-y-auto pr-2">
+                <div 
+                  className="grid grid-cols-3 gap-3 overflow-y-auto pr-2"
+                  style={{ maxHeight: 'calc(90vh - 300px)', minHeight: '400px' }}
+                  onScroll={handleScroll}
+                >
                   {gifs.map((gif) => (
                     <button
                       key={gif.id}
@@ -773,6 +844,11 @@ export function BannerUpload({ isOpen, onClose }: BannerUploadProps) {
                       )}
                     </button>
                   ))}
+                  {isLoadingGifs && gifs.length > 0 && (
+                    <div className="col-span-3 flex items-center justify-center py-4">
+                      <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -780,25 +856,6 @@ export function BannerUpload({ isOpen, onClose }: BannerUploadProps) {
                 <div className="text-center py-12 text-muted-foreground">
                   <Sparkles className="w-12 h-12 mx-auto mb-3 opacity-50" />
                   <p>Search for GIFs or browse trending</p>
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              {selectedGif && (
-                <div className="flex gap-2 pt-4 border-t">
-                  <Button
-                    onClick={() => handleSelectForEditing(selectedGif)}
-                    className="flex-1"
-                  >
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Adjust & Set Banner
-                  </Button>
-                  <Button
-                    onClick={() => setSelectedGif(null)}
-                    variant="outline"
-                  >
-                    Clear
-                  </Button>
                 </div>
               )}
 

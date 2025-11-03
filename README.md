@@ -1,6 +1,6 @@
 # Basker - Decentralized Link-in-Bio Platform
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/Baskerbio/Baskermain/releases)
+[![Version](https://img.shields.io/badge/version-2.0.0.0-blue.svg)](https://github.com/Baskerbio/Baskermain/releases)
 [![License](https://img.shields.io/badge/license-Private-red.svg)](LICENSE)
 [![Built on AT Protocol](https://img.shields.io/badge/built%20on-AT%20Protocol-purple.svg)](https://atproto.com/)
 
@@ -278,4 +278,4 @@ For technical support and questions:
 
 ---
 
-**Version 1.0.0** - Complete decentralized platform with advanced moderation, verification, and customization capabilities.
+**Version 2.0.0.0** - Complete decentralized platform with advanced moderation, verification, and customization capabilities.

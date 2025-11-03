@@ -57,10 +57,6 @@ export function Header() {
         {/* Desktop Navigation */}
         <div className="hidden sm:flex items-center gap-1 sm:gap-2">
           <div className="flex items-center gap-1 sm:gap-2">
-            <Link href="/about" className="relative px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 rounded-lg hover:bg-blue-50/50 dark:hover:bg-blue-900/20 group">
-              <span className="relative z-10">About</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </Link>
             <Link href="/pricing" className="relative px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-all duration-300 rounded-lg hover:bg-purple-50/50 dark:hover:bg-purple-900/20 group">
               <span className="relative z-10">Pricing</span>
               <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -77,18 +73,7 @@ export function Header() {
               <span className="relative z-10">Info Center</span>
               <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-teal-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </Link>
-            {isAuthenticated && user && (
-              <>
-                <Link href="/analytics" className="relative px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-300 rounded-lg hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 group">
-                  <span className="relative z-10">Analytics</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-green-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </Link>
-                <Link href="/import" className="relative px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 rounded-lg hover:bg-orange-50/50 dark:hover:bg-orange-900/20 group">
-                  <span className="relative z-10">Import</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-amber-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </Link>
-              </>
-            )}
+
           </div>
           
           <div className="ml-4 pl-4 border-l border-gray-200/50 dark:border-gray-700/50">
@@ -144,12 +129,6 @@ export function Header() {
 
             {/* Navigation links */}
             <div className="grid grid-cols-2 gap-3">
-              <Link href="/about">
-                <Button variant="outline" size="sm" className="w-full justify-start gap-3 h-12 bg-white/50 dark:bg-gray-800/50 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300">
-                  <Info className="w-4 h-4" />
-                  About
-                </Button>
-              </Link>
               <Link href="/pricing">
                 <Button variant="outline" size="sm" className="w-full justify-start gap-3 h-12 bg-white/50 dark:bg-gray-800/50 border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-300">
                   <Crown className="w-4 h-4" />

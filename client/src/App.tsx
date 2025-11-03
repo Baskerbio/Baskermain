@@ -10,7 +10,6 @@ import Home from "@/pages/Home";
 import Profile from "@/pages/Profile";
 import PublicProfilePage from "@/pages/PublicProfilePage";
 import NotFound from "@/pages/not-found";
-import About from "@/pages/About";
 import FAQ from "@/pages/FAQ";
 import Pricing from "@/pages/Pricing";
 import Support from "@/pages/Support";
@@ -30,6 +29,7 @@ import ModerationPanel from "@/pages/ModerationPanel";
 import Analytics from "@/pages/Analytics";
 import Import from "@/pages/Import";
 import Solaris from "@/pages/Tap";
+import SubmitWidget from "@/pages/SubmitWidget";
 
 function Router() {
   return (
@@ -40,7 +40,6 @@ function Router() {
       <Route path="/analytics" component={Analytics} />
       <Route path="/import" component={Import} />
       <Route path="/solaris" component={Solaris} />
-      <Route path="/about" component={About} />
       <Route path="/faq" component={FAQ} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/support" component={Support} />
@@ -56,6 +55,7 @@ function Router() {
       <Route path="/starter-packs" component={StarterPacks} />
       <Route path="/starter-packs/:packId" component={StarterPackDetail} />
       <Route path="/moderation" component={ModerationPanel} />
+      <Route path="/submit-widget" component={SubmitWidget} />
       <Route path="/:handle" component={PublicProfilePage} />
       <Route component={NotFound} />
     </Switch>

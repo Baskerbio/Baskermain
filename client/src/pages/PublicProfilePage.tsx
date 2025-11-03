@@ -501,37 +501,35 @@ export default function PublicProfilePage() {
               </DropdownMenu>
             </div>
 
-            {/* Desktop individual buttons */}
-            <div className="hidden sm:flex items-center gap-3">
-              <Button 
-                variant="secondary" 
-                size="sm" 
-                onClick={handleShare}
-                className="flex items-center gap-2 text-sm px-3 py-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-              >
-                <Share2 className="w-4 h-4" />
-                Share
-              </Button>
-              
-              <Button 
-                variant="secondary" 
-                size="sm" 
-                onClick={handleCopyURL}
-                className="flex items-center gap-2 text-sm px-3 py-2 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
-              >
-                <Copy className="w-4 h-4" />
-                Copy
-              </Button>
-              
-              <Button 
-                variant="secondary" 
-                size="sm" 
-                onClick={() => setShowQRCode(true)}
-                className="flex items-center gap-2 text-sm px-3 py-2 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
-              >
-                <QrCode className="w-4 h-4" />
-                QR
-              </Button>
+            {/* Desktop dropdown for share options */}
+            <div className="hidden sm:block">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="secondary" 
+                    size="sm" 
+                    className="flex items-center gap-2 text-sm px-3 py-2"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Share
+                    <ChevronDown className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleCopyURL}>
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copy Profile URL
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleShare}>
+                    <Share2 className="w-4 h-4 mr-2" />
+                    Share Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setShowQRCode(true)}>
+                    <QrCode className="w-4 h-4 mr-2" />
+                    Show QR Code
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
             
             <Link href="/">
@@ -596,6 +594,8 @@ export default function PublicProfilePage() {
             />
             <span className="text-sm">basker</span>
             <span className="text-sm text-muted-foreground">© 2025</span>
+            <span className="text-sm text-muted-foreground">•</span>
+            <span className="text-sm text-muted-foreground">v2.0.0.0</span>
           </div>
           <p className="text-xs text-muted-foreground">
             Create your own link-in-bio page with basker
