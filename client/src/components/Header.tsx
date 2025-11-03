@@ -8,6 +8,7 @@ export function Header() {
   const { isAuthenticated, user } = useAuth();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [logoError, setLogoError] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -26,13 +27,24 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 py-4 sm:py-5 flex items-center justify-between">
         <div className="flex items-center gap-3 sm:gap-4">
           <Link href="/" className="flex items-center gap-3 sm:gap-4 group">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-sm opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
+            <div className="relative flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-sm opacity-60 group-hover:opacity-80 transition-opacity duration-300 z-0"></div>
               <img 
-                src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
+                src="/baskerchristmas.jpg"
                 alt="Basker"
-                className="relative w-6 h-6 sm:w-7 sm:h-7 rounded-full ring-2 ring-white/50 dark:ring-gray-700/50 group-hover:scale-110 transition-transform duration-300"
+                className="relative w-full h-full rounded-full ring-2 ring-white/50 dark:ring-gray-700/50 group-hover:scale-110 transition-transform duration-300 z-10 object-cover"
+                style={{ display: 'block', width: '100%', height: '100%', position: 'relative', visibility: logoError ? 'hidden' : 'visible' }}
+                loading="eager"
+                onError={(e) => {
+                  console.error('Logo image failed to load:', e);
+                  setLogoError(true);
+                }}
               />
+              {logoError && (
+                <div className="absolute inset-0 w-full h-full rounded-full bg-gradient-to-r from-blue-500 to-purple-500 z-20 flex items-center justify-center ring-2 ring-white/50 dark:ring-gray-700/50">
+                  <span className="text-white text-sm sm:text-base font-bold">B</span>
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent group-hover:from-blue-500 group-hover:via-purple-500 group-hover:to-pink-500 transition-all duration-300">

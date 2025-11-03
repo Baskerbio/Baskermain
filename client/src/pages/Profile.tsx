@@ -166,7 +166,7 @@ export default function Profile() {
             <div className="flex items-center gap-2 sm:gap-3">
               <Link href="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity">
                 <img 
-                  src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
+                  src="/baskerchristmas.jpg"
                   alt="Basker"
                   className="w-5 h-5 sm:w-6 sm:h-6 rounded-full"
                 />
@@ -511,7 +511,7 @@ export default function Profile() {
             <div className="flex items-center justify-center gap-2 text-muted-foreground mb-4">
               <span className="text-sm">Powered by</span>
               <img 
-                src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
+                src="/baskerchristmas.jpg"
                 alt="Basker"
                 className="w-4 h-4 rounded-full"
               />

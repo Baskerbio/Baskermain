@@ -65,9 +65,52 @@ const HALLOWEEN_THEME: Theme = {
   patternStyle: 'themed', // Use themed patterns
 };
 
+// Comprehensive Christmas theme with festive red/green/gold styling
+const CHRISTMAS_THEME: Theme = {
+  name: 'christmas' as const,
+  // Core colors - festive red/green/gold theme
+  primaryColor: '#dc2626', // Christmas red
+  accentColor: '#16a34a', // Christmas green
+  backgroundColor: '#0f172a', // Deep navy background
+  textColor: '#fef3c7', // Warm gold text
+  
+  // Card styling
+  cardBackground: '#1e293b', // Slate grey cards
+  cardText: '#fef3c7', // Gold card text
+  
+  // Text variations
+  headingColor: '#fca5a5', // Soft red for headings
+  mutedTextColor: '#fbbf24', // Muted gold for muted text
+  linkColor: '#dc2626', // Red links
+  linkHoverColor: '#16a34a', // Green on hover
+  
+  // UI elements
+  borderColor: '#14532d', // Dark green borders
+  buttonBackground: '#dc2626', // Red buttons
+  buttonText: '#ffffff', // White button text
+  buttonHoverBackground: '#16a34a', // Green on hover
+  
+  // Input elements
+  inputBackground: '#1e293b',
+  inputText: '#fef3c7',
+  inputBorder: '#14532d',
+  
+  // Layout
+  fontFamily: 'Inter, sans-serif',
+  layout: 'default',
+  backgroundImage: undefined, // Can be set by user
+  
+  // Theme-specific styling
+  enableThemePatterns: true,
+  defaultLinkBackground: '#1e293b', // Slate grey for links
+  defaultLinkTextColor: '#fef3c7', // Gold text for links
+  patternStyle: 'themed', // Use themed patterns
+};
+
 // Theme map
 const THEMES: Record<string, Theme> = {
   halloween: HALLOWEEN_THEME,
+  christmas: CHRISTMAS_THEME,
 };
 
 const DEFAULT_THEME: Partial<Theme> = HALLOWEEN_THEME;

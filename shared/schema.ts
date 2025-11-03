@@ -253,7 +253,7 @@ export const groupSchema = z.object({
 // Theme schema - comprehensive color customization
 export const themeSchema = z.object({
   name: z.enum([
-    "halloween", "custom1", "custom2", "none"
+    "halloween", "christmas", "custom1", "custom2", "none"
   ]),
   // Core colors
   primaryColor: z.string(),
