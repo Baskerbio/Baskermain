@@ -163,20 +163,265 @@ export function PublicStoriesRing({ profile, targetDid, settings: propSettings }
     console.log('🔍 PublicStoriesRing - Time until expiry:', new Date(stories[0].expiresAt).getTime() - new Date().getTime());
   }
 
+  // Helper function to get border gradient style
+  const getBorderGradient = () => {
+    const borderType = effectiveSettings?.profileIconBorderType || 'solid';
+    const borderWidth = effectiveSettings?.profileIconBorderWidth || 0;
+    
+    if (borderType === 'solid' || borderWidth === 0) return null;
+    
+    const gradientColors = effectiveSettings?.profileIconBorderGradientColors || ['#ff0000', '#00ff00', '#0000ff'];
+    const [color1, color2, color3] = gradientColors;
+    
+    if (borderType === 'gradient') {
+      return `linear-gradient(135deg, ${color1}, ${color2}, ${color3})`;
+    }
+    
+    if (borderType === 'animated-gradient') {
+      const animatedType = effectiveSettings?.profileIconBorderAnimatedType || 'rainbow';
+      if (animatedType === 'rainbow') {
+        return `conic-gradient(from 0deg, ${color1}, ${color2}, ${color3}, ${color1})`;
+      } else if (animatedType === 'pulse') {
+        return `linear-gradient(135deg, ${color1}, ${color2}, ${color3})`;
+      } else { // flow
+        return `linear-gradient(90deg, ${color1}, ${color2}, ${color3})`;
+      }
+    }
+    
+    return null;
+  };
+
+  // Helper function to get color based on index for even distribution around circle
+  // Cycles through the 3 colors evenly: color1, color2, color3, color1, color2, color3...
+  const getColorForIndex = (index: number, gradientColors: string[]): string => {
+    const [color1, color2, color3] = gradientColors;
+    const colorIndex = index % 3;
+    if (colorIndex === 0) return color1;
+    if (colorIndex === 1) return color2;
+    return color3;
+  };
+
+  // Helper function to render dashed/dotted border SVG pattern
+  const renderBorderPattern = (size: number, borderWidth: number, borderStyle: string, gradientColors: string[]) => {
+    if (borderStyle !== 'dashed' && borderStyle !== 'dotted') return null;
+    
+    const radius = size / 2;
+    
+    if (borderStyle === 'dashed') {
+      const dashLength = borderWidth * 4;
+      const gapLength = borderWidth * 2;
+      const circumference = 2 * Math.PI * radius;
+      const numDashes = Math.floor(circumference / (dashLength + gapLength));
+      const dashAngleDeg = (dashLength / circumference) * 360;
+      const gapAngleDeg = (gapLength / circumference) * 360;
+      
+      const paths = Array.from({ length: numDashes }, (_, i) => {
+        const startAngleDeg = i * (dashAngleDeg + gapAngleDeg);
+        const midAngleDeg = startAngleDeg + dashAngleDeg / 2; // Use middle of dash for color
+        const endAngleDeg = startAngleDeg + dashAngleDeg;
+        const startRad = (startAngleDeg * Math.PI) / 180;
+        const endRad = (endAngleDeg * Math.PI) / 180;
+        const largeArc = dashAngleDeg > 180 ? 1 : 0;
+        const outerRadius = radius;
+        const innerRadius = radius - borderWidth;
+        
+        const x1 = radius + outerRadius * Math.cos(startRad);
+        const y1 = radius + outerRadius * Math.sin(startRad);
+        const x2 = radius + outerRadius * Math.cos(endRad);
+        const y2 = radius + outerRadius * Math.sin(endRad);
+        const x3 = radius + innerRadius * Math.cos(endRad);
+        const y3 = radius + innerRadius * Math.sin(endRad);
+        const x4 = radius + innerRadius * Math.cos(startRad);
+        const y4 = radius + innerRadius * Math.sin(startRad);
+        
+        // Get color for this dash based on its index - cycles through 3 colors evenly
+        const dashColor = getColorForIndex(i, gradientColors);
+        
+        return (
+          <path
+            key={i}
+            d={`M ${x1} ${y1} A ${outerRadius} ${outerRadius} 0 ${largeArc} 1 ${x2} ${y2} L ${x3} ${y3} A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${x4} ${y4} Z`}
+            fill={dashColor}
+          />
+        );
+      });
+      
+      return (
+        <svg width={size} height={size} style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+          {paths}
+        </svg>
+      );
+    }
+    
+    if (borderStyle === 'dotted') {
+      const dotRadius = borderWidth * 0.8;
+      const spacing = borderWidth * 4;
+      const circumference = 2 * Math.PI * (radius - borderWidth / 2);
+      const numDots = Math.max(4, Math.floor(circumference / spacing));
+      
+      const dots = Array.from({ length: numDots }, (_, i) => {
+        const angle = (i * 360) / numDots - 90; // Offset by -90 to start from top
+        const angleRad = (angle * Math.PI) / 180;
+        const x = radius + (radius - borderWidth / 2) * Math.cos(angleRad);
+        const y = radius + (radius - borderWidth / 2) * Math.sin(angleRad);
+        
+        // Get color for this dot based on its index - cycles through 3 colors evenly
+        const dotColor = getColorForIndex(i, gradientColors);
+        
+        return (
+          <circle
+            key={i}
+            cx={x}
+            cy={y}
+            r={dotRadius}
+            fill={dotColor}
+          />
+        );
+      });
+      
+      return (
+        <svg width={size} height={size} style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+          {dots}
+        </svg>
+      );
+    }
+    
+    return null;
+  };
+
+  const borderGradient = getBorderGradient();
+  const borderType = effectiveSettings?.profileIconBorderType || 'solid';
+  const borderWidth = effectiveSettings?.profileIconBorderWidth || 0;
+  const hasGradientBorder = borderWidth > 0 && borderGradient && borderType !== 'solid';
+  const animatedType = effectiveSettings?.profileIconBorderAnimatedType || 'rainbow';
+
+  // Helper component to render Avatar with optional gradient border
+  const renderAvatar = (size: string = 'w-24 h-24', className: string = '') => {
+    if (hasGradientBorder) {
+      // Extract size in pixels (w-24 = 96px, w-32 = 128px, etc.)
+      const sizeInPx = size === 'w-24 h-24' ? 96 : size === 'w-32 h-32' ? 128 : 96;
+      const borderStyle = effectiveSettings?.profileIconBorderStyle || 'solid';
+      const gradientColors = effectiveSettings?.profileIconBorderGradientColors || ['#ff0000', '#00ff00', '#0000ff'];
+      const isDashedOrDotted = borderStyle === 'dashed' || borderStyle === 'dotted';
+      return (
+        <div
+          className={`${size} relative flex items-center justify-center`}
+          style={{
+            borderRadius: effectiveSettings?.profileIconBorderRadius !== undefined ? `${effectiveSettings.profileIconBorderRadius}%` : undefined,
+            animation: borderType === 'animated-gradient' && animatedType === 'rainbow'
+              ? 'gradientRotate 3s linear infinite' 
+              : undefined,
+          }}
+        >
+          {/* Gradient background layer - only show if not dashed/dotted */}
+          {!isDashedOrDotted && (
+            <div
+              className="absolute inset-0"
+              style={{
+                background: borderGradient,
+                borderRadius: effectiveSettings?.profileIconBorderRadius !== undefined ? `${effectiveSettings.profileIconBorderRadius}%` : undefined,
+                backgroundSize: animatedType === 'pulse' || animatedType === 'flow' ? '200% 200%' : '100% 100%',
+                animation: borderType === 'animated-gradient' 
+                  ? animatedType === 'pulse'
+                    ? 'gradientPulse 2s ease-in-out infinite'
+                    : animatedType === 'flow'
+                    ? 'gradientFlow 3s linear infinite'
+                    : undefined
+                  : undefined,
+              }}
+            />
+          )}
+          {/* SVG pattern for dashed/dotted styles */}
+          {isDashedOrDotted && renderBorderPattern(sizeInPx, borderWidth, borderStyle, gradientColors)}
+          {/* Inner gradient layer for double/groove/ridge effects */}
+          {(borderStyle === 'double' || borderStyle === 'groove' || borderStyle === 'ridge') && (
+            <div
+              className="absolute"
+              style={{
+                background: borderGradient,
+                borderRadius: effectiveSettings?.profileIconBorderRadius !== undefined ? `${effectiveSettings.profileIconBorderRadius}%` : undefined,
+                backgroundSize: animatedType === 'pulse' || animatedType === 'flow' ? '200% 200%' : '100% 100%',
+                width: `calc(100% - ${(borderWidth / 3) * 2}px)`,
+                height: `calc(100% - ${(borderWidth / 3) * 2}px)`,
+                margin: `${borderWidth / 3}px`,
+                animation: borderType === 'animated-gradient' 
+                  ? animatedType === 'pulse'
+                    ? 'gradientPulse 2s ease-in-out infinite'
+                    : animatedType === 'flow'
+                    ? 'gradientFlow 3s linear infinite'
+                    : undefined
+                  : undefined,
+              }}
+            />
+          )}
+          {/* Avatar that creates the border effect */}
+          <Avatar 
+            className={`relative z-10 ${className}`}
+            style={{
+              borderRadius: effectiveSettings?.profileIconBorderRadius !== undefined ? `${effectiveSettings.profileIconBorderRadius}%` : undefined,
+              width: `calc(${sizeInPx}px - ${2 * borderWidth}px)`,
+              height: `calc(${sizeInPx}px - ${2 * borderWidth}px)`,
+            }}
+          >
+            <AvatarImage 
+              src={effectiveSettings?.customAvatar || profile.avatar} 
+              alt={profile.displayName || profile.handle}
+              data-testid="img-avatar"
+            />
+            <AvatarFallback data-testid="text-avatar-fallback">
+              {(profile.displayName || profile.handle).charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        </div>
+      );
+    }
+
+    // Regular avatar without gradient border
+    return (
+      <Avatar 
+        className={`${size} ${className}`}
+        style={{
+          borderWidth: borderWidth > 0 ? `${borderWidth}px` : undefined,
+          borderColor: effectiveSettings?.profileIconBorderColor || (borderWidth > 0 ? '#ffffff' : undefined),
+          borderStyle: effectiveSettings?.profileIconBorderStyle,
+          borderRadius: effectiveSettings?.profileIconBorderRadius !== undefined ? `${effectiveSettings.profileIconBorderRadius}%` : undefined,
+        }}
+      >
+        <AvatarImage 
+          src={effectiveSettings?.customAvatar || profile.avatar} 
+          alt={profile.displayName || profile.handle}
+          data-testid="img-avatar"
+        />
+        <AvatarFallback data-testid="text-avatar-fallback">
+          {(profile.displayName || profile.handle).charAt(0).toUpperCase()}
+        </AvatarFallback>
+      </Avatar>
+    );
+  };
+
   // If no stories, just show the avatar
   if (activeStories.length === 0) {
     return (
       <div className="relative inline-block mb-0">
-        <Avatar className="w-24 h-24 border-4 border-primary">
-          <AvatarImage 
-            src={effectiveSettings?.customAvatar || profile.avatar} 
-            alt={profile.displayName || profile.handle}
-            data-testid="img-avatar"
-          />
-          <AvatarFallback data-testid="text-avatar-fallback">
-            {(profile.displayName || profile.handle).charAt(0).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
+        {hasGradientBorder && (
+          <style>
+            {`
+              @keyframes gradientRotate {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+              }
+              @keyframes gradientPulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.5; }
+              }
+              @keyframes gradientFlow {
+                from { background-position: 0% 50%; }
+                to { background-position: 200% 50%; }
+              }
+            `}
+          </style>
+        )}
+        {renderAvatar()}
       </div>
     );
   }
@@ -206,20 +451,27 @@ export function PublicStoriesRing({ profile, targetDid, settings: propSettings }
               background: conic-gradient(from 360deg, #fbbf24, #ec4899, #ef4444, #fbbf24, #10b981, #3b82f6, #fbbf24);
             }
           }
+          ${hasGradientBorder ? `
+            @keyframes gradientRotate {
+              from { transform: rotate(0deg); }
+              to { transform: rotate(360deg); }
+            }
+            @keyframes gradientPulse {
+              0%, 100% { opacity: 1; }
+              50% { opacity: 0.5; }
+            }
+            @keyframes gradientFlow {
+              from { background-position: 0% 50%; }
+              to { background-position: 200% 50%; }
+            }
+          ` : ''}
         `}
       </style>
       <div className="relative inline-block -mb-8 w-48 h-48 flex items-center justify-center">
         {/* Avatar */}
-        <Avatar className="w-24 h-24 border-4 border-white dark:border-gray-900 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-          <AvatarImage 
-            src={effectiveSettings?.customAvatar || profile.avatar} 
-            alt={profile.displayName || profile.handle}
-            data-testid="img-avatar"
-          />
-          <AvatarFallback data-testid="text-avatar-fallback">
-            {(profile.displayName || profile.handle).charAt(0).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+          {renderAvatar('w-24 h-24')}
+        </div>
 
         {/* Single story ring that cycles through stories */}
         {activeStories.length > 0 && (() => {

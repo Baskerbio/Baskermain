@@ -447,6 +447,14 @@ export const settingsSchema = z.object({
   bannerBorderColor: z.string().optional(),
   bannerBorderStyle: z.enum(['solid', 'dashed', 'dotted', 'double', 'groove', 'ridge']).optional(),
   bannerBorderRadius: z.number().min(0).max(50).optional(),
+  // Profile Icon Border Styling
+  profileIconBorderWidth: z.number().min(0).max(20).optional(),
+  profileIconBorderColor: z.string().optional(),
+  profileIconBorderStyle: z.enum(['solid', 'dashed', 'dotted', 'double', 'groove', 'ridge']).optional(),
+  profileIconBorderRadius: z.number().min(0).max(50).optional(),
+  profileIconBorderType: z.enum(['solid', 'gradient', 'animated-gradient']).optional(),
+  profileIconBorderGradientColors: z.array(z.string()).length(3).optional(), // Array of 3 gradient colors
+  profileIconBorderAnimatedType: z.enum(['rainbow', 'pulse', 'flow']).optional(), // Animated gradient types
 });
 
 // Widget schema with many more types and better configuration

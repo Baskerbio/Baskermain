@@ -645,7 +645,7 @@ export default function Profile() {
               <span className="text-sm">basker</span>
               <span className="text-sm text-muted-foreground">© 2025</span>
               <span className="text-sm text-muted-foreground">•</span>
-              <span className="text-sm text-muted-foreground">v2.0.0.0</span>
+              <span className="text-sm text-muted-foreground">v2.1.0.0</span>
             </div>
             <p className="text-xs text-muted-foreground">
               Create your own link-in-bio page with basker

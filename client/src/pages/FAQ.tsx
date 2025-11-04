@@ -278,7 +278,7 @@ export default function FAQ() {
               <h3 className="text-lg font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Basker</h3>
               <span className="text-sm text-gray-500 dark:text-gray-400">© 2025</span>
               <span className="text-sm text-gray-500 dark:text-gray-400">•</span>
-              <span className="text-sm text-gray-500 dark:text-gray-400">v2.0.0.0</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">v2.1.0.0</span>
             </div>
             
             <div className="text-center md:text-right">

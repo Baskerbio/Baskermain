@@ -405,7 +405,7 @@ export default function Pricing() {
                   Made with ❤️ for the decentralized web
                 </div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">
-                  v2.0.0.0
+                  v2.1.0.0
                 </div>
               </div>
             </div>
