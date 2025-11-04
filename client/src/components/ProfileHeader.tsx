@@ -246,7 +246,7 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
       
       {/* Show banner button when hidden */}
       {effectiveSettings?.showBanner === false && isEditMode && isOwnProfile && (
-        <div className="mb-6">
+        <div className="mb-4 pt-4">
           <Button
             size="sm"
             variant="outline"
@@ -268,7 +268,7 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
         </div>
       )}
       
-      <div className="relative inline-block mb-0 -mt-16">
+      <div className={`relative inline-block mb-0 ${effectiveSettings?.showBanner !== false ? '-mt-16' : ''}`}>
         {(effectiveSettings === null || effectiveSettings?.showStories !== false) && (
           targetDid ? (
             <PublicStoriesRing 
