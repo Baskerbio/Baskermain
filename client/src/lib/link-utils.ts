@@ -129,11 +129,24 @@ export const getLinkStyling = (link: Link, settings?: any, theme?: any) => {
   }
 
   if (hasBackgroundImage) {
-    style.backgroundImage = `url(${link.backgroundImage})`;
-    style.backgroundSize = link.backgroundImageSize || 'cover';
-    style.backgroundRepeat = link.backgroundImageRepeat || 'no-repeat';
-    style.backgroundPosition =
-      backgroundPositionMap[link.backgroundImagePosition || 'center'] || 'center';
+    const overlayOpacity = link.backgroundImageOverlayOpacity ?? 0.35;
+    const overlayColor = link.backgroundImageOverlayColor || '#000000';
+    const overlayRgba = hexToRgba(overlayColor, overlayOpacity);
+
+    if (overlayOpacity > 0) {
+      style.backgroundImage = `linear-gradient(${overlayRgba}, ${overlayRgba}), url(${link.backgroundImage})`;
+      style.backgroundSize = `cover, ${link.backgroundImageSize || 'cover'}`;
+      style.backgroundRepeat = `no-repeat, ${link.backgroundImageRepeat || 'no-repeat'}`;
+      style.backgroundPosition = `center, ${
+        backgroundPositionMap[link.backgroundImagePosition || 'center'] || 'center'
+      }`;
+    } else {
+      style.backgroundImage = `url(${link.backgroundImage})`;
+      style.backgroundSize = link.backgroundImageSize || 'cover';
+      style.backgroundRepeat = link.backgroundImageRepeat || 'no-repeat';
+      style.backgroundPosition =
+        backgroundPositionMap[link.backgroundImagePosition || 'center'] || 'center';
+    }
   }
   
   // Debug logging

@@ -777,25 +777,13 @@ function PublicLinksList({ did }: { did: string }) {
       getIconComponent(link.icon || 'fas fa-link')
     );
 
-    const overlayOpacity = link.backgroundImageOverlayOpacity ?? 0.35;
-    const hasOverlay = Boolean(link.backgroundImage) && overlayOpacity > 0;
-    const overlayStyle = hasOverlay
-      ? {
-          backgroundColor: hexToRgba(link.backgroundImageOverlayColor || '#000000', overlayOpacity),
-          borderRadius: 'inherit',
-        }
-      : undefined;
-
     const linkContent = (
       <div className="relative">
         <div
-          className={`relative overflow-hidden rounded-lg bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow cursor-pointer ${linkStyling.shapeClasses}`}
+          className={`rounded-lg bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow cursor-pointer ${linkStyling.shapeClasses}`}
           style={linkStyling}
         >
-          {hasOverlay && (
-            <div className="absolute inset-0 pointer-events-none" style={overlayStyle} />
-          )}
-          <div className="relative z-10 p-4">
+          <div className="p-4">
             <div className="flex items-center gap-3">
               <div
                 className={`w-8 h-8 bg-primary/10 flex items-center justify-center overflow-hidden ${linkStyling.iconBorderShape}`}
