@@ -183,67 +183,71 @@ export default function PublicProfilePage() {
     (profileContainerSettings.backgroundOverlayOpacity ?? 0.35) > 0 &&
     (profileContainerSettings.backgroundImage || profileContainerSettings.backgroundColor);
 
-  const profileContent = (
-    <>
-      {/* Profile Header */}
-      <ProfileHeader 
-        profile={profile}
-        isEditMode={false}
-        isOwnProfile={false}
-        targetDid={profile.did}
-      />
-      
-      {/* Social Icons Row - above sections placement */}
-      {settings?.socialIconsConfig?.placement === 'above-sections' && settings?.socialLinks && (
-        <div className="mb-0">
-          <div className="flex items-center justify-center">
-            <SocialIconsRow 
-              socialLinks={settings.socialLinks} 
-              config={settings.socialIconsConfig}
-              isEditMode={false}
-            />
-          </div>
-        </div>
-      )}
-      
-      {(() => {
-        // Use the loaded settings section order, or default if not available
-        const sectionOrder = settings?.sectionOrder || ['widgets', 'notes', 'links'];
-        console.log('🔍 Public profile section order:', sectionOrder);
-        return sectionOrder.map((section) => {
-          switch (section) {
-            case 'widgets':
-              return <PublicWidgets key="widgets" did={profile.did} />;
-            case 'notes':
-              return <PublicNotes key="notes" did={profile.did} />;
-            case 'links':
-              return <PublicLinksList key="links" did={profile.did} />;
-            default:
-              return null;
-          }
-        });
-      })()}
+  const renderProfileContent = () => {
+    if (!profile) return null;
 
-      {/* Footer */}
-      <footer className="text-center py-8 border-t border-border mt-8" data-testid="footer">
-        <div className="flex items-center justify-center gap-2 text-muted-foreground mb-4">
-          <span className="text-sm">Powered by</span>
-          <img 
-            src="/baskerchristmas.jpg"
-            alt="Basker"
-            className="w-4 h-4 rounded-full"
-          />
-          <span className="text-sm">basker</span>
-          <span className="text-sm text-muted-foreground">© 2025</span>
-          <span className="text-sm text-muted-foreground">•</span>
-          <span className="text-sm text-muted-foreground">v2.1.0.0</span>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          Create your own link-in-bio page with basker
-        </p>
-      </footer>
-    </>
-  );
+    return (
+      <>
+        {/* Profile Header */}
+        <ProfileHeader 
+          profile={profile}
+          isEditMode={false}
+          isOwnProfile={false}
+          targetDid={profile.did}
+        />
+        
+        {/* Social Icons Row - above sections placement */}
+        {settings?.socialIconsConfig?.placement === 'above-sections' && settings?.socialLinks && (
+          <div className="mb-0">
+            <div className="flex items-center justify-center">
+              <SocialIconsRow 
+                socialLinks={settings.socialLinks} 
+                config={settings.socialIconsConfig}
+                isEditMode={false}
+              />
+            </div>
+          </div>
+        )}
+        
+        {(() => {
+          // Use the loaded settings section order, or default if not available
+          const sectionOrder = settings?.sectionOrder || ['widgets', 'notes', 'links'];
+          console.log('🔍 Public profile section order:', sectionOrder);
+          return sectionOrder.map((section) => {
+            switch (section) {
+              case 'widgets':
+                return <PublicWidgets key="widgets" did={profile.did} />;
+              case 'notes':
+                return <PublicNotes key="notes" did={profile.did} />;
+              case 'links':
+                return <PublicLinksList key="links" did={profile.did} />;
+              default:
+                return null;
+            }
+          });
+        })()}
+
+        {/* Footer */}
+        <footer className="text-center py-8 border-t border-border mt-8" data-testid="footer">
+          <div className="flex items-center justify-center gap-2 text-muted-foreground mb-4">
+            <span className="text-sm">Powered by</span>
+            <img 
+              src="/baskerchristmas.jpg"
+              alt="Basker"
+              className="w-4 h-4 rounded-full"
+            />
+            <span className="text-sm">basker</span>
+            <span className="text-sm text-muted-foreground">© 2025</span>
+            <span className="text-sm text-muted-foreground">•</span>
+            <span className="text-sm text-muted-foreground">v2.1.0.0</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Create your own link-in-bio page with basker
+          </p>
+        </footer>
+      </>
+    );
+  };
 
   // Truncate username if longer than 19 characters
   const truncateUsername = (username: string) => {
@@ -549,6 +553,10 @@ export default function PublicProfilePage() {
   }
 
   if (!profile) {
+    return null;
+  }
+
+  if (!profile) {
     return (
       <div className="min-h-screen bg-background">
         {/* Header */}
@@ -689,11 +697,11 @@ export default function PublicProfilePage() {
               />
             )}
             <div className="relative z-10">
-              {profileContent}
+              {renderProfileContent()}
             </div>
           </div>
         ) : (
-          profileContent
+          renderProfileContent()
         )}
       </main>
 
