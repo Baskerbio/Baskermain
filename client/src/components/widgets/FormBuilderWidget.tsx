@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { atprotocol } from '@/lib/atprotocol';
@@ -159,7 +160,7 @@ export function FormBuilderWidget({ config, widgetId, isEditMode = false }: Form
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    if (!isAuthenticated) {
+    if (requireLogin && !isAuthenticated) {
       toast({
         title: 'Sign in required',
         description: 'Please sign into your Bluesky account before submitting this form.',
@@ -214,7 +215,7 @@ export function FormBuilderWidget({ config, widgetId, isEditMode = false }: Form
         )}
       </CardHeader>
       <CardContent className="space-y-6">
-        {!isAuthenticated && (
+        {requireLogin && !isAuthenticated && (
           <Alert>
             <AlertDescription>
               You must be signed into your Bluesky account to submit this form.
@@ -258,7 +259,7 @@ export function FormBuilderWidget({ config, widgetId, isEditMode = false }: Form
             <Button
               type="submit"
               className="w-full sm:w-auto"
-              disabled={saveSubmissionMutation.isLoading || !isAuthenticated}
+              disabled={saveSubmissionMutation.isLoading || (requireLogin && !isAuthenticated)}
             >
               {saveSubmissionMutation.isLoading ? (
                 <>
