@@ -436,6 +436,8 @@ export class ATProtocolClient {
         url: record.value.url,
         description: record.value.description || '',
         icon: record.value.icon || '',
+        customIcon: record.value.customIcon || '',
+        customIconAlt: record.value.customIconAlt || '',
         group: record.value.group || '',
         order: record.value.order || 0,
         enabled: record.value.enabled !== false,
@@ -455,6 +457,12 @@ export class ATProtocolClient {
         borderColor: record.value.borderColor || '',
         borderWidth: record.value.borderWidth || 0,
         borderStyle: record.value.borderStyle || 'solid',
+        backgroundImage: record.value.backgroundImage || '',
+        backgroundImageSize: record.value.backgroundImageSize || 'cover',
+        backgroundImagePosition: record.value.backgroundImagePosition || 'center',
+        backgroundImageRepeat: record.value.backgroundImageRepeat || 'no-repeat',
+        backgroundImageOverlayColor: record.value.backgroundImageOverlayColor || '#000000',
+        backgroundImageOverlayOpacity: record.value.backgroundImageOverlayOpacity ?? 0.35,
         pattern: record.value.pattern || 'none',
         patternColor: record.value.patternColor || '',
         pixelTransition: record.value.pixelTransition || false,
@@ -508,6 +516,8 @@ export class ATProtocolClient {
           url: link.url,
           description: link.description || '',
           icon: link.icon || '',
+          customIcon: link.customIcon || '',
+          customIconAlt: link.customIconAlt || '',
           group: link.group || '',
           order: link.order || 0,
           enabled: link.enabled !== undefined ? link.enabled : true,
@@ -524,6 +534,12 @@ export class ATProtocolClient {
         borderColor: link.borderColor || '',
         borderWidth: link.borderWidth || 0,
         borderStyle: link.borderStyle || 'solid',
+        backgroundImage: link.backgroundImage || '',
+        backgroundImageSize: link.backgroundImageSize || 'cover',
+        backgroundImagePosition: link.backgroundImagePosition || 'center',
+        backgroundImageRepeat: link.backgroundImageRepeat || 'no-repeat',
+        backgroundImageOverlayColor: link.backgroundImageOverlayColor || '#000000',
+        backgroundImageOverlayOpacity: link.backgroundImageOverlayOpacity ?? 0.35,
       pattern: link.pattern || 'none',
       patternColor: link.patternColor || '',
       pixelTransition: link.pixelTransition || false,
@@ -826,6 +842,46 @@ export class ATProtocolClient {
     }
   }
 
+  // Form Builder submissions
+  async getFormSubmissions(): Promise<any> {
+    if (!this.did) throw new Error('Not authenticated');
+
+    try {
+      const response = await this.agent.api.com.atproto.repo.getRecord({
+        repo: this.did,
+        collection: 'app.basker.formresponses',
+        rkey: 'self',
+      });
+      return response.data.value;
+    } catch (error: any) {
+      console.log('No form submissions found, returning empty');
+      return { submissions: [] };
+    }
+  }
+
+  async saveFormSubmissions(submissions: any[]): Promise<void> {
+    if (!this.did) throw new Error('Not authenticated');
+
+    const record = {
+      submissions,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    try {
+      await this.agent.api.com.atproto.repo.putRecord({
+        repo: this.did,
+        collection: 'app.basker.formresponses',
+        rkey: 'self',
+        record,
+      });
+      console.log('Successfully saved form submissions to AT Protocol');
+    } catch (error: any) {
+      console.error('AT Protocol failed for saving form submissions:', error);
+      throw new Error(`Failed to save form submissions to AT Protocol: ${error.message}`);
+    }
+  }
+
   // Chat Messages
   async getChatMessages(): Promise<any> {
     if (!this.did) throw new Error('Not authenticated');
@@ -1098,6 +1154,8 @@ export class ATProtocolClient {
         url: record.value.url,
         description: record.value.description || '',
         icon: record.value.icon || '',
+        customIcon: record.value.customIcon || '',
+        customIconAlt: record.value.customIconAlt || '',
         group: record.value.group || '',
         order: record.value.order || 0,
         enabled: record.value.enabled !== false,
@@ -1117,6 +1175,12 @@ export class ATProtocolClient {
         borderColor: record.value.borderColor || '',
         borderWidth: record.value.borderWidth || 0,
         borderStyle: record.value.borderStyle || 'solid',
+        backgroundImage: record.value.backgroundImage || '',
+        backgroundImageSize: record.value.backgroundImageSize || 'cover',
+        backgroundImagePosition: record.value.backgroundImagePosition || 'center',
+        backgroundImageRepeat: record.value.backgroundImageRepeat || 'no-repeat',
+        backgroundImageOverlayColor: record.value.backgroundImageOverlayColor || '#000000',
+        backgroundImageOverlayOpacity: record.value.backgroundImageOverlayOpacity ?? 0.35,
         pattern: record.value.pattern || 'none',
         patternColor: record.value.patternColor || '',
         pixelTransition: record.value.pixelTransition || false,

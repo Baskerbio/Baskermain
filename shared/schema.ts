@@ -48,6 +48,8 @@ export const linkSchema = z.object({
   title: z.string().min(1, "Title is required"),
   url: z.string().url("Must be a valid URL"),
   description: z.string().optional(),
+  customIcon: z.string().optional(),
+  customIconAlt: z.string().optional(),
   icon: z.string().optional(),
   group: z.string().optional(), // Group name for organizing links
   order: z.number().int().min(0),
@@ -70,6 +72,12 @@ export const linkSchema = z.object({
   borderColor: z.string().optional(), // Border color
   borderWidth: z.number().min(0).max(10).optional(), // Border width in pixels
   borderStyle: z.enum(['solid', 'dashed', 'dotted', 'double', 'groove', 'ridge']).optional(), // Border style
+  backgroundImage: z.string().optional(), // Background image (data URL or remote)
+  backgroundImageSize: z.enum(['cover', 'contain', 'auto']).optional(),
+  backgroundImagePosition: z.enum(['center', 'top', 'bottom', 'left', 'right', 'top-left', 'top-right', 'bottom-left', 'bottom-right']).optional(),
+  backgroundImageRepeat: z.enum(['no-repeat', 'repeat', 'repeat-x', 'repeat-y']).optional(),
+  backgroundImageOverlayColor: z.string().optional(),
+  backgroundImageOverlayOpacity: z.number().min(0).max(1).optional(),
   pattern: z.enum(['none', 'dots', 'lines', 'grid', 'diagonal', 'waves']).optional(), // Background pattern
   patternColor: z.string().optional(), // Pattern color
   pixelTransition: z.boolean().default(false), // Enable pixel transition effect
@@ -357,6 +365,25 @@ export const socialIconsConfigSchema = z.object({
   borderStyle: z.enum(['solid', 'dashed', 'dotted', 'double', 'groove', 'ridge']).optional(),
 });
 
+export const profileContainerSchema = z.object({
+  enabled: z.boolean().default(false),
+  backgroundColor: z.string().optional(),
+  backgroundImage: z.string().optional(),
+  backgroundSize: z.enum(['cover', 'contain', 'auto']).default('cover'),
+  backgroundPosition: z.enum(['center', 'top', 'bottom', 'left', 'right', 'top-left', 'top-right', 'bottom-left', 'bottom-right']).default('center'),
+  backgroundRepeat: z.enum(['no-repeat', 'repeat', 'repeat-x', 'repeat-y']).default('no-repeat'),
+  backgroundOverlayColor: z.string().default('#000000'),
+  backgroundOverlayOpacity: z.number().min(0).max(1).default(0.35),
+  borderRadius: z.number().min(0).max(96).default(32),
+  borderColor: z.string().optional(),
+  borderWidth: z.number().min(0).max(20).default(0),
+  borderStyle: z.enum(['solid', 'dashed', 'dotted', 'double', 'groove', 'ridge']).default('solid'),
+  padding: z.number().min(0).max(96).default(32),
+  shadow: z.boolean().default(true),
+  maxWidth: z.enum(['narrow', 'default', 'wide']).default('default'),
+  backdropBlur: z.number().min(0).max(40).default(0),
+});
+
 // Banner adjustment settings
 export const bannerAdjustmentSchema = z.object({
   scale: z.number().default(100),
@@ -381,6 +408,18 @@ export const settingsSchema = z.object({
     placement: 'under-bio',
     style: 'default',
     size: 'medium',
+  }).optional(),
+  profileContainer: profileContainerSchema.default({
+    enabled: false,
+    backgroundOverlayColor: '#000000',
+    backgroundOverlayOpacity: 0.35,
+    borderRadius: 32,
+    borderWidth: 0,
+    borderStyle: 'solid',
+    padding: 32,
+    shadow: true,
+    maxWidth: 'default',
+    backdropBlur: 0,
   }).optional(),
   // Custom Profile Overrides
   customBio: z.string().optional(),
@@ -498,6 +537,7 @@ export const widgetSchema = z.object({
     "spinning_wheel",  // Prize wheel spinner
     "before_after_slider", // Before/after image comparison
     "mini_game",       // Mini browser games
+    "form_builder",    // Custom form builder widget
   ]),
   title: z.string().optional(),
   enabled: z.boolean().default(true),
@@ -560,6 +600,7 @@ export type Settings = z.infer<typeof settingsSchema>;
 export type Widget = z.infer<typeof widgetSchema>;
 export type SocialLink = z.infer<typeof socialLinkSchema>;
 export type SocialIconsConfig = z.infer<typeof socialIconsConfigSchema>;
+export type ProfileContainerSettings = z.infer<typeof profileContainerSchema>;
 export type BannerAdjustment = z.infer<typeof bannerAdjustmentSchema>;
 
 export type LinksRecord = z.infer<typeof linksRecordSchema>;

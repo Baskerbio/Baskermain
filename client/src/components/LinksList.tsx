@@ -9,7 +9,7 @@ import { Droppable, Draggable } from '@hello-pangea/dnd';
 import { useLinks, useSaveLinks, useGroups, useSaveGroups, useSettings } from '../hooks/use-atprotocol';
 import { useToast } from '@/hooks/use-toast';
 import { Link, Group } from '@shared/schema';
-import { getContrastColor, getShapeClasses, getLinkStyling } from '../lib/link-utils';
+import { getContrastColor, getShapeClasses, getLinkStyling, hexToRgba } from '../lib/link-utils';
 import PixelTransition from './PixelTransition';
 import GlareHover from './GlareHover';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
@@ -27,6 +27,8 @@ const linkFormSchema = z.object({
   url: z.string().url('Must be a valid URL'),
   description: z.string().optional(),
   icon: z.string().optional(),
+  customIcon: z.string().optional(),
+  customIconAlt: z.string().optional(),
   group: z.string().optional(),
   // Scheduling options
   isScheduled: z.boolean().optional(),
@@ -53,6 +55,12 @@ const linkFormSchema = z.object({
   pixelTransitionColor: z.string().optional(),
   pixelTransitionGridSize: z.number().min(3).max(15).default(7),
   pixelTransitionDuration: z.number().min(0.1).max(2.0).default(0.3),
+  backgroundImage: z.string().optional(),
+  backgroundImageSize: z.enum(['cover', 'contain', 'auto']).optional(),
+  backgroundImagePosition: z.enum(['center', 'top', 'bottom', 'left', 'right', 'top-left', 'top-right', 'bottom-left', 'bottom-right']).optional(),
+  backgroundImageRepeat: z.enum(['no-repeat', 'repeat', 'repeat-x', 'repeat-y']).optional(),
+  backgroundImageOverlayColor: z.string().optional(),
+  backgroundImageOverlayOpacity: z.number().min(0).max(1).optional(),
 });
 
 interface LinksListProps {
@@ -224,6 +232,8 @@ export function LinksList({ isEditMode }: LinksListProps) {
       url: '',
       description: '',
       icon: '',
+      customIcon: '',
+      customIconAlt: '',
       group: '',
       isScheduled: false,
       scheduledStart: '',
@@ -238,6 +248,12 @@ export function LinksList({ isEditMode }: LinksListProps) {
       borderColor: '',
       borderWidth: 0,
       borderStyle: 'solid',
+      backgroundImage: '',
+      backgroundImageSize: 'cover',
+      backgroundImagePosition: 'center',
+      backgroundImageRepeat: 'no-repeat',
+      backgroundImageOverlayColor: '#000000',
+      backgroundImageOverlayOpacity: 0.35,
       pattern: 'none',
       patternColor: '',
       pixelTransition: false,
@@ -248,6 +264,9 @@ export function LinksList({ isEditMode }: LinksListProps) {
     },
   });
 
+  const customIconValue = form.watch('customIcon');
+  const backgroundImageValue = form.watch('backgroundImage');
+
   // Reset form when editingLink changes
   React.useEffect(() => {
     if (editingLink) {
@@ -256,6 +275,8 @@ export function LinksList({ isEditMode }: LinksListProps) {
         url: editingLink.url,
         description: editingLink.description || '',
         icon: editingLink.icon || '',
+        customIcon: editingLink.customIcon || '',
+        customIconAlt: editingLink.customIconAlt || '',
         group: editingLink.group || '',
         isScheduled: editingLink.isScheduled || false,
         scheduledStart: editingLink.scheduledStart || '',
@@ -270,6 +291,12 @@ export function LinksList({ isEditMode }: LinksListProps) {
         borderColor: editingLink.borderColor || '',
         borderWidth: editingLink.borderWidth || 0,
         borderStyle: editingLink.borderStyle || 'solid',
+        backgroundImage: editingLink.backgroundImage || '',
+        backgroundImageSize: editingLink.backgroundImageSize || 'cover',
+        backgroundImagePosition: editingLink.backgroundImagePosition || 'center',
+        backgroundImageRepeat: editingLink.backgroundImageRepeat || 'no-repeat',
+        backgroundImageOverlayColor: editingLink.backgroundImageOverlayColor || '#000000',
+        backgroundImageOverlayOpacity: editingLink.backgroundImageOverlayOpacity ?? 0.35,
         iconBorderWidth: editingLink.iconBorderWidth || 0,
         iconBorderColor: editingLink.iconBorderColor || '#000000',
         iconBorderShape: editingLink.iconBorderShape || 'rounded',
@@ -287,6 +314,8 @@ export function LinksList({ isEditMode }: LinksListProps) {
         url: '',
         description: '',
         icon: '',
+        customIcon: '',
+        customIconAlt: '',
         group: '',
         isScheduled: false,
         scheduledStart: '',
@@ -301,6 +330,12 @@ export function LinksList({ isEditMode }: LinksListProps) {
         borderColor: '',
         borderWidth: 2,
         borderStyle: 'solid',
+        backgroundImage: '',
+        backgroundImageSize: 'cover',
+        backgroundImagePosition: 'center',
+        backgroundImageRepeat: 'no-repeat',
+        backgroundImageOverlayColor: '#000000',
+        backgroundImageOverlayOpacity: 0.35,
         iconBorderWidth: settings?.enableIconBorders ? 2 : 0,
         iconBorderColor: '#000000',
         iconBorderShape: 'rounded',
@@ -314,6 +349,32 @@ export function LinksList({ isEditMode }: LinksListProps) {
       });
     }
   }, [editingLink, form]);
+
+  const handleCustomIconUpload = (file?: File | null) => {
+    if (!file) {
+      form.setValue('customIcon', '');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      form.setValue('customIcon', reader.result as string, { shouldDirty: true });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleBackgroundImageUpload = (file?: File | null) => {
+    if (!file) {
+      form.setValue('backgroundImage', '');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      form.setValue('backgroundImage', reader.result as string, { shouldDirty: true });
+    };
+    reader.readAsDataURL(file);
+  };
 
   const onSubmit = (values: z.infer<typeof linkFormSchema>) => {
     console.log('🔍 Form submitted with values:', values);
@@ -333,7 +394,19 @@ export function LinksList({ isEditMode }: LinksListProps) {
               ...link, 
               ...values, 
               icon: values.icon === 'none' ? '' : (values.icon || ''),
+              customIcon: values.customIcon || '',
+              customIconAlt: values.customIconAlt || '',
               group: values.group || '',
+              fontWeight: values.fontWeight || 'normal',
+              iconBorderWidth: values.iconBorderWidth || 0,
+              iconBorderColor: values.iconBorderColor || '#000000',
+              iconBorderShape: values.iconBorderShape || 'rounded',
+              backgroundImage: values.backgroundImage || '',
+              backgroundImageSize: values.backgroundImageSize || 'cover',
+              backgroundImagePosition: values.backgroundImagePosition || 'center',
+              backgroundImageRepeat: values.backgroundImageRepeat || 'no-repeat',
+              backgroundImageOverlayColor: values.backgroundImageOverlayColor || '#000000',
+              backgroundImageOverlayOpacity: values.backgroundImageOverlayOpacity ?? 0.35,
               updatedAt: new Date().toISOString() 
             }
           : link
@@ -345,6 +418,8 @@ export function LinksList({ isEditMode }: LinksListProps) {
         url: values.url,
         description: values.description || '',
         icon: values.icon === 'none' ? '' : (values.icon || ''),
+        customIcon: values.customIcon || '',
+        customIconAlt: values.customIconAlt || '',
         group: values.group || '',
         order: links.length,
         enabled: true,
@@ -354,12 +429,22 @@ export function LinksList({ isEditMode }: LinksListProps) {
         backgroundColor: values.backgroundColor || '',
         textColor: values.textColor || '',
         fontFamily: values.fontFamily || 'system',
+        fontWeight: values.fontWeight || 'normal',
         containerShape: values.containerShape || 'rounded',
         autoTextColor: values.autoTextColor ?? true,
         iconColor: values.iconColor || '',
         borderColor: values.borderColor || '',
         borderWidth: values.borderWidth || 0,
         borderStyle: values.borderStyle || 'solid',
+        iconBorderWidth: values.iconBorderWidth || 0,
+        iconBorderColor: values.iconBorderColor || '#000000',
+        iconBorderShape: values.iconBorderShape || 'rounded',
+        backgroundImage: values.backgroundImage || '',
+        backgroundImageSize: values.backgroundImageSize || 'cover',
+        backgroundImagePosition: values.backgroundImagePosition || 'center',
+        backgroundImageRepeat: values.backgroundImageRepeat || 'no-repeat',
+        backgroundImageOverlayColor: values.backgroundImageOverlayColor || '#000000',
+        backgroundImageOverlayOpacity: values.backgroundImageOverlayOpacity ?? 0.35,
       pattern: values.pattern || 'none',
       patternColor: values.patternColor || '',
       pixelTransition: values.pixelTransition || false,
@@ -386,6 +471,8 @@ export function LinksList({ isEditMode }: LinksListProps) {
           url: '',
           description: '',
           icon: '',
+          customIcon: '',
+          customIconAlt: '',
           group: '',
           isScheduled: false,
           scheduledStart: '',
@@ -396,6 +483,12 @@ export function LinksList({ isEditMode }: LinksListProps) {
           fontWeight: 'normal',
           containerShape: 'rounded',
           autoTextColor: true,
+          backgroundImage: '',
+          backgroundImageSize: 'cover',
+          backgroundImagePosition: 'center',
+          backgroundImageRepeat: 'no-repeat',
+          backgroundImageOverlayColor: '#000000',
+          backgroundImageOverlayOpacity: 0.35,
         });
       },
       onError: () => {
@@ -433,6 +526,8 @@ export function LinksList({ isEditMode }: LinksListProps) {
     form.setValue('url', link.url);
     form.setValue('description', link.description || '');
     form.setValue('icon', link.icon || 'none');
+    form.setValue('customIcon', link.customIcon || '');
+    form.setValue('customIconAlt', link.customIconAlt || '');
     form.setValue('group', link.group || '');
     form.setValue('isScheduled', link.isScheduled || false);
     form.setValue('scheduledStart', link.scheduledStart || '');
@@ -440,8 +535,15 @@ export function LinksList({ isEditMode }: LinksListProps) {
     form.setValue('backgroundColor', link.backgroundColor || '');
     form.setValue('textColor', link.textColor || '');
     form.setValue('fontFamily', link.fontFamily || 'system');
+    form.setValue('fontWeight', link.fontWeight || 'normal');
     form.setValue('containerShape', link.containerShape || 'rounded');
     form.setValue('autoTextColor', link.autoTextColor ?? true);
+    form.setValue('backgroundImage', link.backgroundImage || '');
+    form.setValue('backgroundImageSize', link.backgroundImageSize || 'cover');
+    form.setValue('backgroundImagePosition', link.backgroundImagePosition || 'center');
+    form.setValue('backgroundImageRepeat', link.backgroundImageRepeat || 'no-repeat');
+    form.setValue('backgroundImageOverlayColor', link.backgroundImageOverlayColor || '#000000');
+    form.setValue('backgroundImageOverlayOpacity', link.backgroundImageOverlayOpacity ?? 0.35);
     setIsDialogOpen(true);
   };
 
@@ -479,15 +581,37 @@ export function LinksList({ isEditMode }: LinksListProps) {
       iconBorderShape: link.iconBorderShape,
       processedIconBorderShape: linkStyling.iconBorderShape
     });
+    const iconElement = link.customIcon ? (
+      <img
+        src={link.customIcon}
+        alt={link.customIconAlt || link.title}
+        className="h-full w-full object-contain"
+      />
+    ) : (
+      getIconComponent(link.icon || 'fas fa-link')
+    );
+
+    const overlayOpacity = link.backgroundImageOverlayOpacity ?? 0.35;
+    const hasOverlay = Boolean(link.backgroundImage) && overlayOpacity > 0;
+    const overlayStyle = hasOverlay
+      ? {
+          backgroundColor: hexToRgba(link.backgroundImageOverlayColor || '#000000', overlayOpacity),
+          borderRadius: 'inherit',
+        }
+      : undefined;
+
     const linkContent = (
       <div 
-        className={`rounded-lg bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow cursor-pointer ${linkStyling.shapeClasses}`}
+        className={`relative overflow-hidden rounded-lg bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow cursor-pointer ${linkStyling.shapeClasses}`}
         style={linkStyling}
       >
-        <div className="p-4">
+        {hasOverlay && (
+          <div className="absolute inset-0 pointer-events-none" style={overlayStyle} />
+        )}
+        <div className="relative z-10 p-4">
           <div className="flex items-center gap-3">
             <div 
-              className={`w-8 h-8 bg-primary/10 flex items-center justify-center ${linkStyling.iconBorderShape}`}
+              className={`w-8 h-8 bg-primary/10 flex items-center justify-center overflow-hidden ${linkStyling.iconBorderShape}`}
               style={{ 
                 color: linkStyling.iconColor || undefined,
                 border: linkStyling.iconBorderWidth !== '0px' 
@@ -495,7 +619,7 @@ export function LinksList({ isEditMode }: LinksListProps) {
                   : 'none'
               }}
             >
-              {getIconComponent(link.icon || 'fas fa-link')}
+              {iconElement}
             </div>
             <div className="flex-1 min-w-0">
               <h4 
@@ -1000,6 +1124,77 @@ export function LinksList({ isEditMode }: LinksListProps) {
                       </FormItem>
                     )}
                   />
+
+                  <FormField
+                    control={form.control}
+                    name="customIcon"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Custom Icon (optional)</FormLabel>
+                        <FormDescription>
+                          Upload your own icon image to override the preset icon above.
+                        </FormDescription>
+                        <FormControl>
+                          <div className="space-y-3">
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={(event) => {
+                                const file = event.target.files?.[0];
+                                handleCustomIconUpload(file);
+                                event.target.value = '';
+                              }}
+                            />
+                            {customIconValue && (
+                              <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-md border border-border bg-muted overflow-hidden flex items-center justify-center">
+                                  <img
+                                    src={customIconValue}
+                                    alt={form.getValues('customIconAlt') || form.getValues('title')}
+                                    className="h-full w-full object-cover"
+                                  />
+                                </div>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    form.setValue('customIcon', '');
+                                    form.setValue('customIconAlt', '');
+                                  }}
+                                >
+                                  Remove
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {customIconValue && (
+                    <FormField
+                      control={form.control}
+                      name="customIconAlt"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Custom Icon Alt Text</FormLabel>
+                          <FormDescription>
+                            Describe the icon for screen readers and accessibility.
+                          </FormDescription>
+                          <FormControl>
+                            <Input
+                              placeholder="e.g. My animated avatar"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
                         
                   <FormField
                     control={form.control}
@@ -1234,6 +1429,186 @@ export function LinksList({ isEditMode }: LinksListProps) {
                         </div>
                       </div>
                       
+                      <div className="pt-4 border-t">
+                        <h3 className="text-lg font-semibold flex items-center gap-2">
+                          <Image className="w-5 h-5" />
+                          Background Image
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Optionally upload a background photo for this link card.
+                        </p>
+
+                        <div className="space-y-3">
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={(event) => {
+                              const file = event.target.files?.[0];
+                              handleBackgroundImageUpload(file);
+                              event.target.value = '';
+                            }}
+                          />
+                          {backgroundImageValue && (
+                            <div className="flex items-center gap-3">
+                              <img
+                                src={backgroundImageValue}
+                                alt="Link background preview"
+                                className="h-20 w-32 rounded-lg object-cover border"
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  form.setValue('backgroundImage', '');
+                                  form.setValue('backgroundImageOverlayOpacity', 0.35);
+                                  form.setValue('backgroundImageOverlayColor', '#000000');
+                                }}
+                              >
+                                Remove Image
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+
+                        {backgroundImageValue && (
+                          <div className="mt-4 space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <FormField
+                                control={form.control}
+                                name="backgroundImageSize"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Image Fit</FormLabel>
+                                    <FormControl>
+                                      <Select value={field.value || 'cover'} onValueChange={field.onChange}>
+                                        <SelectTrigger>
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="cover">Cover</SelectItem>
+                                          <SelectItem value="contain">Contain</SelectItem>
+                                          <SelectItem value="auto">Auto</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name="backgroundImagePosition"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Image Position</FormLabel>
+                                    <FormControl>
+                                      <Select value={field.value || 'center'} onValueChange={field.onChange}>
+                                        <SelectTrigger>
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="top-left">Top Left</SelectItem>
+                                          <SelectItem value="top">Top</SelectItem>
+                                          <SelectItem value="top-right">Top Right</SelectItem>
+                                          <SelectItem value="left">Left</SelectItem>
+                                          <SelectItem value="center">Center</SelectItem>
+                                          <SelectItem value="right">Right</SelectItem>
+                                          <SelectItem value="bottom-left">Bottom Left</SelectItem>
+                                          <SelectItem value="bottom">Bottom</SelectItem>
+                                          <SelectItem value="bottom-right">Bottom Right</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name="backgroundImageRepeat"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Repeat</FormLabel>
+                                    <FormControl>
+                                      <Select value={field.value || 'no-repeat'} onValueChange={field.onChange}>
+                                        <SelectTrigger>
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="no-repeat">No Repeat</SelectItem>
+                                          <SelectItem value="repeat">Tile</SelectItem>
+                                          <SelectItem value="repeat-x">Repeat X</SelectItem>
+                                          <SelectItem value="repeat-y">Repeat Y</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <FormField
+                                control={form.control}
+                                name="backgroundImageOverlayColor"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Overlay Color</FormLabel>
+                                    <FormControl>
+                                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                                        <Input
+                                          type="color"
+                                          className="h-10 w-14 p-1 cursor-pointer"
+                                          value={field.value || '#000000'}
+                                          onChange={(e) => field.onChange(e.target.value)}
+                                        />
+                                        <Input
+                                          placeholder="#000000"
+                                          value={field.value || ''}
+                                          onChange={(e) => field.onChange(e.target.value)}
+                                        />
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => field.onChange('#000000')}
+                                        >
+                                          Reset
+                                        </Button>
+                                      </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name="backgroundImageOverlayOpacity"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>
+                                      Overlay Opacity: {Math.round(((field.value ?? 0.35) || 0) * 100)}%
+                                    </FormLabel>
+                                    <FormControl>
+                                      <Slider
+                                        min={0}
+                                        max={1}
+                                        step={0.05}
+                                        value={[field.value ?? 0.35]}
+                                        onValueChange={(value) => field.onChange(value[0])}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
                       {/* Shape & Typography Section */}
                       <div className="space-y-4">
                         <h3 className="text-lg font-semibold flex items-center gap-2">

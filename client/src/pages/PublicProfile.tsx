@@ -24,6 +24,7 @@ import { ReactionBarWidget } from '../components/widgets/ReactionBarWidget';
 import { SpinningWheelWidget } from '../components/widgets/SpinningWheelWidget';
 import { BeforeAfterSliderWidget } from '../components/widgets/BeforeAfterSliderWidget';
 import { MiniGameWidget } from '../components/widgets/MiniGameWidget';
+import { FormBuilderWidget } from '../components/widgets/FormBuilderWidget';
 import { useToast } from '@/hooks/use-toast';
 import { usePublicWidgets } from '../hooks/use-atprotocol';
 
@@ -545,6 +546,15 @@ function PublicWidgets({ did }: { did: string }) {
               return <BeforeAfterSliderWidget key={widget.id} config={widget.config} />;
             case 'mini_game':
               return <MiniGameWidget key={widget.id} config={widget.config} />;
+            case 'form_builder':
+              return (
+                <FormBuilderWidget
+                  key={widget.id}
+                  config={widget.config}
+                  widgetId={widget.id}
+                  isEditMode={false}
+                />
+              );
             default:
               console.log('🔍 Unknown widget type:', widget.type);
               return (

@@ -2,7 +2,7 @@ import { useRoute } from 'wouter';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { atprotocol } from '../lib/atprotocol';
-import { getLinkStyling } from '../lib/link-utils';
+import { getLinkStyling, hexToRgba } from '../lib/link-utils';
 import PixelTransition from '../components/PixelTransition';
 import GlareHover from '../components/GlareHover';
 import { ProfileHeader } from '../components/ProfileHeader';
@@ -30,6 +30,26 @@ import { PollWidget } from '../components/widgets/PollWidget';
 import { SpinningWheelWidget } from '../components/widgets/SpinningWheelWidget';
 import { BeforeAfterSliderWidget } from '../components/widgets/BeforeAfterSliderWidget';
 import { MiniGameWidget } from '../components/widgets/MiniGameWidget';
+import { FormBuilderWidget } from '../components/widgets/FormBuilderWidget';
+
+const PROFILE_CONTAINER_DEFAULT = {
+  enabled: false,
+  backgroundColor: '',
+  backgroundImage: '',
+  backgroundSize: 'cover' as const,
+  backgroundPosition: 'center' as const,
+  backgroundRepeat: 'no-repeat' as const,
+  backgroundOverlayColor: '#000000',
+  backgroundOverlayOpacity: 0.35,
+  borderRadius: 32,
+  borderColor: '',
+  borderWidth: 0,
+  borderStyle: 'solid' as const,
+  padding: 32,
+  shadow: true,
+  maxWidth: 'default' as const,
+  backdropBlur: 0,
+};
 
 // Function to update SEO meta tags dynamically
 const updateMetaTags = (settings: any, profile: UserProfile) => {
@@ -111,6 +131,119 @@ export default function PublicProfilePage() {
   const { user: currentUser } = useAuth();
   const { setTheme } = useTheme();
   const { toast } = useToast();
+
+  const profileContainerSettings = {
+    ...PROFILE_CONTAINER_DEFAULT,
+    ...(settings?.profileContainer || {}),
+  };
+
+  const containerEnabled = Boolean(profileContainerSettings.enabled);
+
+  const widthClasses: Record<'narrow' | 'default' | 'wide', string> = {
+    narrow: 'max-w-xl',
+    default: 'max-w-2xl',
+    wide: 'max-w-3xl',
+  };
+
+  const mainWidthClass = containerEnabled
+    ? widthClasses[(profileContainerSettings.maxWidth || 'default') as 'narrow' | 'default' | 'wide']
+    : 'max-w-2xl';
+
+  const containerStyle: React.CSSProperties = {
+    padding: `${profileContainerSettings.padding ?? 32}px`,
+    borderRadius: `${profileContainerSettings.borderRadius ?? 32}px`,
+    backgroundColor: profileContainerSettings.backgroundColor || undefined,
+    border:
+      (profileContainerSettings.borderWidth ?? 0) > 0
+        ? `${profileContainerSettings.borderWidth}px ${profileContainerSettings.borderStyle || 'solid'} ${profileContainerSettings.borderColor || 'rgba(255,255,255,0.18)'}`
+        : 'none',
+    boxShadow: profileContainerSettings.shadow ? '0 25px 45px rgba(15, 23, 42, 0.18)' : undefined,
+    backgroundImage: profileContainerSettings.backgroundImage ? `url(${profileContainerSettings.backgroundImage})` : undefined,
+    backgroundSize: profileContainerSettings.backgroundSize || 'cover',
+    backgroundPosition: profileContainerSettings.backgroundPosition || 'center',
+    backgroundRepeat: profileContainerSettings.backgroundRepeat || 'no-repeat',
+    backdropFilter: profileContainerSettings.backdropBlur ? `blur(${profileContainerSettings.backdropBlur}px)` : undefined,
+    WebkitBackdropFilter: profileContainerSettings.backdropBlur ? `blur(${profileContainerSettings.backdropBlur}px)` : undefined,
+  };
+
+  if (!profileContainerSettings.backgroundImage && !profileContainerSettings.backgroundColor) {
+    containerStyle.backgroundColor = 'rgba(17, 24, 39, 0.65)';
+  }
+
+  if ((profileContainerSettings.borderWidth ?? 0) === 0) {
+    containerStyle.border = 'none';
+  }
+
+  const overlayColor = hexToRgba(
+    profileContainerSettings.backgroundOverlayColor || '#000000',
+    profileContainerSettings.backgroundOverlayOpacity ?? 0.35,
+  );
+
+  const showOverlay =
+    (profileContainerSettings.backgroundOverlayOpacity ?? 0.35) > 0 &&
+    (profileContainerSettings.backgroundImage || profileContainerSettings.backgroundColor);
+
+  const profileContent = (
+    <>
+      {/* Profile Header */}
+      <ProfileHeader 
+        profile={profile}
+        isEditMode={false}
+        isOwnProfile={false}
+        targetDid={profile.did}
+      />
+      
+      {/* Social Icons Row - above sections placement */}
+      {settings?.socialIconsConfig?.placement === 'above-sections' && settings?.socialLinks && (
+        <div className="mb-0">
+          <div className="flex items-center justify-center">
+            <SocialIconsRow 
+              socialLinks={settings.socialLinks} 
+              config={settings.socialIconsConfig}
+              isEditMode={false}
+            />
+          </div>
+        </div>
+      )}
+      
+      {(() => {
+        // Use the loaded settings section order, or default if not available
+        const sectionOrder = settings?.sectionOrder || ['widgets', 'notes', 'links'];
+        console.log('🔍 Public profile section order:', sectionOrder);
+        return sectionOrder.map((section) => {
+          switch (section) {
+            case 'widgets':
+              return <PublicWidgets key="widgets" did={profile.did} />;
+            case 'notes':
+              return <PublicNotes key="notes" did={profile.did} />;
+            case 'links':
+              return <PublicLinksList key="links" did={profile.did} />;
+            default:
+              return null;
+          }
+        });
+      })()}
+
+      {/* Footer */}
+      <footer className="text-center py-8 border-t border-border mt-8" data-testid="footer">
+        <div className="flex items-center justify-center gap-2 text-muted-foreground mb-4">
+          <span className="text-sm">Powered by</span>
+          <img 
+            src="/baskerchristmas.jpg"
+            alt="Basker"
+            className="w-4 h-4 rounded-full"
+          />
+          <span className="text-sm">basker</span>
+          <span className="text-sm text-muted-foreground">© 2025</span>
+          <span className="text-sm text-muted-foreground">•</span>
+          <span className="text-sm text-muted-foreground">v2.1.0.0</span>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Create your own link-in-bio page with basker
+        </p>
+      </footer>
+    </>
+  );
 
   // Truncate username if longer than 19 characters
   const truncateUsername = (username: string) => {
@@ -543,64 +676,25 @@ export default function PublicProfilePage() {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-4">
-        {/* Profile Header */}
-        <ProfileHeader 
-          profile={profile}
-          isEditMode={false}
-          isOwnProfile={false}
-          targetDid={profile.did}
-        />
-        
-        {/* Social Icons Row - above sections placement */}
-        {settings?.socialIconsConfig?.placement === 'above-sections' && settings?.socialLinks && (
-          <div className="mb-0">
-            <div className="flex items-center justify-center">
-              <SocialIconsRow 
-                socialLinks={settings.socialLinks} 
-                config={settings.socialIconsConfig}
-                isEditMode={false}
+      <main className={`${mainWidthClass} mx-auto px-4 py-4`}>
+        {containerEnabled ? (
+          <div
+            className="relative overflow-hidden transition-shadow duration-300"
+            style={containerStyle}
+          >
+            {showOverlay && (
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{ backgroundColor: overlayColor }}
               />
+            )}
+            <div className="relative z-10">
+              {profileContent}
             </div>
           </div>
+        ) : (
+          profileContent
         )}
-        
-        {(() => {
-          // Use the loaded settings section order, or default if not available
-          const sectionOrder = settings?.sectionOrder || ['widgets', 'notes', 'links'];
-          console.log('🔍 Public profile section order:', sectionOrder);
-          return sectionOrder.map((section) => {
-            switch (section) {
-              case 'widgets':
-                return <PublicWidgets key="widgets" did={profile.did} />;
-              case 'notes':
-                return <PublicNotes key="notes" did={profile.did} />;
-              case 'links':
-                return <PublicLinksList key="links" did={profile.did} />;
-              default:
-                return null;
-            }
-          });
-        })()}
-
-        {/* Footer */}
-        <footer className="text-center py-8 border-t border-border mt-8" data-testid="footer">
-          <div className="flex items-center justify-center gap-2 text-muted-foreground mb-4">
-            <span className="text-sm">Powered by</span>
-            <img 
-              src="/baskerchristmas.jpg"
-              alt="Basker"
-              className="w-4 h-4 rounded-full"
-            />
-            <span className="text-sm">basker</span>
-            <span className="text-sm text-muted-foreground">© 2025</span>
-            <span className="text-sm text-muted-foreground">•</span>
-            <span className="text-sm text-muted-foreground">v2.1.0.0</span>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Create your own link-in-bio page with basker
-          </p>
-        </footer>
       </main>
 
       {/* QR Code Share Modal */}
@@ -665,16 +759,38 @@ function PublicLinksList({ did }: { did: string }) {
 
   const renderLinkCard = (link: any, isGrouped: boolean = false) => {
     const linkStyling = getLinkStyling(link);
+    const iconElement = link.customIcon ? (
+      <img
+        src={link.customIcon}
+        alt={link.customIconAlt || link.title}
+        className="h-full w-full object-contain"
+      />
+    ) : (
+      getIconComponent(link.icon || 'fas fa-link')
+    );
+
+    const overlayOpacity = link.backgroundImageOverlayOpacity ?? 0.35;
+    const hasOverlay = Boolean(link.backgroundImage) && overlayOpacity > 0;
+    const overlayStyle = hasOverlay
+      ? {
+          backgroundColor: hexToRgba(link.backgroundImageOverlayColor || '#000000', overlayOpacity),
+          borderRadius: 'inherit',
+        }
+      : undefined;
+
     const linkContent = (
       <div className="relative">
         <div
-          className={`rounded-lg bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow cursor-pointer ${linkStyling.shapeClasses}`}
+          className={`relative overflow-hidden rounded-lg bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow cursor-pointer ${linkStyling.shapeClasses}`}
           style={linkStyling}
         >
-          <div className="p-4">
+          {hasOverlay && (
+            <div className="absolute inset-0 pointer-events-none" style={overlayStyle} />
+          )}
+          <div className="relative z-10 p-4">
             <div className="flex items-center gap-3">
               <div
-                className={`w-8 h-8 bg-primary/10 flex items-center justify-center ${linkStyling.iconBorderShape}`}
+                className={`w-8 h-8 bg-primary/10 flex items-center justify-center overflow-hidden ${linkStyling.iconBorderShape}`}
                 style={{ 
                   color: linkStyling.iconColor || undefined,
                   border: linkStyling.iconBorderWidth !== '0px' 
@@ -682,13 +798,13 @@ function PublicLinksList({ did }: { did: string }) {
                     : 'none'
                 }}
               >
-                {getIconComponent(link.icon || 'fas fa-link')}
+                {iconElement}
               </div>
               <div className="flex-1 min-w-0">
                 <h4 
                   className="font-medium truncate"
                   style={{ 
-                    color: linkStyling.textColor || undefined,
+                    color: linkStyling.color || undefined,
                     fontWeight: linkStyling.fontWeight || undefined
                   }}
                 >
@@ -698,7 +814,7 @@ function PublicLinksList({ did }: { did: string }) {
                   <p 
                     className="text-sm truncate"
                     style={{ 
-                      color: linkStyling.textColor || undefined,
+                      color: linkStyling.color || undefined,
                       fontWeight: linkStyling.fontWeight || undefined
                     }}
                   >
@@ -1031,6 +1147,14 @@ function PublicWidgets({ did }: { did: string }) {
         return <BeforeAfterSliderWidget config={config} />;
       case 'mini_game':
         return <MiniGameWidget config={config} />;
+      case 'form_builder':
+        return (
+          <FormBuilderWidget
+            config={config}
+            widgetId={widget.id}
+            isEditMode={false}
+          />
+        );
       default:
         return <div className="p-4 bg-muted rounded-lg">Unknown widget type: {widget.type}</div>;
     }

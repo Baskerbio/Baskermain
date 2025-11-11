@@ -1,5 +1,46 @@
 import { Link } from '@shared/schema';
 
+const backgroundPositionMap: Record<string, string> = {
+  center: 'center',
+  top: 'center top',
+  bottom: 'center bottom',
+  left: 'left center',
+  right: 'right center',
+  'top-left': 'left top',
+  'top-right': 'right top',
+  'bottom-left': 'left bottom',
+  'bottom-right': 'right bottom',
+};
+
+export const hexToRgba = (color: string, alpha: number) => {
+  if (!color) {
+    return `rgba(0, 0, 0, ${alpha})`;
+  }
+
+  if (color.startsWith('rgba')) {
+    return color;
+  }
+
+  if (color.startsWith('rgb')) {
+    return color.replace('rgb', 'rgba').replace(')', `, ${alpha})`);
+  }
+
+  let hex = color.replace('#', '');
+  if (hex.length === 3) {
+    hex = hex.split('').map((char) => char + char).join('');
+  }
+
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+
+  if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) {
+    return `rgba(0, 0, 0, ${alpha})`;
+  }
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
 // Utility function to calculate text color based on background color
 export const getContrastColor = (backgroundColor: string): string => {
   // Remove # if present
@@ -65,6 +106,7 @@ export const getLinkStyling = (link: Link, settings?: any, theme?: any) => {
   const fontWeight = link.fontWeight || undefined;
   const iconColor = link.iconColor || undefined;
   const shapeClasses = getShapeClasses(link.containerShape || 'rounded');
+  const hasBackgroundImage = Boolean(link.backgroundImage);
   
   // Only include styling properties that have values
   const style: any = {};
@@ -84,6 +126,14 @@ export const getLinkStyling = (link: Link, settings?: any, theme?: any) => {
   } else {
     // No border when width is 0
     style.border = 'none';
+  }
+
+  if (hasBackgroundImage) {
+    style.backgroundImage = `url(${link.backgroundImage})`;
+    style.backgroundSize = link.backgroundImageSize || 'cover';
+    style.backgroundRepeat = link.backgroundImageRepeat || 'no-repeat';
+    style.backgroundPosition =
+      backgroundPositionMap[link.backgroundImagePosition || 'center'] || 'center';
   }
   
   // Debug logging
@@ -120,7 +170,7 @@ export const getLinkStyling = (link: Link, settings?: any, theme?: any) => {
   
   // Pattern styling
   let patternApplied = false;
-  if (link.pattern && link.pattern !== 'none') {
+  if (!hasBackgroundImage && link.pattern && link.pattern !== 'none') {
     const patternColor = link.patternColor || link.textColor || '#000000';
     switch (link.pattern) {
       case 'dots':
@@ -158,7 +208,13 @@ export const getLinkStyling = (link: Link, settings?: any, theme?: any) => {
         }
         break;
     }
-  } else if (theme?.patternStyle === 'themed' && theme?.enableThemePatterns && (link.backgroundColor === undefined || link.backgroundColor === null || link.backgroundColor === '') && theme?.enableThemePatterns !== false) {
+  } else if (
+    !hasBackgroundImage &&
+    theme?.patternStyle === 'themed' &&
+    theme?.enableThemePatterns &&
+    (link.backgroundColor === undefined || link.backgroundColor === null || link.backgroundColor === '') &&
+    theme?.enableThemePatterns !== false
+  ) {
     // Apply theme patterns when pattern is 'none' or undefined but theme has themed patterns
     if (theme.name === 'halloween') {
       const halloweenColor = theme.accentColor || '#ef4444';

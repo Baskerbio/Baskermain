@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import type { CSSProperties } from 'react';
+import type { Settings as ProfileSettings } from '@shared/schema';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { Edit, Settings, LogOut, Copy, Menu, X, Share2, QrCode, ChevronDown, Upload, BarChart3, CreditCard, Link as LinkIcon, FileText, Grid3X3, Code } from 'lucide-react';
+import { Edit, Settings as SettingsIcon, LogOut, Copy, Menu, X, Share2, QrCode, ChevronDown, Upload, BarChart3, CreditCard, Link as LinkIcon, FileText, Grid3X3, Code } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { QRCodeShare } from '@/components/QRCodeShare';
 import { ProfileHeader } from '../components/ProfileHeader';
@@ -20,6 +22,54 @@ import { useToast } from '@/hooks/use-toast';
 import { DropResult } from '@hello-pangea/dnd';
 import { atprotocol } from '../lib/atprotocol';
 import { SEOHead } from '../components/SEOHead';
+
+const PROFILE_CONTAINER_DEFAULT = {
+  enabled: false,
+  backgroundColor: '',
+  backgroundImage: '',
+  backgroundSize: 'cover' as const,
+  backgroundPosition: 'center' as const,
+  backgroundRepeat: 'no-repeat' as const,
+  backgroundOverlayColor: '#000000',
+  backgroundOverlayOpacity: 0.35,
+  borderRadius: 32,
+  borderColor: '',
+  borderWidth: 0,
+  borderStyle: 'solid' as const,
+  padding: 32,
+  shadow: true,
+  maxWidth: 'default' as const,
+  backdropBlur: 0,
+};
+
+const hexToRgba = (color: string, alpha: number) => {
+  if (!color) {
+    return `rgba(0, 0, 0, ${alpha})`;
+  }
+
+  if (color.startsWith('rgba')) {
+    return color;
+  }
+
+  if (color.startsWith('rgb')) {
+    return color.replace('rgb', 'rgba').replace(')', `, ${alpha})`);
+  }
+
+  let hex = color.replace('#', '');
+  if (hex.length === 3) {
+    hex = hex.split('').map((char) => char + char).join('');
+  }
+
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+
+  if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) {
+    return `rgba(0, 0, 0, ${alpha})`;
+  }
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
 
 export default function Profile() {
   const { user, logout } = useAuth();
@@ -51,6 +101,57 @@ export default function Profile() {
     
     return () => clearInterval(interval);
   }, []);
+
+  const profileContainer = {
+    ...PROFILE_CONTAINER_DEFAULT,
+    ...(settings?.profileContainer || {}),
+  };
+
+  const containerEnabled = Boolean(profileContainer.enabled);
+
+  const widthClasses: Record<'narrow' | 'default' | 'wide', string> = {
+    narrow: 'max-w-xl',
+    default: 'max-w-2xl',
+    wide: 'max-w-3xl',
+  };
+
+  const mainWidthClass = containerEnabled
+    ? widthClasses[(profileContainer.maxWidth || 'default') as 'narrow' | 'default' | 'wide']
+    : 'max-w-2xl';
+
+  const containerStyle: CSSProperties = {
+    padding: `${profileContainer.padding ?? 32}px`,
+    borderRadius: `${profileContainer.borderRadius ?? 32}px`,
+    backgroundColor: profileContainer.backgroundColor || undefined,
+    border:
+      (profileContainer.borderWidth ?? 0) > 0
+        ? `${profileContainer.borderWidth}px ${profileContainer.borderStyle || 'solid'} ${profileContainer.borderColor || 'rgba(255,255,255,0.18)'}`
+        : 'none',
+    boxShadow: profileContainer.shadow ? '0 25px 45px rgba(15, 23, 42, 0.18)' : undefined,
+    backgroundImage: profileContainer.backgroundImage ? `url(${profileContainer.backgroundImage})` : undefined,
+    backgroundSize: profileContainer.backgroundSize || 'cover',
+    backgroundPosition: profileContainer.backgroundPosition || 'center',
+    backgroundRepeat: profileContainer.backgroundRepeat || 'no-repeat',
+    backdropFilter: profileContainer.backdropBlur ? `blur(${profileContainer.backdropBlur}px)` : undefined,
+    WebkitBackdropFilter: profileContainer.backdropBlur ? `blur(${profileContainer.backdropBlur}px)` : undefined,
+  };
+
+  if (!profileContainer.backgroundImage && !profileContainer.backgroundColor) {
+    containerStyle.backgroundColor = 'rgba(17, 24, 39, 0.65)';
+  }
+
+  if ((profileContainer.borderWidth ?? 0) === 0) {
+    containerStyle.border = 'none';
+  }
+
+  const overlayColor = hexToRgba(
+    profileContainer.backgroundOverlayColor || '#000000',
+    profileContainer.backgroundOverlayOpacity ?? 0.35,
+  );
+
+  const showOverlay =
+    (profileContainer.backgroundOverlayOpacity ?? 0.35) > 0 &&
+    (profileContainer.backgroundImage || profileContainer.backgroundColor);
 
   const handleLogout = async () => {
     try {
@@ -152,6 +253,200 @@ export default function Profile() {
     });
   };
 
+  const profileContent = (
+    <>
+      <ProfileHeader
+        onOpenSettings={() => {
+          setSettingsScrollTo('social-icons-section');
+          setShowSettings(true);
+        }}
+      />
+
+      {/* Social Icons - above sections placement */}
+      {settings?.socialIconsConfig?.placement === 'above-sections' && (
+        <div className="mb-8">
+          {/* Show editor in edit mode */}
+          {isEditMode ? (
+            <SocialIconsEditor
+              socialLinks={settings?.socialLinks || []}
+              config={settings?.socialIconsConfig}
+              onSave={(links, config) => {
+                // Create settings object if it doesn't exist
+                const baseSettings = settings || {
+                  theme: {
+                    name: 'dark',
+                    primaryColor: '#8b5cf6',
+                    accentColor: '#22c55e',
+                    backgroundColor: '#0f0f14',
+                    textColor: '#fafafa',
+                    fontFamily: 'Inter',
+                    layout: 'default',
+                  },
+                  showStories: true,
+                  showNotes: true,
+                  isPublic: true,
+                  enableAnalytics: true,
+                  sectionOrder: ['widgets', 'notes', 'links'],
+                };
+
+                const updatedSettings = {
+                  ...baseSettings,
+                  socialLinks: links,
+                  socialIconsConfig: {
+                    placement: 'above-sections',
+                    style: 'default',
+                    size: 'medium',
+                    ...(baseSettings.socialIconsConfig || {}),
+                    ...config,
+                    enabled: links.length > 0,
+                  },
+                };
+                console.log('💾 Profile.tsx saving settings (above-sections):', {
+                  socialLinks: updatedSettings.socialLinks?.length,
+                  socialIconsConfig: updatedSettings.socialIconsConfig,
+                });
+                    saveSettings(updatedSettings as ProfileSettings);
+              }}
+              onOpenSettings={() => {
+                setSettingsScrollTo('social-icons-section');
+                setShowSettings(true);
+              }}
+            />
+          ) : (
+            /* Show preview for non-edit mode */
+            settings?.socialLinks &&
+            settings.socialLinks.length > 0 && (
+              <div className="flex items-center justify-center">
+                <SocialIconsRow
+                  socialLinks={settings.socialLinks}
+                  config={settings.socialIconsConfig}
+                  isEditMode={false}
+                />
+              </div>
+            )
+          )}
+        </div>
+      )}
+
+      {(() => {
+        const sectionOrder = settings?.sectionOrder || ['widgets', 'notes', 'links'];
+        console.log('🔍 Current section order:', sectionOrder);
+        console.log('🔍 Settings:', settings);
+        return sectionOrder.map((section, index) => {
+          const moveUp = () => {
+                if (!settings) return;
+            if (index === 0) return;
+            const newOrder = [...sectionOrder];
+            [newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
+            console.log('🔍 Moving section up, new order:', newOrder);
+                saveSettings({ ...settings, sectionOrder: newOrder } as ProfileSettings, {
+              onSuccess: () => {
+                toast({
+                  title: 'Section reordered',
+                  description: 'Your sections have been reordered successfully',
+                });
+              },
+              onError: () => {
+                toast({
+                  title: 'Error',
+                  description: 'Failed to reorder sections',
+                  variant: 'destructive',
+                });
+              },
+            });
+          };
+
+          const moveDown = () => {
+                if (!settings) return;
+            if (index === sectionOrder.length - 1) return;
+            const newOrder = [...sectionOrder];
+            [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
+            console.log('🔍 Moving section down, new order:', newOrder);
+                saveSettings({ ...settings, sectionOrder: newOrder } as ProfileSettings, {
+              onSuccess: () => {
+                toast({
+                  title: 'Section reordered',
+                  description: 'Your sections have been reordered successfully',
+                });
+              },
+              onError: () => {
+                toast({
+                  title: 'Error',
+                  description: 'Failed to reorder sections',
+                  variant: 'destructive',
+                });
+              },
+            });
+          };
+
+          let sectionComponent;
+          switch (section) {
+            case 'widgets':
+              sectionComponent = <Widgets key="widgets" isEditMode={isEditMode} effectiveSettings={settings} />;
+              break;
+            case 'notes':
+              sectionComponent = <Notes key="notes" isEditMode={isEditMode} />;
+              break;
+            case 'links':
+              sectionComponent = <LinksList key="links" isEditMode={isEditMode} />;
+              break;
+            default:
+              sectionComponent = null;
+          }
+
+          return (
+            <div key={section} className="relative" data-section={section}>
+              {sectionComponent}
+              {isEditMode && (
+                <div className="absolute -left-12 top-4 flex flex-col gap-1">
+                  <Button
+                    onClick={moveUp}
+                    disabled={index === 0}
+                    variant="glass"
+                    size="sm"
+                    className="w-8 h-8 p-0 hover:scale-105 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
+                    title="Move up"
+                  >
+                    ↑
+                  </Button>
+                  <Button
+                    onClick={moveDown}
+                    disabled={index === sectionOrder.length - 1}
+                    variant="glass"
+                    size="sm"
+                    className="w-8 h-8 p-0 hover:scale-105 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
+                    title="Move down"
+                  >
+                    ↓
+                  </Button>
+                </div>
+              )}
+            </div>
+          );
+        });
+      })()}
+
+      {/* Footer */}
+      <footer className="text-center py-8 border-t border-border" data-testid="footer">
+        <div className="flex items-center justify-center gap-2 text-muted-foreground mb-4">
+          <span className="text-sm">Powered by</span>
+          <img
+            src="/baskerchristmas.jpg"
+            alt="Basker"
+            className="w-4 h-4 rounded-full"
+          />
+          <span className="text-sm">basker</span>
+          <span className="text-sm text-muted-foreground">© 2025</span>
+          <span className="text-sm text-muted-foreground">•</span>
+          <span className="text-sm text-muted-foreground">v2.1.0.0</span>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Create your own link-in-bio page with basker
+        </p>
+      </footer>
+    </>
+  );
+
   return (
     <DragDropProvider onDragEnd={onDragEnd}>
       <SEOHead 
@@ -228,7 +523,7 @@ export default function Profile() {
                 className="flex items-center gap-2 text-sm px-3 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
                 data-testid="button-settings"
               >
-                <Settings className="w-4 h-4" />
+                <SettingsIcon className="w-4 h-4" />
                 Settings
               </Button>
               
@@ -331,7 +626,7 @@ export default function Profile() {
                     className="w-full justify-start gap-3"
                     data-testid="button-settings-mobile"
                   >
-                    <Settings className="w-4 h-4" />
+                    <SettingsIcon className="w-4 h-4" />
                     Settings
                   </Button>
                   
@@ -413,7 +708,7 @@ export default function Profile() {
                 onClick={() => setShowSettings(true)}
                 className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
               >
-                <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <SettingsIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span className="hidden sm:inline">Settings</span>
                 <span className="sm:hidden">Settings</span>
               </Button>
@@ -466,191 +761,25 @@ export default function Profile() {
           </div>
         </nav>
 
-        <main className="max-w-2xl mx-auto px-4 py-8">
-          <ProfileHeader onOpenSettings={() => {
-            setSettingsScrollTo('social-icons-section');
-            setShowSettings(true);
-          }} />
-          
-          {/* Social Icons - above sections placement */}
-          {settings?.socialIconsConfig?.placement === 'above-sections' && (
-            <div className="mb-8">
-              {/* Show editor in edit mode */}
-              {isEditMode ? (
-                <SocialIconsEditor
-                  socialLinks={settings?.socialLinks || []}
-                  config={settings?.socialIconsConfig}
-                  onSave={(links, config) => {
-                    // Create settings object if it doesn't exist
-                    const baseSettings = settings || {
-                      theme: {
-                        name: 'dark',
-                        primaryColor: '#8b5cf6',
-                        accentColor: '#22c55e',
-                        backgroundColor: '#0f0f14',
-                        textColor: '#fafafa',
-                        fontFamily: 'Inter',
-                        layout: 'default',
-                      },
-                      showStories: true,
-                      showNotes: true,
-                      isPublic: true,
-                      enableAnalytics: true,
-                      sectionOrder: ['widgets', 'notes', 'links'],
-                    };
-                    
-                    const updatedSettings = {
-                      ...baseSettings,
-                      socialLinks: links,
-                      socialIconsConfig: {
-                        placement: 'above-sections',
-                        style: 'default',
-                        size: 'medium',
-                        ...(baseSettings.socialIconsConfig || {}),
-                        ...config,
-                        enabled: links.length > 0,
-                      },
-                    };
-                    console.log('💾 Profile.tsx saving settings (above-sections):', {
-                      socialLinks: updatedSettings.socialLinks?.length,
-                      socialIconsConfig: updatedSettings.socialIconsConfig,
-                    });
-                    saveSettings(updatedSettings);
-                  }}
-                  onOpenSettings={() => {
-                    setSettingsScrollTo('social-icons-section');
-                    setShowSettings(true);
-                  }}
+        <main className={`${mainWidthClass} mx-auto px-4 py-8`}>
+          {containerEnabled ? (
+            <div
+              className="relative overflow-hidden transition-shadow duration-300"
+              style={containerStyle}
+            >
+              {showOverlay && (
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{ backgroundColor: overlayColor }}
                 />
-              ) : (
-                /* Show preview for non-edit mode */
-                settings?.socialLinks && settings.socialLinks.length > 0 && (
-                  <div className="flex items-center justify-center">
-                    <SocialIconsRow 
-                      socialLinks={settings.socialLinks} 
-                      config={settings.socialIconsConfig}
-                      isEditMode={false}
-                    />
-                  </div>
-                )
               )}
+              <div className="relative z-10">
+                {profileContent}
+              </div>
             </div>
+          ) : (
+            profileContent
           )}
-          
-          {(() => {
-            const sectionOrder = settings?.sectionOrder || ['widgets', 'notes', 'links'];
-            console.log('🔍 Current section order:', sectionOrder);
-            console.log('🔍 Settings:', settings);
-            return sectionOrder.map((section, index) => {
-              const moveUp = () => {
-                if (index === 0) return;
-                const newOrder = [...sectionOrder];
-                [newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
-                console.log('🔍 Moving section up, new order:', newOrder);
-                saveSettings({ ...settings, sectionOrder: newOrder }, {
-                  onSuccess: () => {
-                    toast({
-                      title: 'Section reordered',
-                      description: 'Your sections have been reordered successfully',
-                    });
-                  },
-                  onError: () => {
-                    toast({
-                      title: 'Error',
-                      description: 'Failed to reorder sections',
-                      variant: 'destructive',
-                    });
-                  },
-                });
-              };
-              
-              const moveDown = () => {
-                if (index === sectionOrder.length - 1) return;
-                const newOrder = [...sectionOrder];
-                [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
-                console.log('🔍 Moving section down, new order:', newOrder);
-                saveSettings({ ...settings, sectionOrder: newOrder }, {
-                  onSuccess: () => {
-                    toast({
-                      title: 'Section reordered',
-                      description: 'Your sections have been reordered successfully',
-                    });
-                  },
-                  onError: () => {
-                    toast({
-                      title: 'Error',
-                      description: 'Failed to reorder sections',
-                      variant: 'destructive',
-                    });
-                  },
-                });
-              };
-
-              let sectionComponent;
-              switch (section) {
-                case 'widgets':
-                  sectionComponent = <Widgets key="widgets" isEditMode={isEditMode} effectiveSettings={settings} />;
-                  break;
-                case 'notes':
-                  sectionComponent = <Notes key="notes" isEditMode={isEditMode} />;
-                  break;
-                case 'links':
-                  sectionComponent = <LinksList key="links" isEditMode={isEditMode} />;
-                  break;
-                default:
-                  sectionComponent = null;
-              }
-
-              return (
-                <div key={section} className="relative" data-section={section}>
-                  {sectionComponent}
-                  {isEditMode && (
-                    <div className="absolute -left-12 top-4 flex flex-col gap-1">
-                      <Button
-                        onClick={moveUp}
-                        disabled={index === 0}
-                        variant="glass"
-                        size="sm"
-                        className="w-8 h-8 p-0 hover:scale-105 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
-                        title="Move up"
-                      >
-                        ↑
-                      </Button>
-                      <Button
-                        onClick={moveDown}
-                        disabled={index === sectionOrder.length - 1}
-                        variant="glass"
-                        size="sm"
-                        className="w-8 h-8 p-0 hover:scale-105 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
-                        title="Move down"
-                      >
-                        ↓
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              );
-            });
-          })()}
-
-          {/* Footer */}
-          <footer className="text-center py-8 border-t border-border" data-testid="footer">
-            <div className="flex items-center justify-center gap-2 text-muted-foreground mb-4">
-              <span className="text-sm">Powered by</span>
-              <img 
-                src="/baskerchristmas.jpg"
-                alt="Basker"
-                className="w-4 h-4 rounded-full"
-              />
-              <span className="text-sm">basker</span>
-              <span className="text-sm text-muted-foreground">© 2025</span>
-              <span className="text-sm text-muted-foreground">•</span>
-              <span className="text-sm text-muted-foreground">v2.1.0.0</span>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Create your own link-in-bio page with basker
-            </p>
-          </footer>
         </main>
 
             <SettingsModal 

@@ -23,7 +23,8 @@ import { ReactionBarWidget } from './widgets/ReactionBarWidget';
 import { SpinningWheelWidget } from './widgets/SpinningWheelWidget';
 import { BeforeAfterSliderWidget } from './widgets/BeforeAfterSliderWidget';
 import { MiniGameWidget } from './widgets/MiniGameWidget';
-import { Plus, Settings, Trash2, Clock, Code, Users, Cloud, Quote, TrendingUp, Calendar, Music, Heart, Mail, Youtube, Type, Image, BarChart3, Megaphone, X, CheckSquare, Timer, QrCode, Share2, Star, DollarSign, Bell, FileText, Maximize2, Minimize2, MessageCircle, ShoppingBag, Briefcase, ExternalLink, Github, Coffee, Smile, Sparkles, FlipHorizontal, Gamepad2, GripVertical } from 'lucide-react';
+import { FormBuilderWidget } from './widgets/FormBuilderWidget';
+import { Plus, Settings, Trash2, Clock, Code, Users, Cloud, Quote, TrendingUp, Calendar, Music, Heart, Mail, Youtube, Type, Image, BarChart3, Megaphone, X, CheckSquare, Timer, QrCode, Share2, Star, DollarSign, Bell, FileText, Maximize2, Minimize2, MessageCircle, ShoppingBag, Briefcase, ExternalLink, Github, Coffee, Smile, Sparkles, FlipHorizontal, Gamepad2, GripVertical, ClipboardList } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 interface WidgetsProps {
@@ -69,6 +70,7 @@ const WIDGET_TYPES = [
   { value: 'spinning_wheel', label: 'Spinning Wheel', icon: Sparkles, description: 'Gamified prize wheel for giveaways' },
   { value: 'before_after_slider', label: 'Before/After Slider', icon: FlipHorizontal, description: 'Image comparison slider' },
   { value: 'mini_game', label: 'Mini Game', icon: Gamepad2, description: 'Fun browser games for visitors' },
+  { value: 'form_builder', label: 'Form Builder', icon: ClipboardList, description: 'Build custom forms and collect submissions' },
 ];
 
 export function Widgets({ isEditMode, effectiveSettings }: WidgetsProps) {
@@ -394,6 +396,38 @@ export function Widgets({ isEditMode, effectiveSettings }: WidgetsProps) {
           difficulty: 'medium',
           theme: 'classic'
         };
+      case 'form_builder':
+        return {
+          formId: `form_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+          title: 'Contact Form',
+          description: 'Fill out the form below',
+          requireLogin: true,
+          submitButtonLabel: 'Submit',
+          successMessage: 'Thanks for your submission!',
+          fields: [
+            {
+              id: `field_name_${Date.now()}`,
+              label: 'Name',
+              type: 'short_text',
+              required: true,
+              placeholder: 'Your full name',
+            },
+            {
+              id: `field_email_${Date.now() + 1}`,
+              label: 'Email',
+              type: 'email',
+              required: true,
+              placeholder: 'you@example.com',
+            },
+            {
+              id: `field_message_${Date.now() + 2}`,
+              label: 'Message',
+              type: 'long_text',
+              required: true,
+              placeholder: 'How can we help you?',
+            },
+          ],
+        };
       default:
         return {};
     }
@@ -479,6 +513,8 @@ export function Widgets({ isEditMode, effectiveSettings }: WidgetsProps) {
         return <BeforeAfterSliderWidget config={config} />;
       case 'mini_game':
         return <MiniGameWidget config={config} />;
+      case 'form_builder':
+        return <FormBuilderWidget config={config} widgetId={widget.id} isEditMode={isEditMode} />;
       default:
         return <div className="p-4 bg-muted rounded-lg">Unknown widget type: {widget.type}</div>;
     }
@@ -1725,6 +1761,18 @@ function WidgetEditor({
   React.useEffect(() => {
     setEditedWidget(widget);
   }, [widget]);
+
+  React.useEffect(() => {
+    if (widget.type === 'form_builder' && !editedWidget.config?.formId) {
+      setEditedWidget(prev => ({
+        ...prev,
+        config: {
+          ...(prev.config || {}),
+          formId: `form_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+        },
+      }));
+    }
+  }, [widget.type, editedWidget.config?.formId]);
 
   const handleSave = () => {
     onSave({
@@ -4208,6 +4256,245 @@ const gameLoop = setInterval(() => {
           </div>
         );
       
+      case 'form_builder': {
+        const fields = Array.isArray(editedWidget.config?.fields)
+          ? editedWidget.config?.fields
+          : [];
+
+        const updateConfig = (updates: Record<string, any>) => {
+          setEditedWidget(prev => ({
+            ...prev,
+            config: {
+              ...(prev.config || {}),
+              ...updates,
+            },
+          }));
+        };
+
+        const updateField = (fieldId: string, updates: Record<string, any>) => {
+          const updatedFields = fields.map((field: any) =>
+            field.id === fieldId ? { ...field, ...updates } : field,
+          );
+          updateConfig({ fields: updatedFields });
+        };
+
+        const removeField = (fieldId: string) => {
+          updateConfig({ fields: fields.filter((field: any) => field.id !== fieldId) });
+        };
+
+        const addField = (type: string) => {
+          const id = `field_${type}_${Date.now()}`;
+          const newField: any = {
+            id,
+            label:
+              type === 'select'
+                ? 'Select Field'
+                : type === 'checkbox'
+                ? 'Checkbox'
+                : 'New Field',
+            type,
+            required: false,
+            placeholder: '',
+          };
+          if (type === 'select') {
+            newField.options = ['Option 1', 'Option 2'];
+          }
+          updateConfig({ fields: [...fields, newField] });
+        };
+
+        return (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>Form Title</Label>
+                <Input
+                  value={editedWidget.config?.title || ''}
+                  onChange={(event) =>
+                    updateConfig({ title: event.target.value })
+                  }
+                  placeholder="Contact Form"
+                />
+              </div>
+              <div>
+                <Label>Submit Button Label</Label>
+                <Input
+                  value={editedWidget.config?.submitButtonLabel || 'Submit'}
+                  onChange={(event) =>
+                    updateConfig({ submitButtonLabel: event.target.value })
+                  }
+                  placeholder="Send message"
+                />
+              </div>
+              <div>
+                <Label>Success Message</Label>
+                <Input
+                  value={editedWidget.config?.successMessage || 'Thanks for your submission!'}
+                  onChange={(event) =>
+                    updateConfig({ successMessage: event.target.value })
+                  }
+                  placeholder="Thanks! We'll reply soon."
+                />
+              </div>
+              <div className="flex items-center gap-2 mt-2">
+                <Switch
+                  id="require-login"
+                  checked={editedWidget.config?.requireLogin !== false}
+                  onCheckedChange={(checked) =>
+                    updateConfig({ requireLogin: checked })
+                  }
+                />
+                <div>
+                  <Label htmlFor="require-login" className="text-sm font-medium">
+                    Require Bluesky login
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    Visitors must sign in before submitting the form.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <Label>Form Description</Label>
+              <Textarea
+                value={editedWidget.config?.description || ''}
+                onChange={(event) =>
+                  updateConfig({ description: event.target.value })
+                }
+                rows={3}
+                placeholder="Let visitors know how you’ll use their responses."
+              />
+            </div>
+
+            <div className="border rounded-lg p-4 space-y-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h4 className="font-medium text-foreground">Form Fields</h4>
+                  <p className="text-xs text-muted-foreground">
+                    Add and customize the responses you want to collect.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button size="sm" variant="outline" onClick={() => addField('short_text')}>
+                    Add Short Text
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => addField('long_text')}>
+                    Add Long Text
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => addField('email')}>
+                    Add Email
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => addField('select')}>
+                    Add Select
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => addField('checkbox')}>
+                    Add Checkbox
+                  </Button>
+                </div>
+              </div>
+
+              {fields.length === 0 && (
+                <div className="rounded-md border border-dashed p-6 text-sm text-muted-foreground text-center">
+                  No fields yet. Use the buttons above to add your first field.
+                </div>
+              )}
+
+              <div className="space-y-4">
+                {fields.map((field: any, index: number) => (
+                  <div key={field.id} className="border rounded-lg p-4 space-y-3 bg-muted/40">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          Field {index + 1}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            id={`required-${field.id}`}
+                            checked={field.required || false}
+                            onCheckedChange={(checked) =>
+                              updateField(field.id, { required: checked })
+                            }
+                          />
+                          <Label htmlFor={`required-${field.id}`} className="text-xs">
+                            Required
+                          </Label>
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => removeField(field.id)}>
+                        Remove
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <Label>Field Label</Label>
+                        <Input
+                          value={field.label || ''}
+                          onChange={(event) =>
+                            updateField(field.id, { label: event.target.value })
+                          }
+                          placeholder="Name"
+                        />
+                      </div>
+                      <div>
+                        <Label>Field Type</Label>
+                        <Select
+                          value={field.type || 'short_text'}
+                          onValueChange={(value) => updateField(field.id, { type: value, options: value === 'select' ? (field.options || ['Option 1', 'Option 2']) : undefined })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="short_text">Short Text</SelectItem>
+                            <SelectItem value="long_text">Long Text</SelectItem>
+                            <SelectItem value="email">Email</SelectItem>
+                            <SelectItem value="select">Select</SelectItem>
+                            <SelectItem value="checkbox">Checkbox</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {field.type !== 'checkbox' && (
+                      <div>
+                        <Label>Placeholder</Label>
+                        <Input
+                          value={field.placeholder || ''}
+                          onChange={(event) =>
+                            updateField(field.id, { placeholder: event.target.value })
+                          }
+                          placeholder="Enter your response"
+                        />
+                      </div>
+                    )}
+
+                    {field.type === 'select' && (
+                      <div>
+                        <Label>Select Options (one per line)</Label>
+                        <Textarea
+                          value={(field.options || []).join('\n')}
+                          onChange={(event) =>
+                            updateField(field.id, {
+                              options: event.target.value
+                                .split('\n')
+                                .map((option) => option.trim())
+                                .filter(Boolean),
+                            })
+                          }
+                          rows={3}
+                          placeholder={'Option 1\nOption 2\nOption 3'}
+                        />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      }
+
       default:
         return (
           <div className="text-muted-foreground">

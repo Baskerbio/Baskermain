@@ -3,15 +3,16 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSettings, useSaveSettings } from '../hooks/use-atprotocol';
 import { useTheme } from '../contexts/ThemeContext';
 import { useToast } from '@/hooks/use-toast';
-import { Settings, Theme } from '@shared/schema';
+import { ProfileContainerSettings, Settings, Theme } from '@shared/schema';
 import { ImportData } from './ImportData';
+import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -115,6 +116,25 @@ const THEMES: Record<string, Theme> = {
 
 const DEFAULT_THEME: Partial<Theme> = HALLOWEEN_THEME;
 
+const DEFAULT_PROFILE_CONTAINER: ProfileContainerSettings = {
+  enabled: false,
+  backgroundColor: '',
+  backgroundImage: '',
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat',
+  backgroundOverlayColor: '#000000',
+  backgroundOverlayOpacity: 0.35,
+  borderRadius: 32,
+  borderColor: '',
+  borderWidth: 0,
+  borderStyle: 'solid',
+  padding: 32,
+  shadow: true,
+  maxWidth: 'default',
+  backdropBlur: 0,
+};
+
 const DEFAULT_FORM_DATA: Partial<Settings> = {
   theme: DEFAULT_THEME as Theme,
   showStories: true,
@@ -130,6 +150,7 @@ const DEFAULT_FORM_DATA: Partial<Settings> = {
     style: 'default',
     size: 'medium',
   },
+  profileContainer: DEFAULT_PROFILE_CONTAINER,
   seoKeywords: [],
 };
 
@@ -158,6 +179,7 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
       style: 'default',
       size: 'medium',
     },
+    profileContainer: DEFAULT_PROFILE_CONTAINER,
     seoKeywords: [],
   } as Settings));
 
@@ -192,6 +214,10 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
         style: 'default',
         size: 'medium',
         ...(settings as any).socialIconsConfig,
+      },
+      profileContainer: {
+        ...DEFAULT_PROFILE_CONTAINER,
+        ...(settings as any).profileContainer,
       },
     } as Settings;
 
@@ -327,6 +353,32 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
       };
     });
   };
+
+  const updateProfileContainer = (updates: Partial<ProfileContainerSettings>) => {
+    setFormData(prev => ({
+      ...prev,
+      profileContainer: {
+        ...DEFAULT_PROFILE_CONTAINER,
+        ...(prev.profileContainer || {}),
+        ...updates,
+      },
+    }));
+  };
+
+  const handleProfileContainerImageUpload = (file?: File | null) => {
+    if (!file) {
+      updateProfileContainer({ backgroundImage: '' });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      updateProfileContainer({ backgroundImage: reader.result as string });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const profileContainer = formData.profileContainer || DEFAULT_PROFILE_CONTAINER;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -896,6 +948,299 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className="border rounded-lg p-6 bg-card" id="profile-container-settings">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="text-lg font-medium text-foreground">Profile Container</h3>
+                <p className="text-sm text-muted-foreground">
+                  Add a Linktree-style container around your profile content with its own background.
+                </p>
+              </div>
+              <Switch
+                checked={Boolean(profileContainer.enabled)}
+                onCheckedChange={(checked) => updateProfileContainer({ enabled: checked })}
+              />
+            </div>
+
+            {profileContainer.enabled && (
+              <div className="mt-6 space-y-6">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <Label className="block text-sm font-medium text-foreground mb-2">
+                      Container Background
+                    </Label>
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                      <Input
+                        type="color"
+                        value={profileContainer.backgroundColor || '#ffffff'}
+                        onChange={(e) => updateProfileContainer({ backgroundColor: e.target.value })}
+                        className="h-10 w-14 p-1 cursor-pointer"
+                      />
+                      <Input
+                        value={profileContainer.backgroundColor || ''}
+                        onChange={(e) => updateProfileContainer({ backgroundColor: e.target.value })}
+                        placeholder="e.g. #ffffff or rgba(255,255,255,0.9)"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => updateProfileContainer({ backgroundColor: '' })}
+                      >
+                        Clear
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Leave empty for a transparent container.
+                    </p>
+                  </div>
+                  <div>
+                    <Label className="block text-sm font-medium text-foreground mb-2">
+                      Padding: {profileContainer.padding ?? 32}px
+                    </Label>
+                    <Slider
+                      min={0}
+                      max={96}
+                      step={4}
+                      value={[profileContainer.padding ?? 32]}
+                      onValueChange={(value) => updateProfileContainer({ padding: value[0] })}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="block text-sm font-medium text-foreground">
+                    Background Image
+                  </Label>
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        handleProfileContainerImageUpload(file);
+                        event.target.value = '';
+                      }}
+                      className="max-w-sm"
+                    />
+                    {profileContainer.backgroundImage && (
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={profileContainer.backgroundImage}
+                          alt="Container background preview"
+                          className="h-16 w-24 rounded object-cover border"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => updateProfileContainer({ backgroundImage: '' })}
+                        >
+                          Remove Image
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Upload a background photo (stored locally in your Bluesky record).
+                  </p>
+                  <div className="grid gap-3 md:grid-cols-3">
+                    <div>
+                      <Label className="text-xs text-muted-foreground mb-1 block">
+                        Image Size
+                      </Label>
+                      <Select
+                        value={profileContainer.backgroundSize || 'cover'}
+                        onValueChange={(value) => updateProfileContainer({ backgroundSize: value as ProfileContainerSettings['backgroundSize'] })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="cover">Cover</SelectItem>
+                          <SelectItem value="contain">Contain</SelectItem>
+                          <SelectItem value="auto">Auto</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-muted-foreground mb-1 block">
+                        Image Position
+                      </Label>
+                      <Select
+                        value={profileContainer.backgroundPosition || 'center'}
+                        onValueChange={(value) => updateProfileContainer({ backgroundPosition: value as ProfileContainerSettings['backgroundPosition'] })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="top-left">Top Left</SelectItem>
+                          <SelectItem value="top">Top</SelectItem>
+                          <SelectItem value="top-right">Top Right</SelectItem>
+                          <SelectItem value="left">Left</SelectItem>
+                          <SelectItem value="center">Center</SelectItem>
+                          <SelectItem value="right">Right</SelectItem>
+                          <SelectItem value="bottom-left">Bottom Left</SelectItem>
+                          <SelectItem value="bottom">Bottom</SelectItem>
+                          <SelectItem value="bottom-right">Bottom Right</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-muted-foreground mb-1 block">
+                        Image Repeat
+                      </Label>
+                      <Select
+                        value={profileContainer.backgroundRepeat || 'no-repeat'}
+                        onValueChange={(value) => updateProfileContainer({ backgroundRepeat: value as ProfileContainerSettings['backgroundRepeat'] })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="no-repeat">No Repeat</SelectItem>
+                          <SelectItem value="repeat">Tile</SelectItem>
+                          <SelectItem value="repeat-x">Repeat X</SelectItem>
+                          <SelectItem value="repeat-y">Repeat Y</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <Label className="block text-sm font-medium text-foreground mb-2">
+                      Overlay Color
+                    </Label>
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                      <Input
+                        type="color"
+                        value={profileContainer.backgroundOverlayColor || '#000000'}
+                        onChange={(e) => updateProfileContainer({ backgroundOverlayColor: e.target.value })}
+                        className="h-10 w-14 p-1 cursor-pointer"
+                      />
+                      <Input
+                        value={profileContainer.backgroundOverlayColor || ''}
+                        onChange={(e) => updateProfileContainer({ backgroundOverlayColor: e.target.value })}
+                        placeholder="#000000"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => updateProfileContainer({ backgroundOverlayColor: '#000000' })}
+                      >
+                        Reset
+                      </Button>
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="block text-sm font-medium text-foreground mb-2">
+                      Overlay Opacity: {Math.round((profileContainer.backgroundOverlayOpacity ?? 0.35) * 100)}%
+                    </Label>
+                    <Slider
+                      min={0}
+                      max={1}
+                      step={0.05}
+                      value={[profileContainer.backgroundOverlayOpacity ?? 0.35]}
+                      onValueChange={(value) => updateProfileContainer({ backgroundOverlayOpacity: Number(value[0]) })}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div>
+                    <Label className="block text-sm font-medium text-foreground mb-2">
+                      Border Radius: {profileContainer.borderRadius ?? 32}px
+                    </Label>
+                    <Slider
+                      min={0}
+                      max={96}
+                      step={4}
+                      value={[profileContainer.borderRadius ?? 32]}
+                      onValueChange={(value) => updateProfileContainer({ borderRadius: value[0] })}
+                    />
+                  </div>
+                  <div>
+                    <Label className="block text-sm font-medium text-foreground mb-2">
+                      Border Width: {profileContainer.borderWidth ?? 0}px
+                    </Label>
+                    <Slider
+                      min={0}
+                      max={20}
+                      step={1}
+                      value={[profileContainer.borderWidth ?? 0]}
+                      onValueChange={(value) => updateProfileContainer({ borderWidth: value[0] })}
+                    />
+                  </div>
+                  <div>
+                    <Label className="block text-sm font-medium text-foreground mb-2">
+                      Border Color
+                    </Label>
+                    <div className="flex gap-2 items-center">
+                      <Input
+                        type="color"
+                        value={profileContainer.borderColor || '#dddddd'}
+                        onChange={(e) => updateProfileContainer({ borderColor: e.target.value })}
+                        className="h-10 w-14 p-1 cursor-pointer"
+                      />
+                      <Input
+                        value={profileContainer.borderColor || ''}
+                        onChange={(e) => updateProfileContainer({ borderColor: e.target.value })}
+                        placeholder="#dddddd"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="flex items-center justify-between border rounded-md px-4 py-3">
+                    <div>
+                      <Label className="text-sm font-medium text-foreground">Drop Shadow</Label>
+                      <p className="text-xs text-muted-foreground">Add soft shadow behind container</p>
+                    </div>
+                    <Switch
+                      checked={Boolean(profileContainer.shadow)}
+                      onCheckedChange={(checked) => updateProfileContainer({ shadow: checked })}
+                    />
+                  </div>
+                  <div>
+                    <Label className="block text-sm font-medium text-foreground mb-2">
+                      Content Width
+                    </Label>
+                    <Select
+                      value={profileContainer.maxWidth || 'default'}
+                      onValueChange={(value) => updateProfileContainer({ maxWidth: value as ProfileContainerSettings['maxWidth'] })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="narrow">Narrow</SelectItem>
+                        <SelectItem value="default">Default</SelectItem>
+                        <SelectItem value="wide">Wide</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="block text-sm font-medium text-foreground mb-2">
+                      Backdrop Blur: {profileContainer.backdropBlur ?? 0}px
+                    </Label>
+                    <Slider
+                      min={0}
+                      max={40}
+                      step={2}
+                      value={[profileContainer.backdropBlur ?? 0]}
+                      onValueChange={(value) => updateProfileContainer({ backdropBlur: value[0] })}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
           
                     {/* Layout Settings */}
