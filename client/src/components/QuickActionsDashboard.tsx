@@ -49,11 +49,11 @@ interface QuickAction {
 }
 
 interface QuickActionsDashboardProps {
-  onAddLink: () => void;
-  onOpenSettings: () => void;
-  onToggleEditMode: () => void;
-  onCopyProfileURL: () => void;
-  onViewPublicProfile: () => void;
+  onAddLink?: () => void;
+  onOpenSettings?: () => void;
+  onToggleEditMode?: () => void;
+  onCopyProfileURL?: () => void;
+  onViewPublicProfile?: () => void;
   onShowQRCode?: () => void;
   isEditMode: boolean;
   linksCount: number;
@@ -111,6 +111,17 @@ export function QuickActionsDashboard({
     }
   }, [enabledActions]);
 
+  const isProfilePage =
+    typeof window !== 'undefined' && window.location.pathname.startsWith('/profile');
+
+  const goToProfileWithAction = (action: string) => {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem('basker_profile_action', JSON.stringify({ action }));
+    if (!isProfilePage) {
+      window.location.href = '/profile';
+    }
+  };
+
   const allActions: QuickAction[] = [
     // Management Actions
     {
@@ -119,7 +130,13 @@ export function QuickActionsDashboard({
       description: 'Create a new link for your profile',
       icon: <Plus className="w-5 h-5" />,
       color: 'bg-blue-500',
-      action: onAddLink,
+      action: () => {
+        if (isProfilePage) {
+          onAddLink?.();
+        } else {
+          goToProfileWithAction('add-link');
+        }
+      },
       category: 'management'
     },
     {
@@ -128,7 +145,13 @@ export function QuickActionsDashboard({
       description: isEditMode ? 'Finish editing your profile' : 'Start editing your profile',
       icon: <Edit className="w-5 h-5" />,
       color: 'bg-green-500',
-      action: onToggleEditMode,
+      action: () => {
+        if (isProfilePage) {
+          onToggleEditMode?.();
+        } else {
+          goToProfileWithAction('enter-edit');
+        }
+      },
       category: 'management'
     },
     {
@@ -138,14 +161,17 @@ export function QuickActionsDashboard({
       icon: <LinkIcon className="w-5 h-5" />,
       color: 'bg-purple-500',
       action: () => {
-        if (!isEditMode) {
-          onToggleEditMode();
+        if (isProfilePage) {
+          if (!isEditMode) {
+            onToggleEditMode?.();
+          }
+          setTimeout(() => {
+            const linksSection = document.querySelector('[data-section="links"]');
+            linksSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+        } else {
+          goToProfileWithAction('scroll-links');
         }
-        // Scroll to links section
-        setTimeout(() => {
-          const linksSection = document.querySelector('[data-section="links"]');
-          linksSection?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
       },
       category: 'management'
     },
@@ -156,14 +182,17 @@ export function QuickActionsDashboard({
       icon: <FileText className="w-5 h-5" />,
       color: 'bg-orange-500',
       action: () => {
-        if (!isEditMode) {
-          onToggleEditMode();
+        if (isProfilePage) {
+          if (!isEditMode) {
+            onToggleEditMode?.();
+          }
+          setTimeout(() => {
+            const notesSection = document.querySelector('[data-section="notes"]');
+            notesSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+        } else {
+          goToProfileWithAction('scroll-notes');
         }
-        // Scroll to notes section
-        setTimeout(() => {
-          const notesSection = document.querySelector('[data-section="notes"]');
-          notesSection?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
       },
       category: 'management'
     },
@@ -174,14 +203,17 @@ export function QuickActionsDashboard({
       icon: <Grid3X3 className="w-5 h-5" />,
       color: 'bg-indigo-500',
       action: () => {
-        if (!isEditMode) {
-          onToggleEditMode();
+        if (isProfilePage) {
+          if (!isEditMode) {
+            onToggleEditMode?.();
+          }
+          setTimeout(() => {
+            const widgetsSection = document.querySelector('[data-section="widgets"]');
+            widgetsSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+        } else {
+          goToProfileWithAction('scroll-widgets');
         }
-        // Scroll to widgets section
-        setTimeout(() => {
-          const widgetsSection = document.querySelector('[data-section="widgets"]');
-          widgetsSection?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
       },
       category: 'management'
     },
@@ -193,7 +225,13 @@ export function QuickActionsDashboard({
       description: 'Configure your profile settings',
       icon: <Settings className="w-5 h-5" />,
       color: 'bg-gray-500',
-      action: onOpenSettings,
+      action: () => {
+        if (isProfilePage) {
+          onOpenSettings?.();
+        } else {
+          goToProfileWithAction('open-settings');
+        }
+      },
       category: 'customization'
     },
     {
@@ -203,12 +241,15 @@ export function QuickActionsDashboard({
       icon: <Palette className="w-5 h-5" />,
       color: 'bg-pink-500',
       action: () => {
-        onOpenSettings();
-        // Scroll to theme section
-        setTimeout(() => {
-          const themeSection = document.querySelector('[data-section="theme"]');
-          themeSection?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
+        if (isProfilePage) {
+          onOpenSettings?.();
+          setTimeout(() => {
+            const themeSection = document.querySelector('[data-section="theme"]');
+            themeSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+        } else {
+          goToProfileWithAction('open-settings-theme');
+        }
       },
       category: 'customization'
     },
@@ -219,12 +260,15 @@ export function QuickActionsDashboard({
       icon: <Layout className="w-5 h-5" />,
       color: 'bg-teal-500',
       action: () => {
-        onOpenSettings();
-        // Scroll to layout section
-        setTimeout(() => {
-          const layoutSection = document.querySelector('[data-section="layout"]');
-          layoutSection?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
+        if (isProfilePage) {
+          onOpenSettings?.();
+          setTimeout(() => {
+            const layoutSection = document.querySelector('[data-section="layout"]');
+            layoutSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+        } else {
+          goToProfileWithAction('open-settings-layout');
+        }
       },
       category: 'customization'
     },
@@ -235,12 +279,15 @@ export function QuickActionsDashboard({
       icon: <Users className="w-5 h-5" />,
       color: 'bg-cyan-500',
       action: () => {
-        onOpenSettings();
-        // Scroll to social icons section
-        setTimeout(() => {
-          const socialSection = document.querySelector('[data-section="social-icons"]');
-          socialSection?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
+        if (isProfilePage) {
+          onOpenSettings?.();
+          setTimeout(() => {
+            const socialSection = document.querySelector('[data-section="social-icons"]');
+            socialSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+        } else {
+          goToProfileWithAction('open-settings-social');
+        }
       },
       category: 'customization'
     },
@@ -290,7 +337,13 @@ export function QuickActionsDashboard({
       description: 'Copy your profile link to share',
       icon: <Copy className="w-5 h-5" />,
       color: 'bg-blue-600',
-      action: onCopyProfileURL,
+      action: () => {
+        if (isProfilePage) {
+          onCopyProfileURL?.();
+        } else {
+          goToProfileWithAction('copy-url');
+        }
+      },
       category: 'sharing'
     },
     {
@@ -299,7 +352,13 @@ export function QuickActionsDashboard({
       description: 'See how your profile looks to visitors',
       icon: <Eye className="w-5 h-5" />,
       color: 'bg-green-600',
-      action: onViewPublicProfile,
+      action: () => {
+        if (isProfilePage) {
+          onViewPublicProfile?.();
+        } else {
+          goToProfileWithAction('view-public');
+        }
+      },
       category: 'sharing'
     },
     {
@@ -309,11 +368,15 @@ export function QuickActionsDashboard({
       icon: <Share2 className="w-5 h-5" />,
       color: 'bg-purple-600',
       action: () => {
-        onCopyProfileURL();
-        toast({
-          title: 'Ready to Share',
-          description: 'Profile URL copied! You can now paste it on social media.',
-        });
+        if (isProfilePage) {
+          onCopyProfileURL?.();
+          toast({
+            title: 'Ready to Share',
+            description: 'Profile URL copied! You can now paste it on social media.',
+          });
+        } else {
+          goToProfileWithAction('copy-url');
+        }
       },
       category: 'sharing'
     },

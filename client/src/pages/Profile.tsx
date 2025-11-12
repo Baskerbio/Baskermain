@@ -73,7 +73,7 @@ const hexToRgba = (color: string, alpha: number) => {
 
 export default function Profile() {
   const { user, logout } = useAuth();
-  const { isEditMode, toggleEditMode } = useEditMode();
+  const { isEditMode, toggleEditMode, enterEditMode } = useEditMode();
   const { data: links = [] } = useLinks();
   const { mutate: saveLinks } = useSaveLinks();
   const { data: settings } = useSettings();
@@ -213,6 +213,97 @@ export default function Profile() {
       await handleCopyProfileURL();
     }
   };
+
+  const handleViewPublicProfile = () => {
+    const handle = user?.handle;
+    if (!handle) return;
+    window.open(`/${handle}`, '_blank');
+  };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const stored = localStorage.getItem('basker_profile_action');
+    if (!stored) return;
+
+    localStorage.removeItem('basker_profile_action');
+    let parsedAction: string | undefined;
+    try {
+      const parsed = JSON.parse(stored);
+      parsedAction = parsed?.action || parsed;
+    } catch {
+      parsedAction = stored;
+    }
+
+    if (!parsedAction) return;
+
+    const ensureEditMode = () => {
+      enterEditMode();
+    };
+
+    switch (parsedAction) {
+      case 'add-link':
+        ensureEditMode();
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('basker:add-link'));
+        }, 300);
+        break;
+      case 'enter-edit':
+        ensureEditMode();
+        break;
+      case 'scroll-links':
+        ensureEditMode();
+        setTimeout(() => {
+          document
+            .querySelector('[data-section="links"]')
+            ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 400);
+        break;
+      case 'scroll-notes':
+        ensureEditMode();
+        setTimeout(() => {
+          document
+            .querySelector('[data-section="notes"]')
+            ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 400);
+        break;
+      case 'scroll-widgets':
+        ensureEditMode();
+        setTimeout(() => {
+          document
+            .querySelector('[data-section="widgets"]')
+            ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 400);
+        break;
+      case 'open-settings':
+        ensureEditMode();
+        setShowSettings(true);
+        break;
+      case 'open-settings-theme':
+        ensureEditMode();
+        setSettingsScrollTo('theme');
+        setShowSettings(true);
+        break;
+      case 'open-settings-layout':
+        ensureEditMode();
+        setSettingsScrollTo('layout');
+        setShowSettings(true);
+        break;
+      case 'open-settings-social':
+        ensureEditMode();
+        setSettingsScrollTo('social-icons');
+        setShowSettings(true);
+        break;
+      case 'copy-url':
+        handleCopyProfileURL();
+        break;
+      case 'view-public':
+        handleViewPublicProfile();
+        break;
+      default:
+        break;
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) return;

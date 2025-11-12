@@ -234,7 +234,10 @@ export function SettingsModal({ isOpen, onClose, onDragEnd, scrollToSection }: S
     if (isOpen && scrollToSection) {
       // Wait for modal to render
       setTimeout(() => {
-        const element = document.getElementById(scrollToSection);
+    let element = document.getElementById(scrollToSection);
+    if (!element) {
+      element = document.querySelector(`[data-section="${scrollToSection}"]`) as HTMLElement | null;
+    }
         if (element) {
           element.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }

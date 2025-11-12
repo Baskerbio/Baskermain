@@ -117,6 +117,52 @@ export function LinksList({ isEditMode }: LinksListProps) {
   const { toast } = useToast();
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  // Handle global add-link events (e.g., from quick actions)
+  React.useEffect(() => {
+    const handleAddLink = () => {
+      // Reset form to default values
+      form.reset({
+        title: '',
+        url: '',
+        description: '',
+        icon: '',
+        customIcon: '',
+        customIconAlt: '',
+        group: '',
+        isScheduled: false,
+        scheduledStart: '',
+        scheduledEnd: '',
+        backgroundColor: '',
+        textColor: '',
+        fontFamily: 'system',
+        fontWeight: 'normal',
+        containerShape: 'rounded',
+        autoTextColor: true,
+        iconColor: '',
+        borderColor: '',
+        borderWidth: 0,
+        borderStyle: 'solid',
+        backgroundImage: '',
+        backgroundImageSize: 'cover',
+        backgroundImagePosition: 'center',
+        backgroundImageRepeat: 'no-repeat',
+        backgroundImageOverlayColor: '#000000',
+        backgroundImageOverlayOpacity: 0.35,
+        pattern: 'none',
+        patternColor: '',
+        pixelTransition: false,
+        pixelTransitionText: '',
+        pixelTransitionColor: '#000000',
+        pixelTransitionGridSize: 7,
+        pixelTransitionDuration: 0.3,
+      });
+      setEditingLink(null);
+      setIsDialogOpen(true);
+    };
+
+    window.addEventListener('basker:add-link', handleAddLink);
+    return () => window.removeEventListener('basker:add-link', handleAddLink);
+  }, [form]);
   const [editingLink, setEditingLink] = useState<Link | null>(null);
   const [isCreateGroupDialogOpen, setIsCreateGroupDialogOpen] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
