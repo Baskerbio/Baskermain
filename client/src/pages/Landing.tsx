@@ -1,2049 +1,639 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'wouter';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { useAuth } from '../contexts/AuthContext';
-import { LoginScreen } from '../components/LoginScreen';
-import { VersionInfo } from '../components/VersionInfo';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Header } from '../components/Header';
-import { QuickActionsDashboard } from '../components/QuickActionsDashboard';
-import { QRCodeShare } from '../components/QRCodeShare';
-import { ArrowRight, Link as LinkIcon, Globe, Users, Zap, Star, Sparkles, Heart, Share2, Palette, StickyNote, Link2, Settings, Image as ImageIcon, ChevronDown, ChevronUp, Info, ExternalLink, Upload, BarChart3, CreditCard, FileText, Grid3X3, Code } from 'lucide-react';
-import { atprotocol } from '../lib/atprotocol';
-import { createPortal } from 'react-dom';
-import DecryptedText from '../components/DecryptedText';
-import { useToast } from '@/hooks/use-toast';
-import LightRays from '../components/LightRays';
-import { SEOHead } from '../components/SEOHead';
 
-export default function Landing() {
-  const [showQRCode, setShowQRCode] = useState(false);
-  const { isAuthenticated, user } = useAuth();
-  const { toast } = useToast();
-  const [searchHandle, setSearchHandle] = useState('');
-  const [searchSuggestions, setSearchSuggestions] = useState<any[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchBoxRect, setSearchBoxRect] = useState<DOMRect | null>(null);
-  const [currentFeature, setCurrentFeature] = useState(0);
-  const [nextFeature, setNextFeature] = useState(1);
-  const [isVisible, setIsVisible] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [openFAQ, setOpenFAQ] = useState<number | null>(null);
-  const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
-  const [isScrolled, setIsScrolled] = useState(false);
-  const heroRef = useRef<HTMLDivElement>(null);
-  const featuresRef = useRef<HTMLDivElement>(null);
-  const statsRef = useRef<HTMLDivElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
+type Feature = {
+  title: string;
+  description: string;
+  images: string[];
+  fit?: 'cover' | 'contain';
+};
 
-  const features = [
-    {
-      title: "Links",
-      description: "Share unlimited links with custom icons and descriptions",
-      image: "/links-example.png",
-      icon: Link2,
-      color: "from-blue-500 to-cyan-500"
-    },
-    {
-      title: "Notes",
-      description: "Add personal notes and thoughts to your profile",
-      image: "/notes-example.png",
-      icon: StickyNote,
-      color: "from-green-500 to-emerald-500"
-    },
-    {
-      title: "Profile",
-      description: "Customize your profile with themes and personal info",
-      image: "/profile-example.png",
-      icon: Users,
-      color: "from-purple-500 to-pink-500"
-    },
-    {
-      title: "Themes",
-      description: "Choose from beautiful themes or create your own",
-      image: "/themes-example.png",
-      icon: Palette,
-      color: "from-orange-500 to-red-500"
-    },
-    {
-      title: "Widgets",
-      description: "Add interactive widgets to n your profile",
-      image: "/widgets-example.png",
-      icon: Settings,
-      color: "from-indigo-500 to-purple-500"
-    }
-  ];
+type ActorSuggestion = {
+  handle: string;
+  displayName: string;
+  avatar?: string;
+};
 
-  const faqData = [
-    {
-      question: "What is Basker?",
-      answer: "Basker is a decentralized link-in-bio platform built on the AT Protocol. It allows you to create beautiful, customizable profile pages with unlimited links, stories, notes, and widgets."
-    },
-    {
-      question: "How is Basker different from other link-in-bio services?",
-      answer: "Unlike centralized platforms, Basker is built on the AT Protocol, meaning your data belongs to you and works across the entire decentralized network. No platform lock-in, no data harvesting."
-    },
-    {
-      question: "Do I need a Bluesky account to use Basker?",
-      answer: "Yes, Basker uses Bluesky authentication. You'll need a Bluesky account to sign in and create your profile. If you don't have one, you can create a free account at bsky.app."
-    },
-    {
-      question: "Is Basker free to use?",
-      answer: "Yes! Basker is currently free to use. We're working on premium features that will be available soon for supporters."
-    },
-    {
-      question: "Can I customize my profile?",
-      answer: "Absolutely! You can customize your profile with different themes, add unlimited links, create stories, add notes, and include various widgets. Everything is drag-and-drop for easy editing."
-    },
-    {
-      question: "Is my data secure?",
-      answer: "Yes! Since Basker is built on the AT Protocol, your data is decentralized and secure. You own your data, and it's not stored on our servers in a traditional sense."
-    }
-  ];
+const PARTICLE_COUNT = 80;
 
-  useEffect(() => {
-    setIsVisible(true);
-    const interval = setInterval(() => {
-      const next = (currentFeature + 1) % features.length;
-      setNextFeature(next);
-      setIsTransitioning(true);
-      
-      // Complete the transition immediately after starting it
-      setTimeout(() => {
-        setCurrentFeature(next);
-        setIsTransitioning(false);
-      }, 50); // Very short delay just to allow the transition to start
-    }, 5000); // 5 seconds between transitions
-    return () => clearInterval(interval);
-  }, [currentFeature]);
+const HERO_IMAGES = [
+  '/userprofile1.png',
+  '/userprofile2.png',
+  '/userprofile3.png',
+];
 
-  // Scroll-triggered animations
-  useEffect(() => {
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
-    };
+const FEATURES: Feature[] = [
+  {
+    title: 'Decentralized Profiles',
+    description:
+      'Decentralized profiles built on the AT Protocol, fully customizable, completely free, and honestly, just super cool.',
+    images: ['/fullprofile1.png', '/fullprofile2.png', '/fullprofile3.png'],
+    fit: 'cover',
+  },
+  {
+    title: 'Modular Widgets',
+    description:
+      'So many widgets!!! Store links, quotes, work history, announcements, spinners, and so many more!',
+    images: ['/widgetsfull1.png', '/widgetsfull2.png', '/widgetsfull3.png'],
+    fit: 'cover',
+  },
+  {
+    title: 'Basker Solaris Cards',
+    description:
+      'Physical NFC cards that connect directly to your Basker page, bridging the physical and digital worlds.',
+    images: ['/stevecardfront.png', '/roncardfront.png', '/tonycardfront.png'],
+    fit: 'contain',
+  },
+];
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          setVisibleSections(prev => new Set(Array.from(prev).concat(entry.target.id)));
-        }
-      });
-    }, observerOptions);
+function Badge({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium bg-white/10 backdrop-blur-sm border border-white/10">
+      {children}
+    </span>
+  );
+}
 
-    // Observe sections
-    const sections = document.querySelectorAll('[data-section]');
-    sections.forEach(section => observer.observe(section));
+function CTAButton({ children }: { children: React.ReactNode }) {
+  return (
+    <button className="inline-flex items-center gap-3 rounded-2xl px-6 py-3 bg-gradient-to-r from-amber-400 via-rose-400 to-violet-500 text-slate-900 font-semibold shadow-lg hover:scale-[1.01] transition-transform">
+      {children}
+    </button>
+  );
+}
 
-    return () => observer.disconnect();
-  }, []);
-
-
-  // Debounced search function
-  useEffect(() => {
-    const searchTimeout = setTimeout(async () => {
-      if (searchHandle.trim().length >= 2) {
-        setIsSearching(true);
-        try {
-          // Use the public API directly for search without authentication
-          console.log('Searching for:', searchHandle.trim());
-          const response = await fetch(`https://public.api.bsky.app/xrpc/app.bsky.actor.searchActors?term=${encodeURIComponent(searchHandle.trim())}&limit=5`);
-          const data = await response.json();
-          
-          console.log('Search response:', data);
-          
-          if (data.actors && data.actors.length > 0) {
-            const suggestions = data.actors.map((actor: any) => ({
-              did: actor.did,
-              handle: actor.handle,
-              displayName: actor.displayName || actor.handle,
-              avatar: actor.avatar,
-              description: actor.description || '',
-              followersCount: actor.followersCount || 0,
-              followsCount: actor.followsCount || 0,
-              postsCount: actor.postsCount || 0,
-            }));
-            console.log('Suggestions:', suggestions);
-            setSearchSuggestions(suggestions);
-            setShowSuggestions(true);
-            // Update position when suggestions change
-            if (searchInputRef.current) {
-              setSearchBoxRect(searchInputRef.current.getBoundingClientRect());
-            }
-          } else {
-            console.log('No actors found');
-            setSearchSuggestions([]);
-          }
-        } catch (error) {
-          console.error('Search failed:', error);
-          setSearchSuggestions([]);
-        } finally {
-          setIsSearching(false);
-        }
-      } else {
-        setSearchSuggestions([]);
-        setShowSuggestions(false);
+function IconDot({ active }: { active?: boolean }) {
+  return (
+    <div
+      className={
+        'w-2 h-2 rounded-full transition-all ' +
+        (active ? 'scale-110 bg-white' : 'bg-white/40')
       }
-    }, 300); // 300ms debounce
+    />
+  );
+}
 
-    // Update position on scroll and resize
-    const handleScroll = () => {
-      if (showSuggestions && searchInputRef.current) {
-        setSearchBoxRect(searchInputRef.current.getBoundingClientRect());
-      }
-    };
+function Carousel({
+  images,
+  auto = true,
+  interval = 4000,
+  fit = 'cover',
+}: {
+  images: string[];
+  auto?: boolean;
+  interval?: number;
+  fit?: 'cover' | 'contain';
+}) {
+  const [index, setIndex] = useState(0);
 
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleScroll);
-
-    return () => {
-      clearTimeout(searchTimeout);
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
-    };
-  }, [searchHandle, showSuggestions]);
-
-  // Handle light rays sticky behavior
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const headerHeight = 80; // Approximate header height
-      setIsScrolled(scrollY > headerHeight);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Check WebGL support and add fallback class
-  useEffect(() => {
-    const checkWebGL = () => {
-      try {
-        const canvas = document.createElement('canvas');
-        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-        if (!gl) {
-          document.body.classList.add('no-webgl');
-        }
-      } catch (e) {
-        document.body.classList.add('no-webgl');
-      }
-    };
-
-    checkWebGL();
-  }, []);
-
-  const handleSearch = () => {
-    if (searchHandle.trim()) {
-      let handle = searchHandle.trim();
-      // Remove @ if present
-      if (handle.startsWith('@')) {
-        handle = handle.substring(1);
-      }
-      // Navigate to the profile
-      window.location.href = `/${handle}`;
-    }
-  };
-
-  const handleSuggestionClick = (suggestion: any) => {
-    setSearchHandle(suggestion.handle);
-    setShowSuggestions(false);
-    window.location.href = `/${suggestion.handle}`;
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  };
-
-  if (isAuthenticated && user) {
-    // Show a welcome interface for authenticated users instead of redirecting
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 relative overflow-hidden">
-        <Header />
-        
-        {/* Dashboard Navigation */}
-        <nav className="sticky top-[57px] sm:top-[73px] z-40 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-b border-white/20 dark:border-gray-700/30 shadow-sm">
-          <div className="max-w-7xl mx-auto px-3 sm:px-4">
-            <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto py-2.5 sm:py-2 nav-scrollbar">
-              {/* Page Navigation */}
-              <Link href="/import">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
-                >
-                  <Upload className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Import</span>
-                  <span className="sm:hidden">Import</span>
-                </Button>
-              </Link>
-              
-              <Link href="/analytics">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
-                >
-                  <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Analytics</span>
-                  <span className="sm:hidden">Stats</span>
-                </Button>
-              </Link>
-              
-              <Link href="/solaris">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
-                >
-                  <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Solaris</span>
-                  <span className="sm:hidden">Solaris</span>
-                </Button>
-              </Link>
-
-              <Link href="/submit-widget">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
-                >
-                  <Code className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Submit a Widget</span>
-                  <span className="sm:hidden">Submit Widget</span>
-                </Button>
-              </Link>
-
-              <div className="h-4 sm:h-6 w-px bg-border mx-1 flex-shrink-0" />
-
-              {/* Settings Button - Navigate to Profile */}
-              <Link href="/profile">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
-                >
-                  <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Settings</span>
-                  <span className="sm:hidden">Settings</span>
-                </Button>
-              </Link>
-
-              <div className="h-4 sm:h-6 w-px bg-border mx-1 flex-shrink-0" />
-
-              {/* Section Navigation - Navigate to Profile */}
-              <Link href="/profile">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
-                >
-                  <LinkIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Links</span>
-                  <span className="sm:hidden">Links</span>
-                </Button>
-              </Link>
-
-              <Link href="/profile">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
-                >
-                  <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Notes</span>
-                  <span className="sm:hidden">Notes</span>
-                </Button>
-              </Link>
-
-              <Link href="/profile">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap h-9 sm:h-9 px-3 sm:px-3 hover:bg-accent flex-shrink-0"
-                >
-                  <Grid3X3 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Widgets</span>
-                  <span className="sm:hidden">Widgets</span>
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </nav>
-        
-        {/* Enhanced Animated Background */}
-        <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-          {/* Floating particles */}
-          {[...Array(15)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-1 h-1 bg-gradient-to-r from-blue-400/40 to-purple-400/40 rounded-full"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 10}s`,
-                animationDuration: `${12 + Math.random() * 8}s`,
-                animation: 'float 12s ease-in-out infinite'
-              }}
-            ></div>
-          ))}
-          
-          {/* Animated gradient orbs */}
-          <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-r from-pink-400/20 to-rose-400/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-gradient-to-r from-cyan-400/15 to-blue-400/15 rounded-full blur-2xl animate-pulse"></div>
-        </div>
-
-        <main className="relative z-10">
-          {/* Welcome Dashboard Section */}
-          <section className="relative py-20 px-4 overflow-hidden">
-            {/* Animated Background Elements */}
-            <div className="absolute inset-0 overflow-hidden">
-              {/* Floating particles */}
-              <div className="absolute top-20 left-10 w-2 h-2 bg-yellow-400 rounded-full animate-pulse opacity-60"></div>
-              <div className="absolute top-32 right-20 w-3 h-3 bg-orange-400 rounded-full animate-pulse opacity-40" style={{ animationDelay: '1s' }}></div>
-              <div className="absolute top-60 left-1/4 w-2 h-2 bg-yellow-500 rounded-full animate-pulse opacity-50" style={{ animationDelay: '2s' }}></div>
-              <div className="absolute top-40 right-1/3 w-2 h-2 bg-orange-500 rounded-full animate-pulse opacity-30" style={{ animationDelay: '0.5s' }}></div>
-              <div className="absolute top-80 left-1/2 w-3 h-3 bg-yellow-400 rounded-full animate-pulse opacity-40" style={{ animationDelay: '1.5s' }}></div>
-              
-              {/* Animated sun rays */}
-              <div className="absolute top-10 right-10 opacity-20">
-                <svg width="60" height="60" viewBox="0 0 60 60" className="animate-spin" style={{ animationDuration: '20s' }}>
-                  <g>
-                    <line x1="30" y1="0" x2="30" y2="8" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
-                    <line x1="30" y1="52" x2="30" y2="60" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
-                    <line x1="0" y1="30" x2="8" y2="30" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
-                    <line x1="52" y1="30" x2="60" y2="30" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
-                    <line x1="8.5" y1="8.5" x2="13.5" y2="13.5" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
-                    <line x1="46.5" y1="46.5" x2="51.5" y2="51.5" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
-                    <line x1="8.5" y1="51.5" x2="13.5" y2="46.5" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
-                    <line x1="46.5" y1="8.5" x2="51.5" y2="13.5" stroke="url(#rayGradient)" strokeWidth="2" opacity="0.6"/>
-                    <defs>
-                      <linearGradient id="rayGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#fbbf24"/>
-                        <stop offset="100%" stopColor="#f97316"/>
-                      </linearGradient>
-                    </defs>
-                  </g>
-                </svg>
-              </div>
-            </div>
-
-            <div className="max-w-7xl mx-auto relative z-10">
-              {/* Welcome Header */}
-              <div className="text-center mb-12">
-                {/* Animated Welcome Badge */}
-                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/20 dark:to-orange-900/20 px-4 py-2 rounded-full mb-6 animate-pulse">
-                  <Sparkles className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
-                  <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">Welcome Back!</span>
-                </div>
-
-                <h1 className="text-5xl sm:text-6xl font-bold text-foreground mb-6 animate-fade-in">
-                  Welcome back, <span className="bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">{user.displayName || user.handle}</span>!
-                </h1>
-                <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                  Your personalized dashboard is ready. Manage your profile, track analytics, and grow your presence.
-                </p>
-              </div>
-
-              {/* Dashboard Grid */}
-              <div className="grid lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12">
-                {/* Quick Actions Dashboard */}
-                <div className="lg:col-span-2">
-                  <QuickActionsDashboard
-                    onAddLink={() => {
-                      // Navigate to profile in edit mode
-                      window.location.href = '/profile';
-                    }}
-                    onOpenSettings={() => {
-                      // Navigate to profile and open settings
-                      window.location.href = '/profile';
-                    }}
-                    onToggleEditMode={() => {
-                      // Navigate to profile
-                      window.location.href = '/profile';
-                    }}
-                    onCopyProfileURL={async () => {
-                      try {
-                        await navigator.clipboard.writeText(`${window.location.origin}/${user.handle}`);
-                        toast({
-                          title: 'URL Copied!',
-                          description: 'Your profile URL has been copied to clipboard',
-                        });
-                      } catch (err) {
-                        console.error('Failed to copy URL:', err);
-                        toast({
-                          title: 'Error',
-                          description: 'Failed to copy URL to clipboard',
-                          variant: 'destructive',
-                        });
-                      }
-                    }}
-                    onViewPublicProfile={() => {
-                      window.open(`/${user.handle}`, '_blank');
-                    }}
-                    onShowQRCode={() => setShowQRCode(true)}
-                    isEditMode={false}
-                    linksCount={0} // We'll need to fetch this from the API
-                    notesCount={0} // We'll need to fetch this from the API
-                    widgetsCount={0} // We'll need to fetch this from the API
-                  />
-                </div>
-
-                {/* Profile Stats Card */}
-                <div>
-                  <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-yellow-200 dark:border-yellow-800 shadow-xl hover:shadow-2xl transition-all duration-300 h-full">
-                    <CardContent className="p-8">
-                      <div className="flex items-center gap-4 mb-6">
-                        <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-emerald-400 rounded-xl flex items-center justify-center">
-                          <Heart className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Profile Stats</h3>
-                          <p className="text-gray-600 dark:text-gray-400">Your performance</p>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-center p-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <LinkIcon className="w-5 h-5 text-blue-500" />
-                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Total Links</span>
-                          </div>
-                          <span className="text-lg font-bold text-blue-600 dark:text-blue-400">∞</span>
-                        </div>
-                        
-                        <div className="flex justify-between items-center p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <Palette className="w-5 h-5 text-green-500" />
-                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Themes</span>
-                          </div>
-                          <span className="text-lg font-bold text-green-600 dark:text-green-400">5+</span>
-                        </div>
-                        
-                        <div className="flex justify-between items-center p-3 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <StickyNote className="w-5 h-5 text-purple-500" />
-                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Stories</span>
-                          </div>
-                          <span className="text-lg font-bold text-purple-600 dark:text-purple-400">0</span>
-                        </div>
-                        
-                        <div className="flex justify-between items-center p-3 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <Globe className="w-5 h-5 text-orange-500" />
-                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Views</span>
-                          </div>
-                          <span className="text-lg font-bold text-orange-600 dark:text-orange-400">0</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-
-              {/* Additional Quick Actions */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
-                {/* Starter Packs Card */}
-                <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 shadow-lg hover:shadow-xl transition-all duration-300">
-                  <CardContent className="p-4 sm:p-6">
-                    <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Star className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                      </div>
-                      <div className="min-w-0">
-                        <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100">Starter Packs</h3>
-                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Ready-made templates</p>
-                      </div>
-                    </div>
-                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-3 sm:mb-4">
-                      Get started quickly with professionally designed templates for different industries and use cases.
-                    </p>
-                    <Link href="/starter-packs">
-                      <Button className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white text-sm">
-                        Browse Packs
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-
-                {/* Import Data Card */}
-                <Card className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border border-orange-200 dark:border-orange-800 shadow-lg hover:shadow-xl transition-all duration-300">
-                  <CardContent className="p-4 sm:p-6">
-                    <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                      </div>
-                      <div className="min-w-0">
-                        <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100">Import Data</h3>
-                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Bring your content</p>
-                      </div>
-                    </div>
-                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-3 sm:mb-4">
-                      Import your existing links and content from other platforms to get started faster.
-                    </p>
-                    <Link href="/import">
-                      <Button className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-sm">
-                        Import Now
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-
-                {/* Analytics Card */}
-                <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800 shadow-lg hover:shadow-xl transition-all duration-300">
-                  <CardContent className="p-4 sm:p-6">
-                    <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                      </div>
-                      <div className="min-w-0">
-                        <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100">Analytics</h3>
-                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Track performance</p>
-                      </div>
-                    </div>
-                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-3 sm:mb-4">
-                      Monitor your profile performance, track clicks, and understand your audience better.
-                    </p>
-                    <Link href="/analytics">
-                      <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-sm">
-                        View Analytics
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Tips & Getting Started Section */}
-              <div className="mb-12">
-                <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 shadow-xl">
-                  <CardContent className="p-8">
-                    <div className="text-center mb-8">
-                      <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <Sparkles className="w-8 h-8 text-white" />
-                      </div>
-                      <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Getting Started Tips</h3>
-                      <p className="text-gray-600 dark:text-gray-400">Make the most of your link-in-bio page</p>
-                    </div>
-                    
-                    <div className="grid md:grid-cols-3 gap-6">
-                      <div className="text-center space-y-3">
-                        <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mx-auto">
-                          <LinkIcon className="w-6 h-6 text-white" />
-                        </div>
-                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">Add Your First Link</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Start by adding your most important links like social media, website, or contact info</p>
-                      </div>
-                      
-                      <div className="text-center space-y-3">
-                        <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mx-auto">
-                          <Palette className="w-6 h-6 text-white" />
-                        </div>
-                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">Customize Your Theme</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Choose a theme that matches your brand and personality</p>
-                      </div>
-                      
-                      <div className="text-center space-y-3">
-                        <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center mx-auto">
-                          <Share2 className="w-6 h-6 text-white" />
-                        </div>
-                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">Share Your Profile</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Add your profile link to your social media bios and business cards</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Enhanced Bluesky Integration */}
-              <div className="text-center">
-                <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-full mb-4">
-                  <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs font-bold">AT</span>
-                  </div>
-                  <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">Powered by the AT Protocol</span>
-                </div>
-                <div>
-                  <a 
-                    href="https://bsky.app" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors"
-                  >
-                    Visit Bluesky <ExternalLink className="w-4 h-4" />
-                  </a>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Search Section */}
-          <section className="py-16 px-4 bg-muted/30">
-            <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl font-bold text-foreground mb-8">
-                Explore Other Profiles
-              </h2>
-              
-              {/* Search Box with Suggestions */}
-              <div className="max-w-md mx-auto mb-8">
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <Input
-                      type="text"
-                      placeholder="username.bsky.social"
-                      value={searchHandle}
-                      onChange={(e) => setSearchHandle(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                      onFocus={() => setShowSuggestions(searchSuggestions.length > 0)}
-                      onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                      className="pl-8"
-                    />
-                    <LinkIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    {isSearching && (
-                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-                      </div>
-                    )}
-                    
-                    {/* Search Suggestions Dropdown */}
-                    {showSuggestions && searchSuggestions.length > 0 && (
-                      <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-[9999] max-h-64 overflow-y-auto">
-                        {searchSuggestions.map((suggestion, index) => (
-                          <div
-                            key={suggestion.did}
-                            onClick={() => handleSuggestionClick(suggestion)}
-                            className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors first:rounded-t-lg last:rounded-b-lg"
-                          >
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-400 to-orange-400 flex items-center justify-center flex-shrink-0">
-                              {suggestion.avatar ? (
-                                <img 
-                                  src={suggestion.avatar} 
-                                  alt={suggestion.displayName}
-                                  className="w-8 h-8 rounded-full object-cover"
-                                />
-                              ) : (
-                                <span className="text-white font-semibold text-xs">
-                                  {suggestion.displayName.charAt(0).toUpperCase()}
-                                </span>
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="font-semibold text-gray-900 dark:text-gray-100 truncate text-sm">
-                                {suggestion.displayName}
-                              </div>
-                              <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                @{suggestion.handle}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <Button onClick={handleSearch} className="px-6">
-                    <ArrowRight className="w-4 h-4" />
-                  </Button>
-                </div>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Search for any Bluesky user's profile
-                </p>
-              </div>
-            </div>
-          </section>
-        </main>
-
-        {/* Footer */}
-        <footer className="border-t border-border bg-background">
-          <div className="max-w-6xl mx-auto px-4 py-8">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <img 
-                src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
-                alt="Basker"
-                className="w-5 h-5 rounded-full"
-              />
-              <h3 className="text-lg font-bold text-primary">Basker</h3>
-                <span className="text-muted-foreground">×</span>
-                <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                </svg>
-                <span className="text-sm text-blue-500 font-bold">Bluesky</span>
-              </div>
-              
-              <div className="text-center md:text-right">
-                <p className="text-sm text-muted-foreground">
-                  Built on the AT Protocol • Your data, your control
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Create your own link-in-bio page with basker
-                </p>
-                <div className="mt-2">
-                  <VersionInfo />
-                </div>
-              </div>
-            </div>
-          </div>
-        </footer>
-      </div>
-    );
-  }
+    if (!auto) return;
+    const t = setInterval(() => setIndex((i) => (i + 1) % images.length), interval);
+    return () => clearInterval(t);
+  }, [images.length, auto, interval]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 relative overflow-hidden">
-      <SEOHead 
-        title="Basker - Free Link-in-Bio Platform on AT Protocol | Decentralized Social Links"
-        description="Create your free link-in-bio page on Basker. Decentralized, powered by Bluesky and AT Protocol. Add unlimited links, widgets, and customize your profile. Free link sharing platform."
-      />
-      <Header />
-      
-      {/* Enhanced Animated Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        {/* Floating particles */}
-        {[...Array(15)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-gradient-to-r from-blue-400/40 to-purple-400/40 rounded-full"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 10}s`,
-              animationDuration: `${12 + Math.random() * 8}s`,
-              animation: 'float 12s ease-in-out infinite'
-            }}
-          ></div>
-        ))}
-        
-        {/* Animated gradient orbs */}
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-r from-pink-400/20 to-rose-400/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-gradient-to-r from-cyan-400/15 to-blue-400/15 rounded-full blur-2xl animate-pulse"></div>
-        
-        {/* Animated grid pattern */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, rgba(59, 130, 246, 0.3) 1px, transparent 0)`,
-            backgroundSize: '40px 40px',
-            animation: 'gridMove 20s linear infinite'
-          }}></div>
-        </div>
-      </div>
-      
-      {/* Light Rays Effect - Attached to Header, then Fixed */}
-      <div 
-        className={`w-full h-screen z-5 pointer-events-none transition-all duration-300 ${
-          isScrolled ? 'fixed top-0 left-0' : 'absolute top-0 left-0'
-        }`}
-        style={{ 
-          transform: 'translateZ(0)' // Force hardware acceleration
+    <div className="relative w-full overflow-hidden rounded-3xl shadow-2xl">
+      <img
+        src={images[index]}
+        alt={`carousel-${index}`}
+        className="w-full h-[420px] md:h-[520px] lg:h-[560px] rounded-3xl"
+        style={{
+          objectFit: fit === 'contain' ? 'contain' : 'cover',
+          backgroundColor: fit === 'contain' ? 'rgba(15, 23, 42, 0.6)' : undefined,
+          padding: fit === 'contain' ? '1.5rem' : undefined,
         }}
-      >
-        <LightRays
-          raysOrigin="top-center"
-          raysColor="#fbbf24"
-          raysSpeed={1.5}
-          lightSpread={0.8}
-          rayLength={2.0}
-          followMouse={true}
-          mouseInfluence={0.1}
-          noiseAmount={0.1}
-          distortion={0.05}
-          className="custom-rays"
-        />
+        draggable={false}
+      />
+
+      <div className="absolute left-4 bottom-4 flex gap-2">
+        {images.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setIndex(i)}
+            aria-label={`Go to slide ${i + 1}`}
+            className="p-1 rounded-full"
+          >
+            <IconDot active={i === index} />
+          </button>
+        ))}
       </div>
 
-      <main>
-        {/* Hero Section */}
-        <section 
-          ref={heroRef}
-          id="hero"
-          data-section="hero"
-          className="relative overflow-hidden min-h-screen flex items-center"
+      <div className="absolute right-4 top-4 flex gap-2">
+        <button
+          onClick={() => setIndex((i) => (i - 1 + images.length) % images.length)}
+          className="rounded-full p-2 bg-white/10 backdrop-blur-sm"
+          aria-label="Previous"
         >
-          {/* Modern gradient background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20"></div>
-          
-          {/* Animated gradient orbs */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute bottom-20 right-20 w-80 h-80 bg-gradient-to-r from-pink-400/20 to-rose-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-cyan-400/15 to-blue-400/15 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '4s' }}></div>
-          </div>
-          
-          {/* Sun rays background */}
-          <div className="absolute inset-0 overflow-hidden">
-            <svg className="absolute top-0 left-0 w-full h-full opacity-15 dark:opacity-8" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="sunRayGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#fbbf24" />
-                  <stop offset="50%" stopColor="#f97316" />
-                  <stop offset="100%" stopColor="#ef4444" />
-                </linearGradient>
-                <radialGradient id="sunCenter" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#fde047" />
-                  <stop offset="70%" stopColor="#fbbf24" />
-                  <stop offset="100%" stopColor="#f97316" />
-                </radialGradient>
-              </defs>
-              
-              {/* Main sun center */}
-              <circle cx="300" cy="200" r="40" fill="url(#sunCenter)" opacity="0.4" />
-              
-              {/* Animated sun rays radiating outward */}
-              <g stroke="url(#sunRayGradient)" strokeWidth="3" opacity="0.3">
-                {/* Vertical rays */}
-                <line x1="300" y1="120" x2="300" y2="80" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0s', animationDuration: '3s' }} />
-                <line x1="300" y1="280" x2="300" y2="320" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0.5s', animationDuration: '3s' }} />
-                
-                {/* Horizontal rays */}
-                <line x1="220" y1="200" x2="180" y2="200" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '1s', animationDuration: '3s' }} />
-                <line x1="380" y1="200" x2="420" y2="200" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '1.5s', animationDuration: '3s' }} />
-                
-                {/* Diagonal rays */}
-                <line x1="240" y1="140" x2="200" y2="100" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '2s', animationDuration: '3s' }} />
-                <line x1="360" y1="140" x2="400" y2="100" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0.3s', animationDuration: '3s' }} />
-                <line x1="240" y1="260" x2="200" y2="300" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '1.8s', animationDuration: '3s' }} />
-                <line x1="360" y1="260" x2="400" y2="300" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '2.3s', animationDuration: '3s' }} />
-                
-                {/* Additional rays for fuller sun */}
-                <line x1="265" y1="125" x2="245" y2="105" strokeLinecap="round" strokeWidth="2" className="animate-pulse" style={{ animationDelay: '0.8s', animationDuration: '3s' }} />
-                <line x1="335" y1="125" x2="355" y2="105" strokeLinecap="round" strokeWidth="2" className="animate-pulse" style={{ animationDelay: '2.8s', animationDuration: '3s' }} />
-                <line x1="265" y1="275" x2="245" y2="295" strokeLinecap="round" strokeWidth="2" className="animate-pulse" style={{ animationDelay: '1.3s', animationDuration: '3s' }} />
-                <line x1="335" y1="275" x2="355" y2="295" strokeLinecap="round" strokeWidth="2" className="animate-pulse" style={{ animationDelay: '0.7s', animationDuration: '3s' }} />
-              </g>
-              
-              {/* Second smaller sun */}
-              <circle cx="900" cy="600" r="25" fill="url(#sunCenter)" opacity="0.3" />
-              
-              {/* Animated rays for second sun */}
-              <g stroke="url(#sunRayGradient)" strokeWidth="2" opacity="0.2">
-                <line x1="900" y1="550" x2="900" y2="520" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '1.2s', animationDuration: '4s' }} />
-                <line x1="900" y1="650" x2="900" y2="680" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '2.7s', animationDuration: '4s' }} />
-                <line x1="850" y1="600" x2="820" y2="600" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0.9s', animationDuration: '4s' }} />
-                <line x1="950" y1="600" x2="980" y2="600" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '3.1s', animationDuration: '4s' }} />
-                <line x1="875" y1="575" x2="855" y2="555" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '2.1s', animationDuration: '4s' }} />
-                <line x1="925" y1="575" x2="945" y2="555" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '0.4s', animationDuration: '4s' }} />
-                <line x1="875" y1="625" x2="855" y2="645" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '3.6s', animationDuration: '4s' }} />
-                <line x1="925" y1="625" x2="945" y2="645" strokeLinecap="round" className="animate-pulse" style={{ animationDelay: '1.7s', animationDuration: '4s' }} />
-              </g>
-            </svg>
-            </div>
-          
-          
-          {/* Additional floating elements */}
-          <div className="absolute inset-0 opacity-5 dark:opacity-10">
-            <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-r from-orange-400 to-red-400 rounded-full blur-3xl"></div>
-          </div>
-          
-          {/* Simple floating particles */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-yellow-400/30 rounded-full floating-particle" style={{ animationDelay: '0s' }}></div>
-            <div className="absolute top-3/4 right-1/3 w-1 h-1 bg-orange-400/40 rounded-full floating-particle" style={{ animationDelay: '2s' }}></div>
-            <div className="absolute top-1/2 left-3/4 w-1.5 h-1.5 bg-red-400/30 rounded-full floating-particle" style={{ animationDelay: '4s' }}></div>
-            <div className="absolute top-1/3 right-1/4 w-1 h-1 bg-yellow-500/20 rounded-full floating-particle" style={{ animationDelay: '1s' }}></div>
-            </div>
-          <div className="max-w-7xl mx-auto relative px-6 lg:px-8">
-            <div className="grid lg:grid-cols-2 gap-16 items-center">
-              {/* Left Content */}
-              <div className={`space-y-10 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                <div className="space-y-6">
-                  {/* Modern badge */}
-                  <div className={`inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-blue-50/80 to-purple-50/80 dark:from-blue-900/30 dark:to-purple-900/30 border border-blue-200/50 dark:border-blue-800/50 backdrop-blur-sm transition-all duration-700 delay-200 mt-8 sm:mt-0 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
-                    <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">Powered by AT Protocol</span>
-                    <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-ping"></div>
-                  </div>
-                  
-                  {/* Modern typography */}
-                  <h1 className={`text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.1] tracking-tight transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                    <DecryptedText
-                      text="Your Link-in-Bio,"
-                      animateOn="view"
-                      speed={150}
-                      maxIterations={20}
-                      sequential={true}
-                      revealDirection="start"
-                      className="text-gray-900 dark:text-white"
-                      encryptedClassName="text-blue-500 font-extrabold"
-                      parentClassName="block"
-                      useOriginalCharsOnly={true}
-                    />
-                    <DecryptedText
-                      text="Decentralized"
-                      animateOn="view"
-                      speed={120}
-                      maxIterations={25}
-                      sequential={true}
-                      revealDirection="center"
-                      className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-gradient"
-                      encryptedClassName="text-purple-400 font-extrabold"
-                      parentClassName="inline-block"
-                      useOriginalCharsOnly={true}
-                    />
+          ‹
+        </button>
+        <button
+          onClick={() => setIndex((i) => (i + 1) % images.length)}
+          className="rounded-full p-2 bg-white/10 backdrop-blur-sm"
+          aria-label="Next"
+        >
+          ›
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Particles() {
+  const particles = useMemo(
+    () =>
+      Array.from({ length: PARTICLE_COUNT }).map((_, index) => ({
+        id: index,
+        size: Math.random() * 5 + 3,
+        left: Math.random() * 100,
+        top: Math.random() * 120 - 10,
+        duration: 8 + Math.random() * 12,
+        delay: Math.random() * 8,
+        opacity: 0.2 + Math.random() * 0.4,
+      })),
+    [],
+  );
+
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+      {particles.map((particle) => (
+        <span
+          key={particle.id}
+          className="landing-particle"
+          style={{
+            left: `${particle.left}%`,
+            top: `${particle.top}%`,
+            width: `${particle.size}px`,
+            height: `${particle.size}px`,
+            opacity: particle.opacity,
+            animationDuration: `${particle.duration}s`,
+            animationDelay: `${particle.delay}s`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+export default function Landing(): JSX.Element {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [suggestions, setSuggestions] = useState<ActorSuggestion[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+
+  useEffect(() => {
+    const term = searchQuery.trim();
+    if (term.length < 2) {
+      setSuggestions([]);
+      setIsLoadingSuggestions(false);
+      return;
+    }
+
+    setIsLoadingSuggestions(true);
+    const controller = new AbortController();
+    const debounce = setTimeout(async () => {
+      try {
+        const response = await fetch(
+          `https://public.api.bsky.app/xrpc/app.bsky.actor.searchActors?term=${encodeURIComponent(term)}&limit=5`,
+          { signal: controller.signal }
+        );
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+        const data = await response.json();
+        const mapped: ActorSuggestion[] = Array.isArray(data?.actors)
+          ? data.actors.map((actor: any) => ({
+              handle: String(actor.handle || '').replace(/^@/, ''),
+              displayName: actor.displayName || actor.handle || '',
+              avatar: actor.avatar,
+            }))
+          : [];
+        setSuggestions(mapped);
+      } catch (error: any) {
+        if (error?.name !== 'AbortError') {
+          console.error('Failed to fetch suggestions:', error);
+        }
+        setSuggestions([]);
+      } finally {
+        setIsLoadingSuggestions(false);
+      }
+    }, 300);
+
+    return () => {
+      clearTimeout(debounce);
+      controller.abort();
+    };
+  }, [searchQuery]);
+
+  const openProfile = (handle: string) => {
+    if (!handle) return;
+    const sanitized = handle.replace(/^@/, '').trim();
+    if (!sanitized) return;
+    window.open(`/${sanitized}`, '_blank');
+  };
+
+  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const term = searchQuery.trim();
+    if (!term && suggestions[0]) {
+      openProfile(suggestions[0].handle);
+      return;
+    }
+    openProfile(term);
+  };
+
+  const showSuggestions =
+    isSearchFocused &&
+    (isLoadingSuggestions || suggestions.length > 0 || searchQuery.trim().length >= 2);
+
+  const currentYear = new Date().getFullYear();
+
+  return (
+    <div className="relative overflow-hidden min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-rose-900 text-white antialiased">
+      <svg
+        className="pointer-events-none absolute inset-0 -z-10 h-full w-full"
+        preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <radialGradient id="g1" cx="30%" cy="20%">
+            <stop offset="0%" stopColor="#fff" stopOpacity="0.06" />
+            <stop offset="100%" stopColor="#fff" stopOpacity="0" />
+          </radialGradient>
+
+          <linearGradient id="sr" x1="0" x2="1">
+            <stop offset="0%" stopColor="#fff" stopOpacity="0.06" />
+            <stop offset="100%" stopColor="#fff" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+
+        <rect width="100%" height="100%" fill="url(#g1)" />
+
+        <g transform="translate(80, 60) rotate(-12)" opacity="0.08">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <rect
+              key={i}
+              x={i * 40}
+              y={-120}
+              width={20}
+              height={1800}
+              fill="url(#sr)"
+              transform={`rotate(${i * 6})`}
+            />
+          ))}
+        </g>
+
+        <rect width="100%" height="100%" fill="transparent" />
+      </svg>
+
+      <Particles />
+      <Header />
+
+      <main className="relative z-20">
+        <section className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+          <div className="space-y-6">
+            <Badge>Built on Bluesky • at-protocol</Badge>
+            <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
+              Basker — your portable, decentralized link-in-bio
             </h1>
-                  
-                  <p className={`text-xl sm:text-2xl text-gray-600 dark:text-gray-300 max-w-2xl leading-relaxed transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                    <DecryptedText
-                      text="Create stunning, personalized link-in-bio pages with unlimited customization. Share your digital presence with the world."
-                      animateOn="view"
-                      speed={30}
-                      maxIterations={8}
-                      sequential={true}
-                      revealDirection="start"
-                      className="text-gray-600 dark:text-gray-300"
-                      encryptedClassName="text-gray-400"
-                      parentClassName="block"
-                    />
+            <p className="text-lg text-white/80 max-w-xl">
+              Create a beautiful, customizable landing page that lives with your identity on the at-protocol. Free, open, and private — everything a Linktree should have but decentralized.
             </p>
-                </div>
-            
-            {/* Modern Search Box with Suggestions */}
-                <div className={`max-w-lg transition-all duration-1000 delay-700 relative z-50 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-              <div className="flex gap-3 group">
-                <div className="relative flex-1">
-                  <Input
-                    ref={searchInputRef}
-                    type="text"
-                    placeholder="username.bsky.social"
-                    value={searchHandle}
-                    onChange={(e) => setSearchHandle(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    onFocus={() => {
-                      if (searchSuggestions.length > 0) {
-                        setShowSuggestions(true);
-                      }
-                      if (searchInputRef.current) {
-                        setSearchBoxRect(searchInputRef.current.getBoundingClientRect());
-                      }
-                    }}
-                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                    className="pl-12 h-14 text-lg border-2 border-blue-200 dark:border-blue-800 rounded-2xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm transition-all duration-300 group-hover:border-blue-300 dark:group-hover:border-blue-600 group-hover:shadow-xl focus:border-purple-500 dark:focus:border-purple-400 shadow-lg"
-                  />
-                  <LinkIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-blue-400 transition-colors group-hover:text-purple-500" />
-                  {isSearching && (
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                      <div className="w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-                </div>
+
+            <div className="flex gap-4 items-center">
+              <CTAButton>Sign up with Bluesky</CTAButton>
+              <a className="text-sm text-white/70 hover:underline" href="#features">
+                See features →
+              </a>
+            </div>
+
+            <div className="relative max-w-md">
+              <form
+                className="p-4 rounded-2xl bg-white/3 border border-white/6 flex items-center gap-3"
+                onSubmit={handleSearchSubmit}
+              >
+                <input
+                  name="handle"
+                  type="text"
+                  placeholder="Search Bluesky handle"
+                  className="flex-1 bg-transparent placeholder:text-white/50 text-white focus:outline-none text-sm"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setIsSearchFocused(true)}
+                  onBlur={() => setTimeout(() => setIsSearchFocused(false), 120)}
+                  autoComplete="off"
+                />
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-white/80 text-slate-900 text-sm font-semibold shadow-md hover:bg-white"
+                >
+                  Search
+                </button>
+              </form>
+
+              {showSuggestions && (
+                <div className="absolute left-0 right-0 mt-2 rounded-2xl bg-slate-950/90 border border-white/10 shadow-2xl backdrop-blur-lg">
+                  {isLoadingSuggestions && (
+                    <div className="px-4 py-3 text-xs text-white/60">Searching Bluesky…</div>
+                  )}
+                  {!isLoadingSuggestions && suggestions.length > 0 && (
+                    <div className="py-2">
+                      {suggestions.map((suggestion) => (
+                        <button
+                          key={suggestion.handle}
+                          type="button"
+                          className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/10 transition-colors"
+                          onMouseDown={(event) => {
+                            event.preventDefault();
+                            openProfile(suggestion.handle);
+                          }}
+                        >
+                          <img
+                            src={suggestion.avatar || '/baskerchristmas.jpg'}
+                            alt={suggestion.displayName || suggestion.handle}
+                            className="w-8 h-8 rounded-full object-cover"
+                          />
+                          <div className="text-left">
+                            <div className="text-sm font-medium text-white">{suggestion.displayName || suggestion.handle}</div>
+                            <div className="text-xs text-white/60">@{suggestion.handle}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {!isLoadingSuggestions && suggestions.length === 0 && (
+                    <div className="px-4 py-3 text-xs text-white/50">No matches found yet. Try another handle.</div>
                   )}
                 </div>
-                    <Button 
-                      onClick={handleSearch} 
-                      className="px-8 h-14 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl shadow-lg"
-                    >
-                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-                </Button>
-              </div>
-              
-              {/* Search Suggestions Dropdown - rendered as portal to break out of grid container */}
-              {showSuggestions && searchSuggestions.length > 0 && searchBoxRect && createPortal(
-                <div 
-                  className="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl max-h-64 overflow-y-auto"
-                  style={{
-                    top: `${searchBoxRect.bottom + 8}px`,
-                    left: `${searchBoxRect.left}px`,
-                    width: `${searchBoxRect.width}px`,
-                    zIndex: 999999,
-                  }}
-                >
-                  {searchSuggestions.map((suggestion, index) => (
-                    <div
-                      key={suggestion.did}
-                      onClick={() => handleSuggestionClick(suggestion)}
-                      className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors first:rounded-t-2xl last:rounded-b-2xl"
-                    >
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-yellow-400 to-orange-400 flex items-center justify-center flex-shrink-0">
-                        {suggestion.avatar ? (
-                          <img 
-                            src={suggestion.avatar} 
-                            alt={suggestion.displayName}
-                            className="w-10 h-10 rounded-full object-cover"
-                          />
-                        ) : (
-                          <span className="text-white font-semibold text-sm">
-                            {suggestion.displayName.charAt(0).toUpperCase()}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-gray-900 dark:text-gray-100 truncate">
-                          {suggestion.displayName}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                          @{suggestion.handle}
-                        </div>
-                        {suggestion.description && (
-                          <div className="text-xs text-gray-400 dark:text-gray-500 truncate mt-1">
-                            {suggestion.description}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>,
-                document.body
               )}
-              
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-3 transition-all duration-1000 delay-800">
-                Search for any Bluesky user's profile
-              </p>
             </div>
 
-            {/* Modern CTA Buttons */}
-                <div className={`flex flex-col sm:flex-row gap-6 justify-center items-center transition-all duration-1000 delay-900 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-              <Link href="/login">
-                    <Button 
-                      size="lg" 
-                      className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl group shadow-lg"
-                    >
-                      <Sparkles className="w-5 h-5 mr-3 transition-transform group-hover:rotate-12" />
-                  Create Your Profile
-                </Button>
-              </Link>
-                  <Link href="/examples">
-                    <Button 
-                      variant="outline" 
-                      size="lg" 
-                      className="w-full sm:w-auto h-14 px-10 rounded-2xl border-2 border-blue-200 dark:border-blue-800 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-blue-600 dark:text-blue-400 font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 group"
-                    >
-                      <Heart className="w-5 h-5 mr-3 transition-transform group-hover:scale-110" />
-                    See Examples
-              </Button>
-                  </Link>
-                </div>
-              </div>
+            <div className="text-xs text-white/70 ml-1 mt-3">Search for any user</div>
+          </div>
 
-              {/* Right Content - Modern Feature Showcase */}
-              <div className={`relative transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}>
-                <div className="relative group">
-                  {/* Modern glassmorphism background with enhanced effects */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-blue-50/20 to-purple-50/20 dark:from-gray-800/30 dark:via-blue-900/20 dark:to-purple-900/20 rounded-3xl backdrop-blur-2xl border border-white/30 dark:border-gray-700/40 shadow-2xl group-hover:shadow-3xl transition-all duration-500"></div>
-                  
-                  {/* Animated gradient border */}
-                  <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
-                  
-                  {/* Feature Display */}
-                  <div className="relative bg-white/20 dark:bg-gray-800/20 backdrop-blur-2xl border border-white/30 dark:border-gray-700/40 rounded-3xl p-8 shadow-2xl group-hover:shadow-3xl transition-all duration-500">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className={`w-12 h-12 rounded-2xl bg-gradient-to-r ${features[currentFeature].color} flex items-center justify-center transition-all duration-800 ease-out group-hover:scale-110 group-hover:rotate-3`}>
-                        {React.createElement(features[currentFeature].icon, { className: "w-6 h-6 text-white transition-all duration-800" })}
-                      </div>
-                      <div className="transition-all duration-800 ease-out">
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white transition-all duration-800 group-hover:text-blue-600 dark:group-hover:text-blue-400">{features[currentFeature].title}</h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-300 transition-all duration-800">{features[currentFeature].description}</p>
-                      </div>
-                    </div>
-                    
-                    {/* Feature Image - Enhanced Crossfade */}
-                    <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 h-72 group-hover:h-80 transition-all duration-500">
-                      {/* Current Image */}
-                      <img 
-                        src={features[currentFeature].image} 
-                        alt={features[currentFeature].title}
-                        className={`absolute inset-0 w-full h-full object-cover transition-all duration-800 ease-out group-hover:scale-105 ${
-                          isTransitioning ? 'opacity-0' : 'opacity-100'
-                        }`}
-                        onError={(e) => {
-                          console.error('Hero image failed to load:', features[currentFeature].image, e);
-                        }}
-                        onLoad={() => {
-                          console.log('Hero image loaded successfully:', features[currentFeature].image);
-                        }}
-                      />
-                      
-                      {/* Next Image (for crossfade) */}
-                      <img 
-                        src={features[nextFeature].image} 
-                        alt={features[nextFeature].title}
-                        className={`absolute inset-0 w-full h-full object-cover transition-all duration-800 ease-out group-hover:scale-105 ${
-                          isTransitioning ? 'opacity-100' : 'opacity-0'
-                        }`}
-                        onError={(e) => {
-                          console.error('Next hero image failed to load:', features[nextFeature].image, e);
-                        }}
-                        onLoad={() => {
-                          console.log('Next hero image loaded successfully:', features[nextFeature].image);
-                        }}
-                      />
-                      
-                      {/* Enhanced overlay with gradient */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent group-hover:from-black/20 transition-all duration-500"></div>
-                      
-                      {/* Floating elements */}
-                      <div className="absolute top-4 right-4 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
-                        <Sparkles className="w-4 h-4 text-white" />
-                      </div>
-                    </div>
-            </div>
-            
-                  {/* Feature Indicators */}
-                  <div className="flex justify-center gap-3 mt-8">
-                    {features.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => {
-                          if (index !== currentFeature && !isTransitioning) {
-                            setNextFeature(index);
-                            setIsTransitioning(true);
-                            setTimeout(() => {
-                              setCurrentFeature(index);
-                              setIsTransitioning(false);
-                            }, 50);
-                          }
-                        }}
-                        className={`h-3 rounded-full transition-all duration-500 ease-in-out group ${
-                          index === currentFeature 
-                            ? 'bg-gradient-to-r from-blue-500 to-purple-500 w-12 shadow-lg' 
-                            : 'bg-gray-300 dark:bg-gray-600 w-3 hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-400 hover:w-8 hover:shadow-md'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Scroll Velocity Text Section */}
-
-        {/* Modern Features Showcase Section */}
-        <section 
-          ref={featuresRef}
-          id="features"
-          data-section="features"
-          className="py-24 px-6 lg:px-8 relative overflow-hidden"
-        >
-          {/* Modern floating elements */}
-          <div className="absolute top-10 right-1/4 w-32 h-32 opacity-20">
-            <div className="w-full h-full bg-gradient-to-r from-blue-400/30 to-purple-400/30 rounded-full blur-2xl animate-pulse"></div>
-          </div>
-          
-          <div className="absolute bottom-20 left-20 w-24 h-24 opacity-15">
-            <div className="w-full h-full bg-gradient-to-r from-pink-400/30 to-rose-400/30 rounded-full blur-xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-          </div>
-          
-          <div className="absolute top-1/2 left-10 w-16 h-16 opacity-10">
-            <div className="w-full h-full bg-gradient-to-r from-cyan-400/30 to-blue-400/30 rounded-full blur-lg animate-pulse" style={{ animationDelay: '4s' }}></div>
-          </div>
-          
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-20">
-              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-blue-50/80 to-purple-50/80 dark:from-blue-900/30 dark:to-purple-900/30 border border-blue-200/50 dark:border-blue-800/50 backdrop-blur-sm mb-8">
-                <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse"></div>
-                <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">Features</span>
-                <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-ping"></div>
-              </div>
-              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight tracking-tight">
-                Everything you need for your
-                <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-gradient">link-in-bio</span>
-              </h2>
-              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
-                Built on the decentralized AT Protocol, your profile is truly yours with unlimited customization and modern design tools
-              </p>
+          <div className="space-y-6">
+            <div className="rounded-3xl overflow-hidden shadow-2xl">
+              <Carousel images={HERO_IMAGES} />
             </div>
 
-            {/* Modern Feature Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {features.map((feature, index) => (
-                <Card 
-                  key={index} 
-                  className={`group hover:shadow-2xl transition-all duration-500 bg-white/60 dark:bg-gray-800/60 backdrop-blur-2xl border border-white/30 dark:border-gray-700/40 hover:border-blue-300/50 dark:hover:border-blue-600/50 hover:-translate-y-4 hover:scale-105 ${
-                    visibleSections.has('features') 
-                      ? 'opacity-100 translate-y-0' 
-                      : 'opacity-0 translate-y-8'
-                  }`}
-                  style={{ transitionDelay: `${index * 150}ms` }}
+            <div className="grid grid-cols-3 gap-4 text-center">
+              {[
+                {
+                  label: 'Decentralized',
+                  gradient: 'from-emerald-500/70 via-cyan-500/60 to-sky-500/70',
+                },
+                {
+                  label: 'Free',
+                  gradient: 'from-amber-400/70 via-orange-400/60 to-rose-400/70',
+                },
+                {
+                  label: 'Reliable',
+                  gradient: 'from-indigo-500/70 via-purple-500/60 to-pink-500/70',
+                },
+              ].map(({ label, gradient }) => (
+                <div
+                  key={label}
+                  className={`rounded-xl border border-white/15 bg-gradient-to-r ${gradient} px-4 py-6 text-sm font-semibold tracking-wide uppercase text-white shadow-lg`}
                 >
-                <CardContent className="p-8">
-                    <div className="space-y-6">
-                      {/* Modern Feature Image */}
-                        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 group-hover:from-blue-50 dark:group-hover:from-blue-900/20 transition-all duration-500">
-                        <img 
-                          src={feature.image} 
-                          alt={feature.title}
-                          className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                          onError={(e) => {
-                            console.error('Image failed to load:', feature.image, e);
-                            e.currentTarget.style.display = 'none';
-                          }}
-                          onLoad={() => {
-                            console.log('Image loaded successfully:', feature.image);
-                          }}
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        <div className={`absolute top-6 left-6 w-12 h-12 rounded-2xl bg-gradient-to-r ${feature.color} flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
-                          {React.createElement(feature.icon, { className: "w-6 h-6 text-white" })}
-                        </div>
-                        {/* Floating sparkle effect */}
-                        <div className="absolute top-4 right-4 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500">
-                          <Sparkles className="w-4 h-4 text-white" />
-                        </div>
-                  </div>
-                      
-                      {/* Modern Feature Content */}
-                      <div className="space-y-3">
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
-                          {feature.title}
-                        </h3>
-                        <p className="text-gray-600 dark:text-gray-300 leading-relaxed group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors duration-300">
-                          {feature.description}
-                        </p>
-                      </div>
-                    </div>
-                </CardContent>
-              </Card>
+                  {label}
+                </div>
               ))}
             </div>
-
-            {/* Modern Additional Features */}
-            <div className="mt-24 grid md:grid-cols-3 gap-8">
-              <div className="text-center space-y-6 group p-8 rounded-3xl bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-white/30 dark:border-gray-700/40 hover:border-blue-300/50 dark:hover:border-blue-600/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-xl">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-3xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-                  <div className="relative w-20 h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-3xl flex items-center justify-center mx-auto shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                    <Globe className="w-10 h-10 text-white" />
-                  </div>
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Public Profiles</h3>
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                  Your profile is accessible at a clean URL that you can share anywhere. No platform lock-in, complete freedom.
-                </p>
-              </div>
-
-              <div className="text-center space-y-6 group p-8 rounded-3xl bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-white/30 dark:border-gray-700/40 hover:border-green-300/50 dark:hover:border-green-600/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-xl">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-3xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-                  <div className="relative w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-3xl flex items-center justify-center mx-auto shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                    <Zap className="w-10 h-10 text-white" />
-                  </div>
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">Decentralized</h3>
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                  Powered by the AT Protocol. Your data belongs to you and works across the entire network seamlessly.
-                </p>
-              </div>
-
-              <div className="text-center space-y-6 group p-8 rounded-3xl bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-white/30 dark:border-gray-700/40 hover:border-purple-300/50 dark:hover:border-purple-600/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-xl">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-                  <div className="relative w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                    <Share2 className="w-10 h-10 text-white" />
-                  </div>
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Easy Sharing</h3>
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                  Share your profile anywhere with a simple link. Works on all platforms and devices effortlessly.
-                </p>
-              </div>
-            </div>
           </div>
         </section>
 
-        {/* How It Works */}
-        <section className="py-20 px-4 bg-muted/20">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
-              How it works
-            </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Get started in minutes with our simple 3-step process
-              </p>
-            </div>
-            
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="text-center space-y-6">
-                <div className="relative">
-                  <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto text-white font-bold text-2xl shadow-lg">
-                  1
-                  </div>
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
-                    <Sparkles className="w-3 h-3 text-white" />
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <h3 className="text-xl font-semibold text-foreground">Sign in with Bluesky</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                  Use your existing Bluesky account to get started. No new passwords or accounts needed.
-                </p>
-                </div>
-              </div>
+        <section id="features" className="max-w-7xl mx-auto px-6 py-16">
+          <h2 className="text-3xl font-bold text-center">Features with character</h2>
+          <p className="text-center text-white/70 mt-2 max-w-2xl mx-auto">
+            You deserve the best… actually, better than the best, decentralized profiles with free customization, powerful widgets, and optional physical cards (coming soon).
+          </p>
 
-              <div className="text-center space-y-6">
-                <div className="relative">
-                  <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto text-white font-bold text-2xl shadow-lg">
-                  2
-                  </div>
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
-                    <Palette className="w-3 h-3 text-white" />
-                  </div>
+          <div className="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {FEATURES.map((feature, index) => (
+              <article key={index} className="rounded-2xl bg-white/3 p-6 border border-white/6 shadow-lg">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-semibold">{feature.title}</h3>
+                  <Badge>New</Badge>
                 </div>
-                <div className="space-y-3">
-                  <h3 className="text-xl font-semibold text-foreground">Customize Your Profile</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                  Add your links, stories, notes, and widgets. Make it uniquely yours with drag-and-drop editing.
-                </p>
-                </div>
-              </div>
+                <p className="mt-3 text-white/75">{feature.description}</p>
 
-              <div className="text-center space-y-6">
-                <div className="relative">
-                  <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto text-white font-bold text-2xl shadow-lg">
-                  3
-                  </div>
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
-                    <Share2 className="w-3 h-3 text-white" />
-                  </div>
+                <div className="mt-5">
+                  <Carousel images={feature.images} auto={false} fit={feature.fit} />
                 </div>
-                <div className="space-y-3">
-                  <h3 className="text-xl font-semibold text-foreground">Share Your Link</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                  Share your profile URL anywhere. It works as your personal link-in-bio page.
-                  </p>
-                </div>
-              </div>
-            </div>
 
-            {/* CTA Section */}
-            <div className="text-center mt-16">
-              <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-8 max-w-2xl mx-auto">
-                <h3 className="text-2xl font-bold text-foreground mb-4">
-                  Ready to get started?
-                </h3>
-                <p className="text-muted-foreground mb-6">
-                  Join thousands of users who have already created their decentralized link-in-bio pages
-                </p>
-                <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                  <Link href="/login">
-                    <Button size="lg" className="w-full sm:w-auto h-12 px-8">
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      Create Your Profile
-                    </Button>
-                  </Link>
-                  <Link href="/examples">
-                  <Button variant="outline" size="lg" className="w-full sm:w-auto h-12 px-8">
-                    <Heart className="w-4 h-4 mr-2" />
-                    See Examples
-                  </Button>
-                  </Link>
+                <div className="mt-4 flex gap-3">
+                  <button className="px-4 py-2 rounded-xl bg-white/6">Try demo</button>
+                  <button className="px-4 py-2 rounded-xl bg-white/6">Docs</button>
                 </div>
-              </div>
-            </div>
+              </article>
+            ))}
           </div>
         </section>
 
-        {/* Stats Section */}
-        <section className="py-20 px-4 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/5"></div>
-          
-          <div className="max-w-6xl mx-auto relative">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
-              Join the decentralized web
-            </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Be part of the future of social media where you own your data
+        <section id="how" className="max-w-7xl mx-auto px-6 py-20">
+          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-950/80 via-slate-900/70 to-indigo-900/60 px-8 py-14 shadow-2xl">
+            <div className="absolute -top-32 -right-24 h-72 w-72 rounded-full bg-purple-500/30 blur-3xl" />
+            <div className="absolute -bottom-24 -left-20 h-64 w-64 rounded-full bg-cyan-500/25 blur-3xl" />
+            <div className="relative z-10 text-center max-w-3xl mx-auto">
+              <Badge>3 steps · zero friction</Badge>
+              <h2 className="mt-6 text-3xl md:text-4xl font-bold">How it works</h2>
+              <p className="mt-3 text-white/70 text-base md:text-lg">
+                Launch a beautiful, decentralized profile in minutes. Everything lives on the AT Protocol so you stay in control.
               </p>
             </div>
-            
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="text-center space-y-4">
-                <div className="relative">
-                  <div className="w-24 h-24 bg-gradient-to-r from-green-500 to-emerald-500 rounded-3xl flex items-center justify-center mx-auto shadow-lg">
-                    <span className="text-3xl font-bold text-white">100%</span>
-                  </div>
-                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                    <Zap className="w-4 h-4 text-white" />
-                  </div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-foreground mb-1">Decentralized</div>
-                  <div className="text-muted-foreground text-sm">Your data, your control</div>
-                </div>
-              </div>
 
-              <div className="text-center space-y-4">
-                <div className="relative">
-                  <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-3xl flex items-center justify-center mx-auto shadow-lg">
-                    <span className="text-3xl font-bold text-white">∞</span>
-                  </div>
-                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                    <Link2 className="w-4 h-4 text-white" />
-                  </div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-foreground mb-1">Unlimited Links</div>
-                  <div className="text-muted-foreground text-sm">Share everything you want</div>
-                </div>
-              </div>
-
-              <div className="text-center space-y-4">
-                <div className="relative">
-                  <div className="w-24 h-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto shadow-lg">
-                    <span className="text-3xl font-bold text-white">0</span>
-                  </div>
-                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                    <Globe className="w-4 h-4 text-white" />
-                  </div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-foreground mb-1">Platform Lock-in</div>
-                  <div className="text-muted-foreground text-sm">Truly portable profiles</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Bluesky Integration */}
-            <div className="mt-16 text-center">
-              <div className="bg-card/30 backdrop-blur-sm border border-border/30 rounded-2xl p-8 max-w-3xl mx-auto">
-                <div className="flex items-center justify-center gap-4 mb-6">
-                  <img 
-                    src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
-                    alt="Bluesky"
-                    className="w-12 h-12 rounded-full"
-                  />
-                  <div className="text-left">
-                    <div className="text-lg font-semibold text-foreground">Powered by Bluesky</div>
-                    <div className="text-sm text-muted-foreground">Built on the AT Protocol</div>
-                  </div>
-                </div>
-                <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-                  Basker integrates seamlessly with Bluesky, the decentralized social network. 
-                  Your profile works across the entire AT Protocol ecosystem.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                  <a 
-                    href="https://bsky.app" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+            <div className="relative z-10 mt-12 grid gap-6 md:grid-cols-3">
+              {[
+                {
+                  step: '01',
+                  title: 'Connect',
+                  desc: 'Sign in with your Bluesky handle. No passwords for us to store, nothing to migrate later.',
+                  gradient: 'from-emerald-400/40 to-cyan-400/40',
+                },
+                {
+                  step: '02',
+                  title: 'Customize',
+                  desc: 'Drop in widgets, reorder sections, add custom themes, and make it feel like you.',
+                  gradient: 'from-amber-400/40 to-rose-400/40',
+                },
+                {
+                  step: '03',
+                  title: 'Share',
+                  desc: 'Publish instantly on the AT Protocol. Link it everywhere—or tap one of the Solaris NFC cards.',
+                  gradient: 'from-indigo-400/40 to-purple-500/40',
+                },
+              ].map(({ step, title, desc, gradient }) => (
+                <div
+                  key={step}
+                  className={`rounded-2xl border border-white/10 bg-white/5 p-6 shadow-lg backdrop-blur`}
+                >
+                  <div
+                    className={`inline-flex items-center justify-center rounded-xl bg-gradient-to-r ${gradient} px-3 py-1 text-xs font-semibold uppercase text-white/90`}
                   >
-                    <Globe className="w-4 h-4 mr-2" />
-                    Visit Bluesky
-                  </a>
-                  <Link href="/login">
-                    <Button variant="outline" className="px-6 py-3">
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      Get Started
-                    </Button>
-                  </Link>
+                    step {step}
+                  </div>
+                  <h3 className="mt-4 text-xl font-semibold text-white">{title}</h3>
+                  <p className="mt-2 text-sm text-white/70 leading-relaxed">{desc}</p>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* About Us & FAQ Section */}
-        <section className="py-20 px-4 bg-muted/20">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
-                About Basker
-              </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                We're building the future of link-in-bio pages on the decentralized web
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-12 mb-16">
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Info className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-foreground mb-2">Our Mission</h3>
-                    <p className="text-muted-foreground">
-                      To create a truly decentralized link-in-bio platform where users own their data and have complete control over their online presence.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Zap className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-foreground mb-2">Built on AT Protocol</h3>
-                    <p className="text-muted-foreground">
-                      Leveraging the power of the AT Protocol to ensure your profile works across the entire decentralized network.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Heart className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-foreground mb-2">Open Source</h3>
-                    <p className="text-muted-foreground">
-                      Basker is open source and community-driven. We believe in transparency and giving back to the community.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <h3 className="text-2xl font-bold text-foreground mb-6">Frequently Asked Questions</h3>
-                <div className="space-y-4">
-                  {faqData.map((faq, index) => (
-                    <div key={index} className="border border-border/50 rounded-lg">
-                      <button
-                        className="w-full px-4 py-4 text-left flex items-center justify-between hover:bg-muted/30 transition-colors"
-                        onClick={() => setOpenFAQ(openFAQ === index ? null : index)}
-                      >
-                        <span className="font-medium text-foreground">{faq.question}</span>
-                        {openFAQ === index ? (
-                          <ChevronUp className="w-5 h-5 text-muted-foreground" />
-                        ) : (
-                          <ChevronDown className="w-5 h-5 text-muted-foreground" />
-                        )}
-                      </button>
-                      {openFAQ === index && (
-                        <div className="px-4 pb-4">
-                          <p className="text-muted-foreground leading-relaxed">{faq.answer}</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+        <section id="info-links" className="max-w-5xl mx-auto px-6 py-16 text-center">
+          <h2 className="text-3xl font-bold">Need deeper info?</h2>
+          <p className="mt-3 text-white/70">Jump directly into the Basker Info Center for tutorials, references, and updates.</p>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { href: '/info#overview', label: 'Overview · Why Basker?' },
+              { href: '/info#quickstart', label: 'Quickstart · Launch in minutes' },
+              { href: '/info#widgets', label: 'Widgets · Full library & tips' },
+              { href: '/info#verification', label: 'Verification · Badges explained' },
+              { href: '/info#solaris', label: 'Solaris Cards · NFC overview' },
+              { href: '/info#faq', label: 'FAQ · Troubleshooting & help' },
+            ].map((link) => (
+              <button
+                key={link.href}
+                type="button"
+                className="rounded-xl border border-white/15 bg-white/5 px-5 py-5 text-sm font-semibold text-white/85 shadow-lg transition hover:bg-white/10 hover:border-white/25 text-left"
+                onClick={() => window.open(link.href, '_blank')}
+              >
+                {link.label}
+              </button>
+            ))}
           </div>
         </section>
-
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-white/20 dark:border-gray-700/30 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 py-12">
-          {/* Main Footer Content */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-            {/* Brand Section */}
-            <div className="lg:col-span-2">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-sm opacity-60"></div>
-                  <img 
-                    src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
-                    alt="Basker"
-                    className="relative w-8 h-8 rounded-full ring-2 ring-white/50 dark:ring-gray-700/50"
-                  />
-                </div>
-                <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Basker</h3>
-              </div>
-              <p className="text-gray-600 dark:text-gray-300 mb-4 max-w-md">
-                Your decentralized link-in-bio platform built on the AT Protocol. 
-                Create, customize, and share your digital identity with complete data ownership.
-              </p>
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-gray-500 dark:text-gray-400">Powered by</span>
-                <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 dark:bg-blue-900/20 rounded-full">
-                  <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                  </svg>
-                  <span className="text-sm font-medium text-blue-600 dark:text-blue-400">AT Protocol</span>
-                </div>
+      <footer className="relative mt-16 border-t border-white/10 bg-slate-950/90 text-white">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-purple-900/40 via-slate-900/40 to-blue-900/40" />
+        <div className="pointer-events-none absolute inset-x-0 -top-24 h-48 bg-gradient-to-b from-white/10 to-transparent blur-3xl opacity-40" />
+        <div className="relative z-10 max-w-7xl mx-auto px-6 py-14 grid gap-12 lg:grid-cols-[1.2fr_1fr_1fr]">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              <img
+                src="/baskerchristmas.jpg"
+                alt="Basker logo"
+                className="w-14 h-14 rounded-full border border-white/20 shadow-2xl object-cover"
+              />
+              <div>
+                <div className="text-xl font-semibold">Basker</div>
+                <div className="text-sm text-white/70">Decentralized link-in-bio platform</div>
               </div>
             </div>
+            <p className="text-sm text-white/70 leading-relaxed">
+              Build once, own forever. Basker keeps your profile portable across the AT Protocol, with rich widgets, custom branding, and optional Solaris NFC cards.
+            </p>
+          </div>
 
-            {/* Product Links */}
-            <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Product</h4>
-              <ul className="space-y-3">
-                <li><Link href="/pricing" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Pricing</Link></li>
-                <li><Link href="/starter-packs" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Starter Packs</Link></li>
-                <li><Link href="/faq" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">FAQ</Link></li>
-                <li><Link href="/info" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Info Center</Link></li>
-              </ul>
-            </div>
-
-            {/* Support Links */}
-            <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Support</h4>
-              <ul className="space-y-3">
-                <li><Link href="/info#about" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">About Us</Link></li>
-                <li><a href="https://bsky.app" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Bluesky</a></li>
-                <li><a href="https://atproto.com" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">AT Protocol</a></li>
-                <li><a href="mailto:support@basker.bio" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Contact</a></li>
-              </ul>
+          <div className="flex flex-col">
+            <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-white/60">Stay in touch</h3>
+            <div className="mt-5 flex flex-col gap-3">
+              <button
+                type="button"
+                className="flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 py-3 text-sm font-medium text-white/85 transition hover:bg-white/10 hover:border-white/25 text-left"
+                onClick={() => window.open('https://bsky.app/profile/basker.bio', '_blank')}
+              >
+                <svg viewBox="0 0 64 64" className="w-5 h-5" fill="currentColor" aria-hidden="true">
+                  <path d="M32 10.3c4.4-5.8 11.2-8.5 18.2-8.5 5.9 0 11.4 1.9 11.4 7.1 0 8.3-8.9 17.7-18.9 22.3 13.4-4.3 21.3 7.8 14.3 14.3-6.6 6.1-15-3.2-24.9-11.4-9.9 8.2-18.3 17.5-24.9 11.4-7-6.5 0.9-18.6 14.3-14.3C8.3 27.1-.6 17.8-.6 9.5c0-5.2 5.5-7.1 11.4-7.1 7 0 13.8 2.7 18.2 8.5z" />
+                </svg>
+                <span>
+                  <span className="block text-xs text-white/50">Bluesky</span>
+                  @basker.bio
+                </span>
+              </button>
+              <button
+                type="button"
+                className="flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 py-3 text-sm font-medium text-white/85 transition hover:bg-white/10 hover:border-white/25 text-left"
+                onClick={() => window.open('https://instagram.com/baskerbio', '_blank')}
+              >
+                <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" aria-hidden="true">
+                  <path d="M12 2.2c3.2 0 3.6.01 4.8.07 1.2.06 1.9.27 2.35.45a3.9 3.9 0 0 1 1.54 1.01 3.9 3.9 0 0 1 1.01 1.54c.18.45.39 1.15.45 2.35.06 1.2.07 1.6.07 4.78s-.01 3.58-.07 4.78c-.06 1.2-.27 1.9-.45 2.35a3.9 3.9 0 0 1-1.01 1.54 3.9 3.9 0 0 1-1.54 1.01c-.45.18-1.15.39-2.35.45-1.2.06-1.6.07-4.78.07s-3.58-.01-4.78-.07c-1.2-.06-1.9-.27-2.35-.45a3.9 3.9 0 0 1-1.54-1.01 3.9 3.9 0 0 1-1.01-1.54c-.18-.45-.39-1.15-.45-2.35C2.2 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.78c.06-1.2.27-1.9.45-2.35a3.9 3.9 0 0 1 1.01-1.54 3.9 3.9 0 0 1 1.54-1.01c.45-.18 1.15-.39 2.35-.45C8.42 2.2 8.8 2.2 12 2.2zm0 2.1c-3.16 0-3.53.01-4.77.07-.97.04-1.5.2-1.85.33-.47.18-.8.4-1.15.75-.35.35-.57.68-.75 1.15-.13.35-.29.88-.33 1.85-.06 1.24-.07 1.61-.07 4.77s.01 3.53.07 4.77c.04.97.2 1.5.33 1.85.18.47.4.8.75 1.15.35.35.68.57 1.15.75.35.13.88.29 1.85.33 1.24.06 1.61.07 4.77.07s3.53-.01 4.77-.07c.97-.04 1.5-.2 1.85-.33.47-.18.8-.4 1.15-.75.35-.35.57-.68.75-1.15.13-.35.29-.88.33-1.85.06-1.24.07-1.61.07-4.77s-.01-3.53-.07-4.77c-.04-.97-.2-1.5-.33-1.85-.18-.47-.4-.8-.75-1.15a2.3 2.3 0 0 0-1.15-.75c-.35-.13-.88-.29-1.85-.33-1.24-.06-1.61-.07-4.77-.07zm0 3.37a4.43 4.43 0 1 1 0 8.86 4.43 4.43 0 0 1 0-8.86zm0 2.1a2.33 2.33 0 1 0 0 4.66 2.33 2.33 0 0 0 0-4.66zm5.64-2.56a1.03 1.03 0 1 1-2.06 0 1.03 1.03 0 0 1 2.06 0zm-1.43 8.74" />
+                </svg>
+                <span>
+                  <span className="block text-xs text-white/50">Instagram</span>
+                  @baskerbio
+                </span>
+              </button>
+              <button
+                type="button"
+                className="flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 py-3 text-sm font-medium text-white/85 transition hover:bg-white/10 hover:border-white/25 text-left"
+                onClick={() => window.open('https://www.tiktok.com/@baskerbio', '_blank')}
+              >
+                <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" aria-hidden="true">
+                  <path d="M21 8.1c-1.5.05-3-.44-4.16-1.4V16c0 3.31-2.69 6-6 6s-6-2.69-6-6 2.69-6 6-6c.34 0 .67.03 1 .08V12c-.32-.05-.66-.08-1-.08-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3V2h3a5 5 0 0 0 5 5v1.1z" />
+                </svg>
+                <span>
+                  <span className="block text-xs text-white/50">TikTok</span>
+                  @baskerbio
+                </span>
+              </button>
             </div>
           </div>
 
-          {/* Bottom Section */}
-          <div className="border-t border-white/20 dark:border-gray-700/30 pt-8">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-6">
-                <p className="text-sm text-gray-500 dark:text-gray-400">© 2025 Basker. All rights reserved.</p>
-                <div className="flex items-center gap-4">
-                  <a href="/privacy" className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Privacy</a>
-                  <a href="/terms" className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Terms</a>
-                  <a href="/cookies" className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Cookies</a>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">All systems operational</span>
-                </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  Made with ❤️ for the decentralized web
-                </div>
-                <div className="mt-2">
-                  <VersionInfo />
-                </div>
+          <div className="grid grid-cols-1 gap-6 text-sm text-white/70">
+            <div>
+              <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-white/60">Trust &amp; Legal</h3>
+              <div className="mt-4 flex flex-col gap-2">
+                <button
+                  type="button"
+                  className="hover:text-white transition text-left"
+                  onClick={() => window.open('/info#privacy', '_blank')}
+                >
+                  Privacy Policy
+                </button>
+                <button
+                  type="button"
+                  className="hover:text-white transition text-left"
+                  onClick={() => window.open('/info#terms', '_blank')}
+                >
+                  Terms of Service
+                </button>
+                <button
+                  type="button"
+                  className="hover:text-white transition text-left"
+                  onClick={() => window.open('/info#eula', '_blank')}
+                >
+                  End User License Agreement
+                </button>
               </div>
             </div>
+            <div>
+              <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-white/60">Explore more</h3>
+              <div className="mt-4 flex flex-col gap-2">
+                <button
+                  type="button"
+                  className="hover:text-white transition text-left"
+                  onClick={() => window.open('/info#starter-packs', '_blank')}
+                >
+                  Starter Packs
+                </button>
+                <button
+                  type="button"
+                  className="hover:text-white transition text-left"
+                  onClick={() => window.open('/info#roadmap', '_blank')}
+                >
+                  Roadmap &amp; updates
+                </button>
+                <button
+                  type="button"
+                  className="hover:text-white transition text-left"
+                  onClick={() => window.open('/info#support', '_blank')}
+                >
+                  Support &amp; community
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 border-t border-white/10">
+          <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-white/60">
+            <span>© {currentYear} baskerbio inc. - All rights reserved</span>
+            <span className="text-white/50">Made with ❤️ by the Basker team · Built on the AT Protocol</span>
           </div>
         </div>
       </footer>
-
-      {/* Enhanced CSS for smooth animations and effects */}
-      <style>{`
-        .feature-image {
-          transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-        
-        @keyframes sunRays {
-          0% {
-            transform: rotate(0deg);
-            opacity: 0.3;
-          }
-          50% {
-            opacity: 0.6;
-          }
-          100% {
-            transform: rotate(360deg);
-            opacity: 0.3;
-          }
-        }
-        
-        @keyframes sunPulse {
-          0% {
-            transform: scale(1);
-            opacity: 0.4;
-          }
-          50% {
-            transform: scale(1.05);
-            opacity: 0.7;
-          }
-          100% {
-            transform: scale(1);
-            opacity: 0.4;
-          }
-        }
-        
-        @keyframes rayGlow {
-          0% {
-            opacity: 0.2;
-            transform: scale(0.8);
-          }
-          50% {
-            opacity: 0.5;
-            transform: scale(1.1);
-          }
-          100% {
-            opacity: 0.2;
-            transform: scale(0.8);
-          }
-        }
-        
-        @keyframes floatingParticle {
-          0%, 100% {
-            transform: translateY(0px) translateX(0px);
-            opacity: 0.3;
-          }
-          25% {
-            transform: translateY(-20px) translateX(10px);
-            opacity: 0.6;
-          }
-          50% {
-            transform: translateY(-10px) translateX(-5px);
-            opacity: 0.4;
-          }
-          75% {
-            transform: translateY(-30px) translateX(15px);
-            opacity: 0.7;
-          }
-        }
-        
-        @keyframes gradientShift {
-          0%, 100% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-        }
-        
-        @keyframes floatUp {
-          0% {
-            transform: translateY(20px);
-            opacity: 0;
-          }
-          100% {
-            transform: translateY(0);
-            opacity: 1;
-          }
-        }
-        
-        @keyframes fadeInUp {
-          0% {
-            transform: translateY(30px);
-            opacity: 0;
-          }
-          100% {
-            transform: translateY(0);
-            opacity: 1;
-          }
-        }
-        
-        @keyframes slideInLeft {
-          0% {
-            transform: translateX(-30px);
-            opacity: 0;
-          }
-          100% {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-        
-        @keyframes slideInRight {
-          0% {
-            transform: translateX(30px);
-            opacity: 0;
-          }
-          100% {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-        
-        @keyframes scaleIn {
-          0% {
-            transform: scale(0.8);
-            opacity: 0;
-          }
-          100% {
-            transform: scale(1);
-            opacity: 1;
-          }
-        }
-        
-        @keyframes rotateIn {
-          0% {
-            transform: rotate(-10deg) scale(0.8);
-            opacity: 0;
-          }
-          100% {
-            transform: rotate(0deg) scale(1);
-            opacity: 1;
-          }
-        }
-        
-        @keyframes bounceIn {
-          0% {
-            transform: scale(0.3);
-            opacity: 0;
-          }
-          50% {
-            transform: scale(1.05);
-          }
-          70% {
-            transform: scale(0.9);
-          }
-          100% {
-            transform: scale(1);
-            opacity: 1;
-          }
-        }
-        
-        @keyframes shimmer {
-          0% {
-            background-position: -200% 0;
-          }
-          100% {
-            background-position: 200% 0;
-          }
-        }
-        
-        @keyframes glow {
-          0%, 100% {
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
-          }
-          50% {
-            box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
-          }
-        }
-        
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0px) translateX(0px);
-            opacity: 0.3;
-          }
-          25% {
-            transform: translateY(-10px) translateX(5px);
-            opacity: 0.6;
-          }
-          50% {
-            transform: translateY(-5px) translateX(-3px);
-            opacity: 0.4;
-          }
-          75% {
-            transform: translateY(-8px) translateX(4px);
-            opacity: 0.5;
-          }
-        }
-        
-        @keyframes gridMove {
-          0% {
-            transform: translate(0, 0);
-          }
-          100% {
-            transform: translate(40px, 40px);
-          }
-        }
-        
-        .floating-particle {
-          animation: floatingParticle 8s ease-in-out infinite;
-        }
-        
-        .animate-float {
-          animation: float 20s ease-in-out infinite;
-        }
-        
-        .animate-gradient {
-          background-size: 200% 200%;
-          animation: gradientShift 3s ease infinite;
-        }
-        
-        .floating-element {
-          transition: transform 0.3s ease-out;
-        }
-        
-        .animate-gradient {
-          background-size: 200% 200%;
-          animation: gradientShift 3s ease infinite;
-        }
-        
-        .animate-fade-in {
-          animation: fadeInUp 0.8s ease-out forwards;
-        }
-        
-        .animate-slide-in-left {
-          animation: slideInLeft 0.8s ease-out forwards;
-        }
-        
-        .animate-slide-in-right {
-          animation: slideInRight 0.8s ease-out forwards;
-        }
-        
-        .animate-scale-in {
-          animation: scaleIn 0.6s ease-out forwards;
-        }
-        
-        .animate-rotate-in {
-          animation: rotateIn 0.8s ease-out forwards;
-        }
-        
-        .animate-bounce-in {
-          animation: bounceIn 0.8s ease-out forwards;
-        }
-        
-        .animate-shimmer {
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-          background-size: 200% 100%;
-          animation: shimmer 2s infinite;
-        }
-        
-        .animate-glow {
-          animation: glow 2s ease-in-out infinite;
-        }
-        
-        /* Smooth scroll behavior */
-        html {
-          scroll-behavior: smooth;
-        }
-        
-        /* Enhanced hover effects */
-        .group:hover .group-hover\\:scale-110 {
-          transform: scale(1.1);
-        }
-        
-        .group:hover .group-hover\\:rotate-12 {
-          transform: rotate(12deg);
-        }
-        
-        .group:hover .group-hover\\:translate-x-1 {
-          transform: translateX(4px);
-        }
-        
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-          width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-          background: hsl(var(--muted));
-        }
-        
-        ::-webkit-scrollbar-thumb {
-          background: linear-gradient(45deg, #3b82f6, #8b5cf6);
-          border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(45deg, #2563eb, #7c3aed);
-        }
-        
-        /* Modern glassmorphism effects */
-        .glass {
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .glass-dark {
-          background: rgba(0, 0, 0, 0.1);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        /* Enhanced shadows */
-        .shadow-3xl {
-          box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
-        }
-        
-        .shadow-4xl {
-          box-shadow: 0 45px 80px -12px rgba(0, 0, 0, 0.3);
-        }
-        
-        /* Gradient text effects */
-        .gradient-text {
-          background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899);
-          background-size: 200% 200%;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          animation: gradientShift 3s ease infinite;
-        }
-      `}</style>
-      
-      {/* QR Code Share Modal */}
-      {isAuthenticated && user?.handle && (
-        <QRCodeShare
-          profileUrl={`${window.location.origin}/${user.handle}`}
-          isOpen={showQRCode}
-          onClose={() => setShowQRCode(false)}
-        />
-      )}
     </div>
   );
 }

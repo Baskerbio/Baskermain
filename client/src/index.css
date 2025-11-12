@@ -2,6 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+.landing-particle {
+  position: absolute;
+  display: block;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0) 70%);
+  animation: landing-particle-float ease-in-out infinite;
+  filter: blur(0.4px);
+  mix-blend-mode: screen;
+  opacity: 0.85;
+}
+
+@keyframes landing-particle-float {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(25px, -50px, 0) scale(1.35);
+  }
+  100% {
+    transform: translate3d(-20px, -100px, 0) scale(1);
+  }
+}
+
 :root {
   --background: hsl(240, 10%, 3.9%);
   --foreground: hsl(0, 0%, 98%);
@@ -1218,3 +1241,15 @@
     background-color: hsl(var(--muted-foreground) / 0.8);
   }
 }
+
+  @keyframes gradientMove {
+    0% {
+      transform: translateX(-40%);
+    }
+    50% {
+      transform: translateX(40%);
+    }
+    100% {
+      transform: translateX(-40%);
+    }
+  }
