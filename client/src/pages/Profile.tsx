@@ -222,25 +222,46 @@ export default function Profile() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const stored = localStorage.getItem('basker_profile_action');
-    if (!stored) return;
 
-    localStorage.removeItem('basker_profile_action');
-    let parsedAction: string | undefined;
-    try {
-      const parsed = JSON.parse(stored);
-      parsedAction = parsed?.action || parsed;
-    } catch {
-      parsedAction = stored;
+    const params = new URLSearchParams(window.location.search);
+    let pendingAction = params.get('action') || undefined;
+
+    if (pendingAction) {
+      params.delete('action');
+      const nextSearch = params.toString();
+      const nextUrl = `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ''}${window.location.hash}`;
+      window.history.replaceState({}, '', nextUrl);
+      try {
+        localStorage.removeItem('basker_profile_action');
+      } catch {
+        // ignore storage errors
+      }
     }
 
-    if (!parsedAction) return;
+    if (!pendingAction) {
+      const stored = localStorage.getItem('basker_profile_action');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          pendingAction = parsed?.action || parsed;
+        } catch {
+          pendingAction = stored;
+        }
+        try {
+          localStorage.removeItem('basker_profile_action');
+        } catch {
+          // ignore storage errors
+        }
+      }
+    }
+
+    if (!pendingAction) return;
 
     const ensureEditMode = () => {
       enterEditMode();
     };
 
-    switch (parsedAction) {
+    switch (pendingAction) {
       case 'add-link':
         ensureEditMode();
         setTimeout(() => {

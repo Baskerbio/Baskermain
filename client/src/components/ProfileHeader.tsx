@@ -544,7 +544,7 @@ export function ProfileHeader({ profile: propProfile, isEditMode: propIsEditMode
       )}
       
       {(effectiveSettings?.customBio || profile.description) && !isEditingBio && (
-        <div className="relative group mb-3 max-w-md mx-auto">
+        <div className="relative group mt-4 mb-4 max-w-md mx-auto">
           <p 
             className="text-foreground" 
             data-testid="text-bio"

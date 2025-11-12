@@ -778,40 +778,41 @@ function PublicLinksList({ did }: { did: string }) {
     );
 
     const linkContent = (
-      <div className="relative">
+      <div className="relative group">
         <div
-          className={`rounded-lg bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow cursor-pointer ${linkStyling.shapeClasses}`}
+          className={`overflow-hidden rounded-lg bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow cursor-pointer ${linkStyling.shapeClasses}`}
           style={linkStyling}
         >
           <div className="p-4">
             <div className="flex items-center gap-3">
               <div
                 className={`w-8 h-8 bg-primary/10 flex items-center justify-center overflow-hidden ${linkStyling.iconBorderShape}`}
-                style={{ 
+                style={{
                   color: linkStyling.iconColor || undefined,
-                  border: linkStyling.iconBorderWidth !== '0px' 
-                    ? `${linkStyling.iconBorderWidth} ${linkStyling.iconBorderStyle} ${linkStyling.iconBorderColor}` 
-                    : 'none'
+                  border:
+                    linkStyling.iconBorderWidth !== '0px'
+                      ? `${linkStyling.iconBorderWidth} ${linkStyling.iconBorderStyle} ${linkStyling.iconBorderColor}`
+                      : 'none',
                 }}
               >
                 {iconElement}
               </div>
               <div className="flex-1 min-w-0">
-                <h4 
+                <h4
                   className="font-medium truncate"
-                  style={{ 
+                  style={{
                     color: linkStyling.color || undefined,
-                    fontWeight: linkStyling.fontWeight || undefined
+                    fontWeight: linkStyling.fontWeight || undefined,
                   }}
                 >
                   {link.title}
                 </h4>
                 {link.description && (
-                  <p 
-                    className="text-sm truncate"
-                    style={{ 
+                  <p
+                    className="text-sm truncate mt-1"
+                    style={{
                       color: linkStyling.color || undefined,
-                      fontWeight: linkStyling.fontWeight || undefined
+                      fontWeight: linkStyling.fontWeight || undefined,
                     }}
                   >
                     {link.description}
@@ -838,7 +839,7 @@ function PublicLinksList({ did }: { did: string }) {
           glareAngle={-45}
           glareSize={200}
           transitionDuration={600}
-          className="absolute inset-0"
+          className="absolute inset-0 pointer-events-none"
         />
       </div>
     );

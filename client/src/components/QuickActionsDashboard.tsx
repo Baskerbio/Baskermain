@@ -37,6 +37,7 @@ import {
   QrCode
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { atprotocol } from '../lib/atprotocol';
 
 interface QuickAction {
   id: string;
@@ -50,7 +51,7 @@ interface QuickAction {
 
 interface QuickActionsDashboardProps {
   onAddLink?: () => void;
-  onOpenSettings?: () => void;
+  onOpenSettings?: (section?: string) => void;
   onToggleEditMode?: () => void;
   onCopyProfileURL?: () => void;
   onViewPublicProfile?: () => void;
@@ -76,6 +77,7 @@ export function QuickActionsDashboard({
   const { toast } = useToast();
   const [enabledActions, setEnabledActions] = useState<string[]>([]);
   const [showCustomizeDialog, setShowCustomizeDialog] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Load enabled actions from localStorage on mount
   useEffect(() => {
@@ -116,9 +118,76 @@ export function QuickActionsDashboard({
 
   const goToProfileWithAction = (action: string) => {
     if (typeof window === 'undefined') return;
-    localStorage.setItem('basker_profile_action', JSON.stringify({ action }));
-    if (!isProfilePage) {
-      window.location.href = '/profile';
+    try {
+      localStorage.setItem('basker_profile_action', JSON.stringify({ action, timestamp: Date.now() }));
+    } catch {
+      // ignore storage errors
+    }
+    const url = new URL(window.location.origin + '/profile');
+    url.searchParams.set('action', action);
+    window.location.href = url.toString();
+  };
+
+  const handleExportData = async () => {
+    if (isExporting) return;
+    if (!atprotocol.isAuthenticated()) {
+      toast({
+        title: 'Sign in required',
+        description: 'Please sign in to export your profile data.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      const [linksRes, notesRes, storiesRes, widgetsRes, settingsRes, groupsRes] = await Promise.all([
+        atprotocol.getLinks().catch(() => null),
+        atprotocol.getNotes().catch(() => null),
+        atprotocol.getStories().catch(() => null),
+        atprotocol.getWidgets().catch(() => null),
+        atprotocol.getSettings().catch(() => null),
+        atprotocol.getGroups().catch(() => []),
+      ]);
+
+      const exportPayload = {
+        metadata: {
+          generatedAt: new Date().toISOString(),
+          did: atprotocol.getCurrentDid(),
+          version: '2025.11-export',
+        },
+        settings: settingsRes?.settings ?? null,
+        links: linksRes?.links ?? [],
+        notes: notesRes?.notes ?? [],
+        stories: storiesRes?.stories ?? [],
+        widgets: widgetsRes?.widgets ?? [],
+        groups: Array.isArray(groupsRes) ? groupsRes : [],
+      };
+
+      const json = JSON.stringify(exportPayload, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const downloadUrl = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = downloadUrl;
+      anchor.download = `basker-export-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      URL.revokeObjectURL(downloadUrl);
+
+      toast({
+        title: 'Export ready',
+        description: 'Your Basker profile data has been downloaded.',
+      });
+    } catch (error) {
+      console.error('Failed to export profile data:', error);
+      toast({
+        title: 'Export failed',
+        description: 'We could not export your data. Please try again shortly.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -242,11 +311,11 @@ export function QuickActionsDashboard({
       color: 'bg-pink-500',
       action: () => {
         if (isProfilePage) {
-          onOpenSettings?.();
-          setTimeout(() => {
+          onOpenSettings?.('theme');
+          if (!onOpenSettings) {
             const themeSection = document.querySelector('[data-section="theme"]');
             themeSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }, 100);
+          }
         } else {
           goToProfileWithAction('open-settings-theme');
         }
@@ -261,11 +330,11 @@ export function QuickActionsDashboard({
       color: 'bg-teal-500',
       action: () => {
         if (isProfilePage) {
-          onOpenSettings?.();
-          setTimeout(() => {
+          onOpenSettings?.('layout');
+          if (!onOpenSettings) {
             const layoutSection = document.querySelector('[data-section="layout"]');
             layoutSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }, 100);
+          }
         } else {
           goToProfileWithAction('open-settings-layout');
         }
@@ -280,11 +349,11 @@ export function QuickActionsDashboard({
       color: 'bg-cyan-500',
       action: () => {
         if (isProfilePage) {
-          onOpenSettings?.();
-          setTimeout(() => {
+          onOpenSettings?.('social-icons');
+          if (!onOpenSettings) {
             const socialSection = document.querySelector('[data-section="social-icons"]');
             socialSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }, 100);
+          }
         } else {
           goToProfileWithAction('open-settings-social');
         }
@@ -415,12 +484,7 @@ export function QuickActionsDashboard({
       description: 'Download your profile data',
       icon: <Download className="w-5 h-5" />,
       color: 'bg-slate-500',
-      action: () => {
-        toast({
-          title: 'Export Data',
-          description: 'Export feature coming soon!',
-        });
-      },
+      action: handleExportData,
       category: 'tools'
     },
     {
@@ -455,7 +519,7 @@ export function QuickActionsDashboard({
       icon: <HelpCircle className="w-5 h-5" />,
       color: 'bg-gray-600',
       action: () => {
-        window.open('https://basker.app/help', '_blank');
+        window.location.href = '/info';
       },
       category: 'tools'
     }
@@ -526,7 +590,7 @@ export function QuickActionsDashboard({
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <div className="font-medium text-xs sm:text-sm truncate">{action.title}</div>
-                                  <div className="text-xs text-muted-foreground hidden sm:block">{action.description}</div>
+                                  <div className="text-xs text-muted-foreground hidden sm:block mt-1">{action.description}</div>
                                 </div>
                               </div>
                               <Switch
@@ -578,7 +642,7 @@ export function QuickActionsDashboard({
                         </div>
                         <div className="flex-1 text-left min-w-0">
                           <div className="font-medium text-xs sm:text-sm truncate">{action.title}</div>
-                          <div className="text-xs text-muted-foreground hidden sm:block">{action.description}</div>
+                          <div className="text-xs text-muted-foreground hidden sm:block mt-1">{action.description}</div>
                         </div>
                         <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground group-hover:translate-x-1 transition-transform flex-shrink-0" />
                       </div>

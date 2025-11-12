@@ -8,6 +8,7 @@
   position: relative;
   display: grid;
   place-items: center;
+  pointer-events: none;
 }
 
 .glare-hover::before {
@@ -31,11 +32,9 @@
     0 0;
 }
 
-.glare-hover:hover {
-  cursor: pointer;
-}
-
-.glare-hover:hover::before {
+.glare-hover:hover::before,
+.group:hover > .glare-hover::before,
+.group:hover .glare-hover::before {
   background-position:
     100% 100%,
     0 0;

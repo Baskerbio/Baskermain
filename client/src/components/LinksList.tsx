@@ -117,52 +117,6 @@ export function LinksList({ isEditMode }: LinksListProps) {
   const { toast } = useToast();
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  // Handle global add-link events (e.g., from quick actions)
-  React.useEffect(() => {
-    const handleAddLink = () => {
-      // Reset form to default values
-      form.reset({
-        title: '',
-        url: '',
-        description: '',
-        icon: '',
-        customIcon: '',
-        customIconAlt: '',
-        group: '',
-        isScheduled: false,
-        scheduledStart: '',
-        scheduledEnd: '',
-        backgroundColor: '',
-        textColor: '',
-        fontFamily: 'system',
-        fontWeight: 'normal',
-        containerShape: 'rounded',
-        autoTextColor: true,
-        iconColor: '',
-        borderColor: '',
-        borderWidth: 0,
-        borderStyle: 'solid',
-        backgroundImage: '',
-        backgroundImageSize: 'cover',
-        backgroundImagePosition: 'center',
-        backgroundImageRepeat: 'no-repeat',
-        backgroundImageOverlayColor: '#000000',
-        backgroundImageOverlayOpacity: 0.35,
-        pattern: 'none',
-        patternColor: '',
-        pixelTransition: false,
-        pixelTransitionText: '',
-        pixelTransitionColor: '#000000',
-        pixelTransitionGridSize: 7,
-        pixelTransitionDuration: 0.3,
-      });
-      setEditingLink(null);
-      setIsDialogOpen(true);
-    };
-
-    window.addEventListener('basker:add-link', handleAddLink);
-    return () => window.removeEventListener('basker:add-link', handleAddLink);
-  }, [form]);
   const [editingLink, setEditingLink] = useState<Link | null>(null);
   const [isCreateGroupDialogOpen, setIsCreateGroupDialogOpen] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
@@ -395,6 +349,52 @@ export function LinksList({ isEditMode }: LinksListProps) {
       });
     }
   }, [editingLink, form]);
+
+  // Handle global add-link events (e.g., from quick actions dashboard)
+  React.useEffect(() => {
+    const handleAddLinkEvent = () => {
+      form.reset({
+        title: '',
+        url: '',
+        description: '',
+        icon: '',
+        customIcon: '',
+        customIconAlt: '',
+        group: '',
+        isScheduled: false,
+        scheduledStart: '',
+        scheduledEnd: '',
+        backgroundColor: '',
+        textColor: '',
+        fontFamily: 'system',
+        fontWeight: 'normal',
+        containerShape: 'rounded',
+        autoTextColor: true,
+        iconColor: '',
+        borderColor: '',
+        borderWidth: 0,
+        borderStyle: 'solid',
+        backgroundImage: '',
+        backgroundImageSize: 'cover',
+        backgroundImagePosition: 'center',
+        backgroundImageRepeat: 'no-repeat',
+        backgroundImageOverlayColor: '#000000',
+        backgroundImageOverlayOpacity: 0.35,
+        pattern: 'none',
+        patternColor: '',
+        pixelTransition: false,
+        pixelTransitionText: '',
+        pixelTransitionColor: '#000000',
+        pixelTransitionGridSize: 7,
+        pixelTransitionDuration: 0.3,
+      });
+      setEditingLink(null);
+      setIsDialogOpen(true);
+    };
+
+    window.addEventListener('basker:add-link', handleAddLinkEvent);
+    return () => window.removeEventListener('basker:add-link', handleAddLinkEvent);
+  }, [form]);
 
   const handleCustomIconUpload = (file?: File | null) => {
     if (!file) {
@@ -638,53 +638,69 @@ export function LinksList({ isEditMode }: LinksListProps) {
     );
 
     const linkContent = (
-      <div 
-        className={`rounded-lg bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow cursor-pointer ${linkStyling.shapeClasses}`}
-        style={linkStyling}
-      >
-        <div className="p-4">
-          <div className="flex items-center gap-3">
-            <div 
-              className={`w-8 h-8 bg-primary/10 flex items-center justify-center overflow-hidden ${linkStyling.iconBorderShape}`}
-              style={{ 
-                color: linkStyling.iconColor || undefined,
-                border: linkStyling.iconBorderWidth !== '0px' 
-                  ? `${linkStyling.iconBorderWidth} ${linkStyling.iconBorderStyle} ${linkStyling.iconBorderColor}` 
-                  : 'none'
-              }}
-            >
-              {iconElement}
-            </div>
-            <div className="flex-1 min-w-0">
-              <h4 
-                className="font-medium text-foreground truncate" 
-                style={{ 
-                  fontWeight: linkStyling.fontWeight,
-                  color: linkStyling.color || undefined
+      <div className="relative group">
+        <div
+          className={`overflow-hidden rounded-lg bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow cursor-pointer ${linkStyling.shapeClasses}`}
+          style={linkStyling}
+        >
+          <div className="p-4">
+            <div className="flex items-center gap-3">
+              <div
+                className={`w-8 h-8 bg-primary/10 flex items-center justify-center overflow-hidden ${linkStyling.iconBorderShape}`}
+                style={{
+                  color: linkStyling.iconColor || undefined,
+                  border:
+                    linkStyling.iconBorderWidth !== '0px'
+                      ? `${linkStyling.iconBorderWidth} ${linkStyling.iconBorderStyle} ${linkStyling.iconBorderColor}`
+                      : 'none',
                 }}
               >
-                {link.title}
-              </h4>
-              {link.description && (
-                <p 
-                  className="text-sm text-muted-foreground truncate"
-                  style={{ 
+                {iconElement}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4
+                  className="font-medium text-foreground truncate"
+                  style={{
                     fontWeight: linkStyling.fontWeight,
-                    color: linkStyling.color || undefined
+                    color: linkStyling.color || undefined,
                   }}
                 >
-                  {link.description}
+                  {link.title}
+                </h4>
+              {link.description && (
+                <p
+                  className="text-sm text-muted-foreground truncate mt-1"
+                    style={{
+                      fontWeight: linkStyling.fontWeight,
+                      color: linkStyling.color || undefined,
+                    }}
+                  >
+                    {link.description}
+                  </p>
+                )}
+                <p className="text-[10px] sm:text-xs truncate max-w-[180px] sm:max-w-none">
+                  {link.url}
                 </p>
-              )}
-              <p className="text-[10px] sm:text-xs truncate max-w-[180px] sm:max-w-none">
-                {link.url}
-              </p>
-            </div>
-            <div className="flex-shrink-0">
-              <i className="fas fa-external-link-alt text-xs text-muted-foreground"></i>
+              </div>
+              <div className="flex-shrink-0">
+                <i className="fas fa-external-link-alt text-xs text-muted-foreground"></i>
+              </div>
             </div>
           </div>
         </div>
+        <GlareHover
+          width="100%"
+          height="100%"
+          background="transparent"
+          borderRadius="inherit"
+          borderColor="transparent"
+          glareColor="#ffffff"
+          glareOpacity={0.3}
+          glareAngle={-45}
+          glareSize={200}
+          transitionDuration={600}
+          className="absolute inset-0 pointer-events-none"
+        />
       </div>
     );
 
