@@ -28,6 +28,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { Header } from '../components/Header';
 import LightRays from '../components/LightRays';
+import { Footer } from '../components/Footer';
 
 export default function Solaris() {
   const { user } = useAuth();
@@ -750,6 +751,7 @@ export default function Solaris() {
           </div>
         </section>
       </main>
+      <Footer />
     </div>
   );
 }

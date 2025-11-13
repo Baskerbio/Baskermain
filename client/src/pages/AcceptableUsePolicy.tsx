@@ -1,5 +1,6 @@
 import React from 'react';
 import { Header } from '../components/Header';
+import { Footer } from '../components/Footer';
 
 export default function AcceptableUsePolicy() {
   return (
@@ -129,34 +130,7 @@ export default function AcceptableUsePolicy() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-background">
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <img 
-                src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
-                alt="Basker"
-                className="w-5 h-5 rounded-full"
-              />
-              <h3 className="text-lg font-bold text-primary">Basker</h3>
-              <span className="text-muted-foreground">×</span>
-              <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-              </svg>
-              <span className="text-sm text-blue-500 font-bold">Bluesky</span>
-            </div>
-            
-            <div className="text-center md:text-right">
-              <p className="text-sm text-muted-foreground">
-                Built on the AT Protocol • Your data, your control
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Create your own link-in-bio page with basker
-              </p>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

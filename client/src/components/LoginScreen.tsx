@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft } from 'lucide-react';
+import { QRCodeShare } from './QRCodeShare';
+import { Footer } from './Footer';
 
 export function LoginScreen() {
   const [identifier, setIdentifier] = useState('');
@@ -229,89 +231,7 @@ export function LoginScreen() {
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-white/20 dark:border-gray-700/30 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 py-12">
-          {/* Main Footer Content */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-            {/* Brand Section */}
-            <div className="lg:col-span-2">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-sm opacity-60"></div>
-                  <img 
-                    src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
-                    alt="Basker"
-                    className="relative w-8 h-8 rounded-full ring-2 ring-white/50 dark:ring-gray-700/50"
-                  />
-                </div>
-                <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Basker</h3>
-              </div>
-              <p className="text-gray-600 dark:text-gray-300 mb-4 max-w-md">
-                Your decentralized link-in-bio platform built on the AT Protocol. 
-                Create, customize, and share your digital identity with complete data ownership.
-              </p>
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-gray-500 dark:text-gray-400">Powered by</span>
-                <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 dark:bg-blue-900/20 rounded-full">
-                  <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                  </svg>
-                  <span className="text-sm font-medium text-blue-600 dark:text-blue-400">AT Protocol</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Product Links */}
-            <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Product</h4>
-              <ul className="space-y-3">
-                <li><Link href="/pricing" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Pricing</Link></li>
-                <li><Link href="/starter-packs" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Starter Packs</Link></li>
-                <li><Link href="/faq" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">FAQ</Link></li>
-                <li><Link href="/info" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Info Center</Link></li>
-              </ul>
-            </div>
-
-            {/* Support Links */}
-            <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Support</h4>
-              <ul className="space-y-3">
-                <li><Link href="/info#about" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">About Us</Link></li>
-                <li><a href="https://bsky.app" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Bluesky</a></li>
-                <li><a href="https://atproto.com" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">AT Protocol</a></li>
-                <li><a href="mailto:support@basker.bio" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Contact</a></li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Bottom Section */}
-          <div className="border-t border-white/20 dark:border-gray-700/30 pt-8">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-6">
-                <p className="text-sm text-gray-500 dark:text-gray-400">© 2025 Basker. All rights reserved.</p>
-                <div className="flex items-center gap-4">
-                  <a href="/privacy" className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Privacy</a>
-                  <a href="/terms" className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Terms</a>
-                  <a href="/cookies" className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300">Cookies</a>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">All systems operational</span>
-                </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  Made with ❤️ for the decentralized web
-                </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  v2.1.0.0
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
       {/* Modern CSS Animations */}
       <style>{`

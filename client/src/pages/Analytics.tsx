@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Link } from 'wouter';
 import { Header } from '@/components/Header';
 import { SEOHead } from '@/components/SEOHead';
+import { Footer } from '@/components/Footer';
 
 export default function Analytics() {
   const { user } = useAuth();
@@ -268,32 +269,7 @@ export default function Analytics() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-background mt-16">
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <img 
-                src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
-                alt="Basker"
-                className="w-5 h-5 rounded-full"
-              />
-              <h3 className="text-lg font-bold text-primary">Basker</h3>
-              <span className="text-sm text-muted-foreground">© 2025</span>
-              <span className="text-sm text-muted-foreground">•</span>
-              <span className="text-sm text-muted-foreground">v2.1.0.0</span>
-            </div>
-            
-            <div className="text-center md:text-right">
-              <p className="text-sm text-muted-foreground">
-                Built on the AT Protocol • Your data, your control
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Create your own link-in-bio page with basker
-              </p>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

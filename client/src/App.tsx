@@ -11,7 +11,6 @@ import Profile from "@/pages/Profile";
 import PublicProfilePage from "@/pages/PublicProfilePage";
 import NotFound from "@/pages/not-found";
 import FAQ from "@/pages/FAQ";
-import Pricing from "@/pages/Pricing";
 import Support from "@/pages/Support";
 import InfoCenter from "@/pages/InfoCenter";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
@@ -41,7 +40,6 @@ function Router() {
       <Route path="/import" component={Import} />
       <Route path="/solaris" component={Solaris} />
       <Route path="/faq" component={FAQ} />
-      <Route path="/pricing" component={Pricing} />
       <Route path="/support" component={Support} />
       <Route path="/info" component={InfoCenter} />
       <Route path="/privacy" component={PrivacyPolicy} />

@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'wouter';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { FAQItem } from '../components/FAQItem';
+import { ContactForm } from '../components/ContactForm';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Check, HelpCircle, Mail, MessageSquare, Sparkles, LifeBuoy, ArrowLeft, Coffee, Heart, CreditCard, Gift, Star, Users, Code, MessageCircle } from 'lucide-react';
+import { Footer } from '../components/Footer';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowLeft, Coffee, Heart, CreditCard, Gift, Star, Users, Code, MessageCircle } from 'lucide-react';
 
 export default function Support() {
   const { isAuthenticated } = useAuth();
@@ -76,9 +81,6 @@ export default function Support() {
             <div className="flex items-center gap-2 sm:gap-4">
               <Link href="/info#about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 About
-              </Link>
-              <Link href="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Pricing
               </Link>
               <Link href="/faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 FAQ
@@ -310,33 +312,7 @@ export default function Support() {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border bg-background">
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <img 
-                src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
-                alt="Basker"
-                className="w-5 h-5 rounded-full"
-              />
-              <h3 className="text-lg font-bold text-primary">Basker</h3>
-              <span className="text-sm text-muted-foreground">© 2025</span>
-              <span className="text-sm text-muted-foreground">•</span>
-              <span className="text-sm text-muted-foreground">v2.1.0.0</span>
-            </div>
-            
-            <div className="text-center md:text-right">
-              <p className="text-sm text-muted-foreground">
-                Built on the AT Protocol • Your data, your control
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Create your own link-in-bio page with basker
-              </p>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

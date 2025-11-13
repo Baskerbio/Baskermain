@@ -8,6 +8,7 @@ import { ArrowLeft, Users, Star, QrCode, Share2, ExternalLink, Heart, MessageCir
 import { useAuth } from '../contexts/AuthContext';
 import { useStarterPacks, useCreateStarterPack, useDeleteStarterPack } from '../hooks/use-atprotocol';
 import { Header } from '../components/Header';
+import { Footer } from '../components/Footer';
 
 interface StarterPackMember {
   did: string;
@@ -783,6 +784,7 @@ export default function StarterPacks() {
           animation: pulse 3s ease-in-out infinite;
         }
       `}</style>
+      <Footer />
     </div>
   );
 }

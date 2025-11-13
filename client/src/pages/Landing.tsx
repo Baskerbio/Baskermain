@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Header } from '../components/Header';
+import { Footer } from '../components/Footer';
 
 type Feature = {
   title: string;
@@ -92,7 +93,7 @@ function Carousel({
     return () => clearInterval(t);
   }, [images.length, auto, interval]);
 
-  return (
+    return (
     <div className="relative w-full overflow-hidden rounded-3xl shadow-2xl">
       <img
         src={images[index]}
@@ -134,8 +135,8 @@ function Carousel({
         >
           ›
         </button>
-      </div>
-    </div>
+            </div>
+          </div>
   );
 }
 
@@ -160,7 +161,7 @@ function Particles() {
         <span
           key={particle.id}
           className="landing-particle"
-          style={{
+              style={{
             left: `${particle.left}%`,
             top: `${particle.top}%`,
             width: `${particle.size}px`,
@@ -171,7 +172,7 @@ function Particles() {
           }}
         />
       ))}
-    </div>
+        </div>
   );
 }
 
@@ -246,8 +247,6 @@ export default function Landing(): JSX.Element {
     isSearchFocused &&
     (isLoadingSuggestions || suggestions.length > 0 || searchQuery.trim().length >= 2);
 
-  const currentYear = new Date().getFullYear();
-
   return (
     <div className="relative overflow-hidden min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-rose-900 text-white antialiased">
       <svg
@@ -255,18 +254,18 @@ export default function Landing(): JSX.Element {
         preserveAspectRatio="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <defs>
+              <defs>
           <radialGradient id="g1" cx="30%" cy="20%">
             <stop offset="0%" stopColor="#fff" stopOpacity="0.06" />
             <stop offset="100%" stopColor="#fff" stopOpacity="0" />
-          </radialGradient>
+                </radialGradient>
 
           <linearGradient id="sr" x1="0" x2="1">
             <stop offset="0%" stopColor="#fff" stopOpacity="0.06" />
             <stop offset="100%" stopColor="#fff" stopOpacity="0" />
           </linearGradient>
-        </defs>
-
+              </defs>
+              
         <rect width="100%" height="100%" fill="url(#g1)" />
 
         <g transform="translate(80, 60) rotate(-12)" opacity="0.08">
@@ -284,20 +283,20 @@ export default function Landing(): JSX.Element {
         </g>
 
         <rect width="100%" height="100%" fill="transparent" />
-      </svg>
+            </svg>
 
       <Particles />
       <Header />
 
       <main className="relative z-20">
         <section className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-          <div className="space-y-6">
+                <div className="space-y-6">
             <Badge>Built on Bluesky • at-protocol</Badge>
             <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
               Basker — your portable, decentralized link-in-bio
             </h1>
             <p className="text-lg text-white/80 max-w-xl">
-              Create a beautiful, customizable landing page that lives with your identity on the at-protocol. Free, open, and private — everything a Linktree should have but decentralized.
+              Create a beautiful, customizable Basker profile that lives on the AT Protocol with your Bluesky identity—open, portable, completely free, and miles ahead of every Linktree clone.
             </p>
 
             <div className="flex gap-4 items-center">
@@ -305,16 +304,16 @@ export default function Landing(): JSX.Element {
               <a className="text-sm text-white/70 hover:underline" href="#features">
                 See features →
               </a>
-            </div>
-
+                </div>
+            
             <div className="relative max-w-md">
               <form
-                className="p-4 rounded-2xl bg-white/3 border border-white/6 flex items-center gap-3"
+                className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3 rounded-2xl bg-white/3 border border-white/6 p-4"
                 onSubmit={handleSearchSubmit}
               >
                 <input
                   name="handle"
-                  type="text"
+                    type="text"
                   placeholder="Search Bluesky handle"
                   className="flex-1 bg-transparent placeholder:text-white/50 text-white focus:outline-none text-sm"
                   value={searchQuery}
@@ -325,7 +324,7 @@ export default function Landing(): JSX.Element {
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-white/80 text-slate-900 text-sm font-semibold shadow-md hover:bg-white"
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl bg-white/80 text-slate-900 text-sm font-semibold shadow-md hover:bg-white"
                 >
                   Search
                 </button>
@@ -356,27 +355,26 @@ export default function Landing(): JSX.Element {
                           <div className="text-left">
                             <div className="text-sm font-medium text-white">{suggestion.displayName || suggestion.handle}</div>
                             <div className="text-xs text-white/60">@{suggestion.handle}</div>
-                          </div>
+                      </div>
                         </button>
                       ))}
-                    </div>
-                  )}
+                          </div>
+                        )}
                   {!isLoadingSuggestions && suggestions.length === 0 && (
                     <div className="px-4 py-3 text-xs text-white/50">No matches found yet. Try another handle.</div>
-                  )}
-                </div>
+                        )}
+                      </div>
               )}
             </div>
 
-            <div className="text-xs text-white/70 ml-1 mt-3">Search for any user</div>
           </div>
 
           <div className="space-y-6">
             <div className="rounded-3xl overflow-hidden shadow-2xl">
               <Carousel images={HERO_IMAGES} />
-            </div>
-
-            <div className="grid grid-cols-3 gap-4 text-center">
+                    </div>
+                    
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
               {[
                 {
                   label: 'Decentralized',
@@ -393,10 +391,10 @@ export default function Landing(): JSX.Element {
               ].map(({ label, gradient }) => (
                 <div
                   key={label}
-                  className={`rounded-xl border border-white/15 bg-gradient-to-r ${gradient} px-4 py-6 text-sm font-semibold tracking-wide uppercase text-white shadow-lg`}
+                  className={`rounded-xl border border-white/15 bg-gradient-to-r ${gradient} px-5 py-6 text-sm font-semibold text-white shadow-lg`}
                 >
-                  {label}
-                </div>
+                  <span className="block text-center text-base sm:text-sm tracking-wide">{label}</span>
+          </div>
               ))}
             </div>
           </div>
@@ -413,19 +411,14 @@ export default function Landing(): JSX.Element {
               <article key={index} className="rounded-2xl bg-white/3 p-6 border border-white/6 shadow-lg">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-semibold">{feature.title}</h3>
-                  <Badge>New</Badge>
                 </div>
                 <p className="mt-3 text-white/75">{feature.description}</p>
 
                 <div className="mt-5">
                   <Carousel images={feature.images} auto={false} fit={feature.fit} />
-                </div>
+              </div>
 
-                <div className="mt-4 flex gap-3">
-                  <button className="px-4 py-2 rounded-xl bg-white/6">Try demo</button>
-                  <button className="px-4 py-2 rounded-xl bg-white/6">Docs</button>
-                </div>
-              </article>
+                </article>
             ))}
           </div>
         </section>
@@ -441,7 +434,7 @@ export default function Landing(): JSX.Element {
                 Launch a beautiful, decentralized profile in minutes. Everything lives on the AT Protocol so you stay in control.
               </p>
             </div>
-
+            
             <div className="relative z-10 mt-12 grid gap-6 md:grid-cols-3">
               {[
                 {
@@ -471,169 +464,17 @@ export default function Landing(): JSX.Element {
                     className={`inline-flex items-center justify-center rounded-xl bg-gradient-to-r ${gradient} px-3 py-1 text-xs font-semibold uppercase text-white/90`}
                   >
                     step {step}
-                  </div>
+                </div>
                   <h3 className="mt-4 text-xl font-semibold text-white">{title}</h3>
                   <p className="mt-2 text-sm text-white/70 leading-relaxed">{desc}</p>
-                </div>
+              </div>
               ))}
             </div>
           </div>
         </section>
-
-        <section id="info-links" className="max-w-5xl mx-auto px-6 py-16 text-center">
-          <h2 className="text-3xl font-bold">Need deeper info?</h2>
-          <p className="mt-3 text-white/70">Jump directly into the Basker Info Center for tutorials, references, and updates.</p>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              { href: '/info#overview', label: 'Overview · Why Basker?' },
-              { href: '/info#quickstart', label: 'Quickstart · Launch in minutes' },
-              { href: '/info#widgets', label: 'Widgets · Full library & tips' },
-              { href: '/info#verification', label: 'Verification · Badges explained' },
-              { href: '/info#solaris', label: 'Solaris Cards · NFC overview' },
-              { href: '/info#faq', label: 'FAQ · Troubleshooting & help' },
-            ].map((link) => (
-              <button
-                key={link.href}
-                type="button"
-                className="rounded-xl border border-white/15 bg-white/5 px-5 py-5 text-sm font-semibold text-white/85 shadow-lg transition hover:bg-white/10 hover:border-white/25 text-left"
-                onClick={() => window.open(link.href, '_blank')}
-              >
-                {link.label}
-              </button>
-            ))}
-          </div>
-        </section>
       </main>
 
-      <footer className="relative mt-16 border-t border-white/10 bg-slate-950/90 text-white">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-purple-900/40 via-slate-900/40 to-blue-900/40" />
-        <div className="pointer-events-none absolute inset-x-0 -top-24 h-48 bg-gradient-to-b from-white/10 to-transparent blur-3xl opacity-40" />
-        <div className="relative z-10 max-w-7xl mx-auto px-6 py-14 grid gap-12 lg:grid-cols-[1.2fr_1fr_1fr]">
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-3">
-              <img
-                src="/baskerchristmas.jpg"
-                alt="Basker logo"
-                className="w-14 h-14 rounded-full border border-white/20 shadow-2xl object-cover"
-              />
-              <div>
-                <div className="text-xl font-semibold">Basker</div>
-                <div className="text-sm text-white/70">Decentralized link-in-bio platform</div>
-              </div>
-            </div>
-            <p className="text-sm text-white/70 leading-relaxed">
-              Build once, own forever. Basker keeps your profile portable across the AT Protocol, with rich widgets, custom branding, and optional Solaris NFC cards.
-            </p>
-          </div>
-
-          <div className="flex flex-col">
-            <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-white/60">Stay in touch</h3>
-            <div className="mt-5 flex flex-col gap-3">
-              <button
-                type="button"
-                className="flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 py-3 text-sm font-medium text-white/85 transition hover:bg-white/10 hover:border-white/25 text-left"
-                onClick={() => window.open('https://bsky.app/profile/basker.bio', '_blank')}
-              >
-                <svg viewBox="0 0 64 64" className="w-5 h-5" fill="currentColor" aria-hidden="true">
-                  <path d="M32 10.3c4.4-5.8 11.2-8.5 18.2-8.5 5.9 0 11.4 1.9 11.4 7.1 0 8.3-8.9 17.7-18.9 22.3 13.4-4.3 21.3 7.8 14.3 14.3-6.6 6.1-15-3.2-24.9-11.4-9.9 8.2-18.3 17.5-24.9 11.4-7-6.5 0.9-18.6 14.3-14.3C8.3 27.1-.6 17.8-.6 9.5c0-5.2 5.5-7.1 11.4-7.1 7 0 13.8 2.7 18.2 8.5z" />
-                </svg>
-                <span>
-                  <span className="block text-xs text-white/50">Bluesky</span>
-                  @basker.bio
-                </span>
-              </button>
-              <button
-                type="button"
-                className="flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 py-3 text-sm font-medium text-white/85 transition hover:bg-white/10 hover:border-white/25 text-left"
-                onClick={() => window.open('https://instagram.com/baskerbio', '_blank')}
-              >
-                <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" aria-hidden="true">
-                  <path d="M12 2.2c3.2 0 3.6.01 4.8.07 1.2.06 1.9.27 2.35.45a3.9 3.9 0 0 1 1.54 1.01 3.9 3.9 0 0 1 1.01 1.54c.18.45.39 1.15.45 2.35.06 1.2.07 1.6.07 4.78s-.01 3.58-.07 4.78c-.06 1.2-.27 1.9-.45 2.35a3.9 3.9 0 0 1-1.01 1.54 3.9 3.9 0 0 1-1.54 1.01c-.45.18-1.15.39-2.35.45-1.2.06-1.6.07-4.78.07s-3.58-.01-4.78-.07c-1.2-.06-1.9-.27-2.35-.45a3.9 3.9 0 0 1-1.54-1.01 3.9 3.9 0 0 1-1.01-1.54c-.18-.45-.39-1.15-.45-2.35C2.2 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.78c.06-1.2.27-1.9.45-2.35a3.9 3.9 0 0 1 1.01-1.54 3.9 3.9 0 0 1 1.54-1.01c.45-.18 1.15-.39 2.35-.45C8.42 2.2 8.8 2.2 12 2.2zm0 2.1c-3.16 0-3.53.01-4.77.07-.97.04-1.5.2-1.85.33-.47.18-.8.4-1.15.75-.35.35-.57.68-.75 1.15-.13.35-.29.88-.33 1.85-.06 1.24-.07 1.61-.07 4.77s.01 3.53.07 4.77c.04.97.2 1.5.33 1.85.18.47.4.8.75 1.15.35.35.68.57 1.15.75.35.13.88.29 1.85.33 1.24.06 1.61.07 4.77.07s3.53-.01 4.77-.07c.97-.04 1.5-.2 1.85-.33.47-.18.8-.4 1.15-.75.35-.35.57-.68.75-1.15.13-.35.29-.88.33-1.85.06-1.24.07-1.61.07-4.77s-.01-3.53-.07-4.77c-.04-.97-.2-1.5-.33-1.85-.18-.47-.4-.8-.75-1.15a2.3 2.3 0 0 0-1.15-.75c-.35-.13-.88-.29-1.85-.33-1.24-.06-1.61-.07-4.77-.07zm0 3.37a4.43 4.43 0 1 1 0 8.86 4.43 4.43 0 0 1 0-8.86zm0 2.1a2.33 2.33 0 1 0 0 4.66 2.33 2.33 0 0 0 0-4.66zm5.64-2.56a1.03 1.03 0 1 1-2.06 0 1.03 1.03 0 0 1 2.06 0zm-1.43 8.74" />
-                </svg>
-                <span>
-                  <span className="block text-xs text-white/50">Instagram</span>
-                  @baskerbio
-                </span>
-              </button>
-              <button
-                type="button"
-                className="flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 py-3 text-sm font-medium text-white/85 transition hover:bg-white/10 hover:border-white/25 text-left"
-                onClick={() => window.open('https://www.tiktok.com/@baskerbio', '_blank')}
-              >
-                <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" aria-hidden="true">
-                  <path d="M21 8.1c-1.5.05-3-.44-4.16-1.4V16c0 3.31-2.69 6-6 6s-6-2.69-6-6 2.69-6 6-6c.34 0 .67.03 1 .08V12c-.32-.05-.66-.08-1-.08-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3V2h3a5 5 0 0 0 5 5v1.1z" />
-                </svg>
-                <span>
-                  <span className="block text-xs text-white/50">TikTok</span>
-                  @baskerbio
-                </span>
-              </button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 text-sm text-white/70">
-            <div>
-              <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-white/60">Trust &amp; Legal</h3>
-              <div className="mt-4 flex flex-col gap-2">
-                <button
-                  type="button"
-                  className="hover:text-white transition text-left"
-                  onClick={() => window.open('/info#privacy', '_blank')}
-                >
-                  Privacy Policy
-                </button>
-                <button
-                  type="button"
-                  className="hover:text-white transition text-left"
-                  onClick={() => window.open('/info#terms', '_blank')}
-                >
-                  Terms of Service
-                </button>
-                <button
-                  type="button"
-                  className="hover:text-white transition text-left"
-                  onClick={() => window.open('/info#eula', '_blank')}
-                >
-                  End User License Agreement
-                </button>
-              </div>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-white/60">Explore more</h3>
-              <div className="mt-4 flex flex-col gap-2">
-                <button
-                  type="button"
-                  className="hover:text-white transition text-left"
-                  onClick={() => window.open('/info#starter-packs', '_blank')}
-                >
-                  Starter Packs
-                </button>
-                <button
-                  type="button"
-                  className="hover:text-white transition text-left"
-                  onClick={() => window.open('/info#roadmap', '_blank')}
-                >
-                  Roadmap &amp; updates
-                </button>
-                <button
-                  type="button"
-                  className="hover:text-white transition text-left"
-                  onClick={() => window.open('/info#support', '_blank')}
-                >
-                  Support &amp; community
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="relative z-10 border-t border-white/10">
-          <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-white/60">
-            <span>© {currentYear} baskerbio inc. - All rights reserved</span>
-            <span className="text-white/50">Made with ❤️ by the Basker team · Built on the AT Protocol</span>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

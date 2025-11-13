@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'wouter';
+import { ChevronDown, ChevronUp, LifeBuoy, Sparkles, ArrowLeft, Info } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '../contexts/AuthContext';
 import { Header } from '../components/Header';
-import { ArrowLeft, ChevronDown, ChevronUp, HelpCircle, Search } from 'lucide-react';
+import { Footer } from '../components/Footer';
 import { Input } from '@/components/ui/input';
 
 export default function FAQ() {
@@ -134,7 +136,7 @@ export default function FAQ() {
             {/* Modern FAQ Badge */}
             <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-blue-50/80 to-purple-50/80 dark:from-blue-900/30 dark:to-purple-900/30 border border-blue-200/50 dark:border-blue-800/50 backdrop-blur-sm mb-8">
               <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse"></div>
-              <HelpCircle className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <QuestionMarkCircle className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">FAQ</span>
               <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-ping"></div>
             </div>
@@ -266,32 +268,7 @@ export default function FAQ() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-white/20 dark:border-gray-700/30 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <img 
-                src="https://cdn.bsky.app/img/avatar/plain/did:plc:uw2cz5hnxy2i6jbmh6t2i7hi/bafkreihdglcgqdgmlak64violet4j3g7xwsio4odk2j5cn67vatl3iu5we@jpeg"
-                alt="Basker"
-                className="w-5 h-5 rounded-full"
-              />
-              <h3 className="text-lg font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Basker</h3>
-              <span className="text-sm text-gray-500 dark:text-gray-400">© 2025</span>
-              <span className="text-sm text-gray-500 dark:text-gray-400">•</span>
-              <span className="text-sm text-gray-500 dark:text-gray-400">v2.1.0.0</span>
-            </div>
-            
-            <div className="text-center md:text-right">
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                Built on the AT Protocol • Your data, your control
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Create your own link-in-bio page with basker
-              </p>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
       {/* Modern CSS Animations */}
       <style>{`

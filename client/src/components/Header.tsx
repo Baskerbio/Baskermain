@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '../contexts/AuthContext';
-import { Menu, X, Info, Crown, HelpCircle, Users, Sparkles } from 'lucide-react';
+import { Menu, X, Info, HelpCircle, Users, Sparkles } from 'lucide-react';
 
 export function Header() {
   const { isAuthenticated, user } = useAuth();
@@ -57,10 +57,6 @@ export function Header() {
         {/* Desktop Navigation */}
         <div className="hidden sm:flex items-center gap-1 sm:gap-2">
           <div className="flex items-center gap-1 sm:gap-2">
-            <Link href="/pricing" className="relative px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-all duration-300 rounded-lg hover:bg-purple-50/50 dark:hover:bg-purple-900/20 group">
-              <span className="relative z-10">Pricing</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </Link>
             <Link href="/solaris" className="relative px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-all duration-300 rounded-lg hover:bg-pink-50/50 dark:hover:bg-pink-900/20 group">
               <span className="relative z-10">Solaris</span>
               <div className="absolute inset-0 bg-gradient-to-r from-pink-500/10 to-rose-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -129,12 +125,6 @@ export function Header() {
 
             {/* Navigation links */}
             <div className="grid grid-cols-2 gap-3">
-              <Link href="/pricing">
-                <Button variant="outline" size="sm" className="w-full justify-start gap-3 h-12 bg-white/50 dark:bg-gray-800/50 border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-300">
-                  <Crown className="w-4 h-4" />
-                  Pricing
-                </Button>
-              </Link>
               <Link href="/solaris">
                 <Button variant="outline" size="sm" className="w-full justify-start gap-3 h-12 bg-white/50 dark:bg-gray-800/50 border-pink-200 dark:border-pink-800 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-all duration-300">
                   <Sparkles className="w-4 h-4" />

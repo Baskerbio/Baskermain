@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { CSSProperties } from 'react';
 import type { Settings as ProfileSettings } from '@shared/schema';
 import { Link } from 'wouter';
@@ -22,6 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import { DropResult } from '@hello-pangea/dnd';
 import { atprotocol } from '../lib/atprotocol';
 import { SEOHead } from '../components/SEOHead';
+import { Footer } from '../components/Footer';
 
 const PROFILE_CONTAINER_DEFAULT = {
   enabled: false,
@@ -539,23 +540,7 @@ export default function Profile() {
       })()}
 
       {/* Footer */}
-      <footer className="text-center py-8 border-t border-border" data-testid="footer">
-        <div className="flex items-center justify-center gap-2 text-muted-foreground mb-4">
-          <span className="text-sm">Powered by</span>
-          <img
-            src="/baskerchristmas.jpg"
-            alt="Basker"
-            className="w-4 h-4 rounded-full"
-          />
-          <span className="text-sm">basker</span>
-          <span className="text-sm text-muted-foreground">© 2025</span>
-          <span className="text-sm text-muted-foreground">•</span>
-          <span className="text-sm text-muted-foreground">v2.1.0.0</span>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          Create your own link-in-bio page with basker
-        </p>
-      </footer>
+      <Footer />
     </>
   );
 

@@ -27,6 +27,7 @@ import { MiniGameWidget } from '../components/widgets/MiniGameWidget';
 import { FormBuilderWidget } from '../components/widgets/FormBuilderWidget';
 import { useToast } from '@/hooks/use-toast';
 import { usePublicWidgets } from '../hooks/use-atprotocol';
+import { Footer } from '../components/Footer';
 
 export default function PublicProfile() {
   const [, params] = useRoute('/:handle');
@@ -320,20 +321,7 @@ export default function PublicProfile() {
         </div>
 
         {/* Footer */}
-        <footer className="text-center py-8 border-t border-border mt-8" data-testid="footer">
-          <div className="flex items-center justify-center gap-2 text-muted-foreground mb-4">
-            <span className="text-sm">Powered by</span>
-            <span className="text-primary font-semibold">basker</span>
-            <span className="text-sm">×</span>
-            <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-            </svg>
-            <span className="text-sm">Bluesky</span>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Create your own link-in-bio page with basker
-          </p>
-        </footer>
+        <Footer />
       </main>
 
       <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />

@@ -324,7 +324,7 @@ export default function Examples() {
                   Create Your Profile
                 </Button>
               </Link>
-              <Link href="/pricing">
+              <Link href="/info">
                 <Button variant="outline" size="lg" className="px-8">
                   Learn More
                 </Button>

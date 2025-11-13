@@ -32,6 +32,7 @@ import {
   Eye,
   Globe
 } from 'lucide-react';
+import { Footer } from '../components/Footer';
 
 export default function InfoCenter() {
   const { isAuthenticated } = useAuth();
@@ -1071,19 +1072,7 @@ export default function InfoCenter() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-white/20 dark:border-gray-700/30 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl mt-16">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-center md:text-left">
-              <h3 className="font-semibold mb-2 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Basker.bio</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                Your personal link hub powered by AT Protocol
-              </p>
-            </div>
-            <VersionInfo />
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
       {/* Modern CSS Animations */}
       <style>{`

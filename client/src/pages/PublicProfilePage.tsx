@@ -31,6 +31,7 @@ import { SpinningWheelWidget } from '../components/widgets/SpinningWheelWidget';
 import { BeforeAfterSliderWidget } from '../components/widgets/BeforeAfterSliderWidget';
 import { MiniGameWidget } from '../components/widgets/MiniGameWidget';
 import { FormBuilderWidget } from '../components/widgets/FormBuilderWidget';
+import { Footer } from '../components/Footer';
 
 const PROFILE_CONTAINER_DEFAULT = {
   enabled: false,
@@ -228,23 +229,7 @@ export default function PublicProfilePage() {
         })()}
 
         {/* Footer */}
-        <footer className="text-center py-8 border-t border-border mt-8" data-testid="footer">
-          <div className="flex items-center justify-center gap-2 text-muted-foreground mb-4">
-            <span className="text-sm">Powered by</span>
-            <img 
-              src="/baskerchristmas.jpg"
-              alt="Basker"
-              className="w-4 h-4 rounded-full"
-            />
-            <span className="text-sm">basker</span>
-            <span className="text-sm text-muted-foreground">© 2025</span>
-            <span className="text-sm text-muted-foreground">•</span>
-            <span className="text-sm text-muted-foreground">v2.1.0.0</span>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Create your own link-in-bio page with basker
-          </p>
-        </footer>
+        <Footer />
       </>
     );
   };
