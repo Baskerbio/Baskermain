@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '../contexts/AuthContext';
-import { Menu, X, Info, HelpCircle, Users, Sparkles } from 'lucide-react';
+import { Menu, X, Info, HelpCircle, Users, Sparkles, Layers } from 'lucide-react';
 
 export function Header() {
   const { isAuthenticated, user } = useAuth();
@@ -64,6 +64,10 @@ export function Header() {
             <Link href="/starter-packs" className="relative px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-300 rounded-lg hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 group">
               <span className="relative z-10">Starter Packs</span>
               <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-blue-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </Link>
+            <Link href="/platform" className="relative px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 rounded-lg hover:bg-blue-50/50 dark:hover:bg-blue-900/20 group">
+              <span className="relative z-10">Platform</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </Link>
             <Link href="/info" className="relative px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 transition-all duration-300 rounded-lg hover:bg-cyan-50/50 dark:hover:bg-cyan-900/20 group">
               <span className="relative z-10">Info Center</span>
@@ -135,6 +139,12 @@ export function Header() {
                 <Button variant="outline" size="sm" className="w-full justify-start gap-3 h-12 bg-white/50 dark:bg-gray-800/50 border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-300">
                   <Users className="w-4 h-4" />
                   Starter Packs
+                </Button>
+              </Link>
+              <Link href="/platform">
+                <Button variant="outline" size="sm" className="w-full justify-start gap-3 h-12 bg-white/50 dark:bg-gray-800/50 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300">
+                  <Layers className="w-4 h-4" />
+                  Platform
                 </Button>
               </Link>
               <Link href="/info">

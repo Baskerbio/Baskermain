@@ -22,7 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import { DropResult } from '@hello-pangea/dnd';
 import { atprotocol } from '../lib/atprotocol';
 import { SEOHead } from '../components/SEOHead';
-import { Footer } from '../components/Footer';
+import { ProfileFooter } from '../components/ProfileFooter';
 
 const PROFILE_CONTAINER_DEFAULT = {
   enabled: false,
@@ -540,7 +540,7 @@ export default function Profile() {
       })()}
 
       {/* Footer */}
-      <Footer />
+      <ProfileFooter />
     </>
   );
 

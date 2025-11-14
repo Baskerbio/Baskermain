@@ -30,7 +30,9 @@ import {
   Code,
   Lock,
   Eye,
-  Globe
+  Globe,
+  ArrowRight,
+  Scroll
 } from 'lucide-react';
 import { Footer } from '../components/Footer';
 
@@ -136,11 +138,11 @@ export default function InfoCenter() {
                 <span className="hidden sm:inline">About</span>
               </TabsTrigger>
               <TabsTrigger 
-                value="legal" 
+                value="policies" 
                 className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg font-medium transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=inactive]:text-gray-600 data-[state=inactive]:dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-xs sm:text-sm"
               >
                 <FileText className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Legal</span>
+                <span className="hidden sm:inline">Policies & Roles</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="pricing" 
@@ -519,141 +521,123 @@ export default function InfoCenter() {
           </TabsContent>
 
           {/* Legal Tab */}
-          <TabsContent value="legal" className="space-y-6">
+          <TabsContent value="policies" className="space-y-6">
             <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-2xl border border-blue-200/50 dark:border-blue-800/50 shadow-lg">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
                   <Scale className="w-5 h-5 text-blue-500" />
-                  Legal Documents
+                  Policies & Rules
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <Link href="/privacy">
-                    <Card className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-blue-200/50 dark:border-blue-800/50 hover:border-blue-300/50 dark:hover:border-blue-600/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
-                      <CardContent className="p-6">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                            <FileText className="w-5 h-5 text-white" />
-                          </div>
-                          <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Privacy Policy</h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                              How we collect, use, and protect your data
-                            </p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
+                  <Card className="group bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl border border-blue-200/50 dark:border-blue-800/50 shadow-lg hover:shadow-xl transition-all hover:border-blue-400/60 dark:hover:border-blue-600/60">
+                    <CardContent className="p-6 space-y-3">
+                      <div className="flex items-center gap-3">
+                        <Badge className="bg-blue-100 text-blue-600 border border-blue-200 dark:bg-blue-900/40 dark:text-blue-300 dark:border-blue-800/60">
+                          Core Policy
+                        </Badge>
+                        <Shield className="w-5 h-5 text-blue-500" />
+                      </div>
+                      <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Privacy Policy</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        How we collect, use, and safeguard data.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="outline">Data Practices</Badge>
+                        <Badge variant="outline">Compliance</Badge>
+                        <Badge variant="outline">Transparency</Badge>
+                      </div>
+                      <Link 
+                        href="/privacy" 
+                        className="inline-flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                      >
+                        Read policy
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    </CardContent>
+                  </Card>
 
-                  <Link href="/terms">
-                    <Card className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 hover:border-purple-300/50 dark:hover:border-purple-600/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
-                      <CardContent className="p-6">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                            <Scale className="w-5 h-5 text-white" />
-                          </div>
-                          <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Terms of Service</h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                              Rules and guidelines for using our platform
-                            </p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
+                  <Card className="group bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl border border-purple-200/50 dark:border-purple-800/50 shadow-lg hover:shadow-xl transition-all hover:border-purple-400/60 dark:hover:border-purple-600/60">
+                    <CardContent className="p-6 space-y-3">
+                      <div className="flex items-center gap-3">
+                        <Badge className="bg-purple-100 text-purple-600 border border-purple-200 dark:bg-purple-900/40 dark:text-purple-300 dark:border-purple-800/60">
+                          Terms
+                        </Badge>
+                        <Scroll className="w-5 h-5 text-purple-500" />
+                      </div>
+                      <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Terms of Service</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        Your rights, responsibilities, and usage guidelines.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="outline">Usage</Badge>
+                        <Badge variant="outline">Responsibilities</Badge>
+                        <Badge variant="outline">Agreements</Badge>
+                      </div>
+                      <Link 
+                        href="/terms" 
+                        className="inline-flex items-center gap-2 text-sm text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
+                      >
+                        Review terms
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    </CardContent>
+                  </Card>
 
-                  <Link href="/eula">
-                    <Card className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-pink-200/50 dark:border-pink-800/50 hover:border-pink-300/50 dark:hover:border-pink-600/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
-                      <CardContent className="p-6">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-rose-500 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                            <FileText className="w-5 h-5 text-white" />
-                          </div>
-                          <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors">End User License Agreement</h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                              Software licensing terms and conditions
-                            </p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
+                    <Card className="group bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl border border-green-200/50 dark:border-green-800/50 shadow-lg hover:shadow-xl transition-all hover:border-green-400/60 dark:hover:border-green-600/60">
+                    <CardContent className="p-6 space-y-3">
+                      <div className="flex items-center gap-3">
+                        <Badge className="bg-green-100 text-green-600 border border-green-200 dark:bg-green-900/40 dark:text-green-300 dark:border-green-800/60">
+                          Requests
+                        </Badge>
+                        <Mail className="w-5 h-5 text-green-500" />
+                      </div>
+                      <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">DMCA & takedown requests</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        How to submit copyright claims and content removal requests.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="outline">Copyright</Badge>
+                        <Badge variant="outline">Removal</Badge>
+                        <Badge variant="outline">Support</Badge>
+                      </div>
+                      <Link 
+                        href="/dmca" 
+                        className="inline-flex items-center gap-2 text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 transition-colors"
+                      >
+                        View process
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    </CardContent>
+                  </Card>
 
-                  <Link href="/cookies">
-                    <Card className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-green-200/50 dark:border-green-800/50 hover:border-green-300/50 dark:hover:border-green-600/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
-                      <CardContent className="p-6">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                            <FileText className="w-5 h-5 text-white" />
-                          </div>
-                          <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">Cookie Policy</h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                              How we use cookies and tracking technologies
-                            </p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-
-                  <Link href="/data-processing">
-                    <Card className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-orange-200/50 dark:border-orange-800/50 hover:border-orange-300/50 dark:hover:border-orange-600/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
-                      <CardContent className="p-6">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                            <FileText className="w-5 h-5 text-white" />
-                          </div>
-                          <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">Data Processing Agreement</h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                              GDPR-compliant data processing information
-                            </p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-
-                  <Link href="/acceptable-use">
-                    <Card className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-cyan-200/50 dark:border-cyan-800/50 hover:border-cyan-300/50 dark:hover:border-cyan-600/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
-                      <CardContent className="p-6">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                            <FileText className="w-5 h-5 text-white" />
-                          </div>
-                          <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">Acceptable Use Policy</h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                              Guidelines for appropriate platform usage
-                            </p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-
-                  <Link href="/dmca">
-                    <Card className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-xl border border-indigo-200/50 dark:border-indigo-800/50 hover:border-indigo-300/50 dark:hover:border-indigo-600/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
-                      <CardContent className="p-6">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                            <FileText className="w-5 h-5 text-white" />
-                          </div>
-                          <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">DMCA Policy</h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                              Copyright infringement reporting procedures
-                            </p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
+                  <Card className="group bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl border border-amber-200/50 dark:border-amber-800/50 shadow-lg hover:shadow-xl transition-all hover:border-amber-400/60 dark:hover:border-amber-600/60">
+                    <CardContent className="p-6 space-y-3">
+                      <div className="flex items-center gap-3">
+                        <Badge className="bg-amber-100 text-amber-600 border border-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-800/60">
+                          Platform
+                        </Badge>
+                        <Shield className="w-5 h-5 text-amber-500" />
+                      </div>
+                      <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">Platform Guidelines</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        Key rules that every Basker user must follow.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="outline">Bluesky Rules</Badge>
+                        <Badge variant="outline">Authenticity</Badge>
+                        <Badge variant="outline">Safety</Badge>
+                      </div>
+                      <Link
+                        href="/platform-guidelines"
+                        className="inline-flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 transition-colors"
+                      >
+                        View guidelines
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    </CardContent>
+                  </Card>
                 </div>
               </CardContent>
             </Card>

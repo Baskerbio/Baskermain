@@ -331,7 +331,7 @@ export default function Landing(): JSX.Element {
               </form>
 
               {showSuggestions && (
-                <div className="absolute left-0 right-0 mt-2 rounded-2xl bg-slate-950/90 border border-white/10 shadow-2xl backdrop-blur-lg">
+                <div className="absolute left-0 right-0 top-full mt-2 z-50 rounded-2xl bg-slate-950/90 border border-white/10 shadow-2xl backdrop-blur-lg max-h-72 overflow-y-auto">
                   {isLoadingSuggestions && (
                     <div className="px-4 py-3 text-xs text-white/60">Searching Bluesky…</div>
                   )}

@@ -34,7 +34,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   
   // Check if we're on a profile page (own profile or public profile)
   const isOwnProfile = location === '/profile';
-  const isPublicProfile = location.startsWith('/') && location !== '/' && !location.startsWith('/faq') && !location.startsWith('/support') && !location.startsWith('/info') && !location.startsWith('/privacy') && !location.startsWith('/terms') && !location.startsWith('/eula') && !location.startsWith('/examples') && !location.startsWith('/starter-packs') && !location.startsWith('/moderation') && !location.startsWith('/login');
+  const isPublicProfile = location.startsWith('/') && location !== '/' && !location.startsWith('/faq') && !location.startsWith('/support') && !location.startsWith('/info') && !location.startsWith('/privacy') && !location.startsWith('/terms') && !location.startsWith('/eula') && !location.startsWith('/examples') && !location.startsWith('/starter-packs') && !location.startsWith('/moderation') && !location.startsWith('/login') && !location.startsWith('/platform') && !location.startsWith('/newsletter') && !location.startsWith('/forms') && !location.startsWith('/platform-guidelines');
   const isProfilePage = isOwnProfile || isPublicProfile;
 
   useEffect(() => {

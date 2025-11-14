@@ -522,6 +522,9 @@ export const widgetSchema = z.object({
     "social_links",    // Social media links grid
     "testimonial",     // Customer testimonials
     "pricing_table",   // Pricing comparison table
+    "social_feed",     // Auto-generated social feeds
+    "status",          // Quick status message
+    "microblog",       // Microblog updates
     "newsletter",      // Newsletter signup
     "recent_posts",    // Recent blog posts
     "poll",            // Interactive polls

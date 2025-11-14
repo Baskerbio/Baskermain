@@ -24,7 +24,10 @@ import { SpinningWheelWidget } from './widgets/SpinningWheelWidget';
 import { BeforeAfterSliderWidget } from './widgets/BeforeAfterSliderWidget';
 import { MiniGameWidget } from './widgets/MiniGameWidget';
 import { FormBuilderWidget } from './widgets/FormBuilderWidget';
-import { Plus, Settings, Trash2, Clock, Code, Users, Cloud, Quote, TrendingUp, Calendar, Music, Heart, Mail, Youtube, Type, Image, BarChart3, Megaphone, X, CheckSquare, Timer, QrCode, Share2, Star, DollarSign, Bell, FileText, Maximize2, Minimize2, MessageCircle, ShoppingBag, Briefcase, ExternalLink, Github, Coffee, Smile, Sparkles, FlipHorizontal, Gamepad2, GripVertical, ClipboardList } from 'lucide-react';
+import SocialFeedWidget from './widgets/SocialFeedWidget';
+import StatusWidget from './widgets/StatusWidget';
+import MicroblogWidget from './widgets/MicroblogWidget';
+import { Plus, Settings, Trash2, Clock, Code, Users, Cloud, Quote, TrendingUp, Calendar, Music, Heart, Mail, Youtube, Type, Image, BarChart3, Megaphone, X, CheckSquare, Timer, QrCode, Share2, Star, DollarSign, Bell, FileText, Maximize2, Minimize2, MessageCircle, ShoppingBag, Briefcase, ExternalLink, Github, Coffee, Smile, Sparkles, FlipHorizontal, Gamepad2, GripVertical, ClipboardList, Rss, PenSquare } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 interface WidgetsProps {
@@ -55,6 +58,9 @@ const WIDGET_TYPES = [
   { value: 'social_links', label: 'Social Links', icon: Share2, description: 'Social media links grid' },
   { value: 'testimonial', label: 'Testimonial', icon: Star, description: 'Customer testimonials' },
   { value: 'pricing_table', label: 'Pricing Table', icon: DollarSign, description: 'Pricing comparison table' },
+  { value: 'social_feed', label: 'Social Feed', icon: Rss, description: 'Auto-updated posts from Bluesky and beyond' },
+  { value: 'status', label: 'Status', icon: Megaphone, description: 'Set a quick “what’s happening” message' },
+  { value: 'microblog', label: 'Microblog', icon: PenSquare, description: 'Write mini updates directly in Basker' },
   { value: 'newsletter', label: 'Newsletter', icon: Bell, description: 'Newsletter signup form' },
   { value: 'recent_posts', label: 'Recent Posts', icon: FileText, description: 'Recent blog posts feed' },
   { value: 'poll', label: 'Poll', icon: BarChart3, description: 'Interactive polls and surveys' },
@@ -262,6 +268,34 @@ export function Widgets({ isEditMode, effectiveSettings }: WidgetsProps) {
         return { text: '', author: '', role: '', avatar: '', rating: 5 };
       case 'pricing_table':
         return { plans: [], title: 'Pricing Plans' };
+      case 'social_feed':
+        return {
+          platform: 'bluesky',
+          handle: '',
+          postLimit: 3,
+          showAvatars: true,
+          samplePosts: [],
+        };
+      case 'status':
+        return {
+          message: 'Commissions open this week!',
+          emoji: '🚀',
+          backgroundColor: 'linear-gradient(135deg, rgba(59,130,246,0.18), rgba(168,85,247,0.22))',
+          textColor: '#0f172a',
+          pulse: false,
+        };
+      case 'microblog':
+        return {
+          title: 'Microblog',
+          crossPostToBluesky: false,
+          posts: [
+            {
+              id: `micro_${Date.now()}`,
+              content: 'Share bite-sized updates directly on your Basker profile.',
+              createdAt: new Date().toISOString(),
+            },
+          ],
+        };
       case 'newsletter':
         return { title: 'Newsletter', description: 'Subscribe to our newsletter', placeholder: 'Enter your email' };
       case 'recent_posts':
@@ -483,6 +517,12 @@ export function Widgets({ isEditMode, effectiveSettings }: WidgetsProps) {
         return <TestimonialWidget config={config} />;
       case 'pricing_table':
         return <PricingTableWidget config={config} />;
+      case 'social_feed':
+        return <SocialFeedWidget config={config} />;
+      case 'status':
+        return <StatusWidget config={config} />;
+      case 'microblog':
+        return <MicroblogWidget config={config} />;
       case 'newsletter':
         return <NewsletterWidget config={config} />;
       case 'recent_posts':
@@ -3172,6 +3212,253 @@ function WidgetEditor({
           </div>
         );
       
+      case 'social_feed': {
+        const samplePosts = editedWidget.config?.samplePosts || [];
+        const postsText = samplePosts.map((post: any) => post.content).join('\n\n');
+
+        return (
+          <div className="space-y-4">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <Label>Platform</Label>
+                <Select
+                  value={editedWidget.config?.platform || 'bluesky'}
+                  onValueChange={(value) =>
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, platform: value }
+                    }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a platform" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="bluesky">Bluesky</SelectItem>
+                    <SelectItem value="mastodon">Mastodon</SelectItem>
+                    <SelectItem value="twitter">Twitter / X</SelectItem>
+                    <SelectItem value="custom">Custom</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Handle / Feed ID</Label>
+                <Input
+                  value={editedWidget.config?.handle || ''}
+                  onChange={(e) =>
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, handle: e.target.value }
+                    }))
+                  }
+                  placeholder="@basker.bio"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <Label>Posts to show</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  max={10}
+                  value={editedWidget.config?.postLimit ?? 3}
+                  onChange={(e) =>
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: {
+                        ...prev.config,
+                        postLimit: Math.max(1, Math.min(10, Number(e.target.value) || 3))
+                      }
+                    }))
+                  }
+                />
+              </div>
+              <div className="flex items-center gap-2 mt-1">
+                <Switch
+                  id="show-avatars"
+                  checked={editedWidget.config?.showAvatars !== false}
+                  onCheckedChange={(checked) =>
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, showAvatars: checked }
+                    }))
+                  }
+                />
+                <Label htmlFor="show-avatars">Show avatars</Label>
+              </div>
+            </div>
+
+            <div>
+              <Label>Sample posts (one per paragraph)</Label>
+              <Textarea
+                value={postsText}
+                onChange={(e) => {
+                  const chunks = e.target.value
+                    .split(/\n{2,}/)
+                    .map(chunk => chunk.trim())
+                    .filter(Boolean);
+                  const newPosts = chunks.map((content, index) => ({
+                    id: samplePosts[index]?.id || `feed_${Date.now()}_${index}`,
+                    content,
+                    publishedAt: samplePosts[index]?.publishedAt || new Date().toISOString(),
+                  }));
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, samplePosts: newPosts }
+                  }));
+                }}
+                rows={5}
+                placeholder={'Share a project update.\n\nAnnounce a new link.\n\nDrop a weekend note.'}
+              />
+              <p className="mt-2 text-xs text-muted-foreground">
+                This preview renders until real posts are synced.
+              </p>
+            </div>
+          </div>
+        );
+      }
+
+      case 'status':
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label>Status message</Label>
+              <Input
+                value={editedWidget.config?.message || ''}
+                onChange={(e) =>
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, message: e.target.value }
+                  }))
+                }
+                placeholder="Commissions open"
+              />
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <Label>Emoji</Label>
+                <Input
+                  value={editedWidget.config?.emoji || ''}
+                  onChange={(e) =>
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, emoji: e.target.value.slice(0, 2) }
+                    }))
+                  }
+                  placeholder="🚀"
+                />
+              </div>
+              <div className="flex items-center gap-2 mt-1">
+                <Switch
+                  id="status-pulse"
+                  checked={editedWidget.config?.pulse ?? false}
+                  onCheckedChange={(checked) =>
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, pulse: checked }
+                    }))
+                  }
+                />
+                <Label htmlFor="status-pulse">Animate background</Label>
+              </div>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <Label>Background Color</Label>
+                <Input
+                  type="text"
+                  value={editedWidget.config?.backgroundColor || ''}
+                  onChange={(e) =>
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, backgroundColor: e.target.value }
+                    }))
+                  }
+                  placeholder="linear-gradient(135deg, #3b82f6, #a855f7)"
+                />
+              </div>
+              <div>
+                <Label>Text Color</Label>
+                <Input
+                  type="text"
+                  value={editedWidget.config?.textColor || ''}
+                  onChange={(e) =>
+                    setEditedWidget(prev => ({
+                      ...prev,
+                      config: { ...prev.config, textColor: e.target.value }
+                    }))
+                  }
+                  placeholder="#0f172a"
+                />
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'microblog': {
+        const posts = editedWidget.config?.posts || [];
+        const postsText = posts.map((post: any) => post.content).join('\n\n');
+
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label>Section title</Label>
+              <Input
+                value={editedWidget.config?.title || 'Microblog'}
+                onChange={(e) =>
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, title: e.target.value }
+                  }))
+                }
+                placeholder="Microblog"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch
+                id="microblog-crosspost"
+                checked={editedWidget.config?.crossPostToBluesky ?? false}
+                onCheckedChange={(checked) =>
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, crossPostToBluesky: checked }
+                  }))
+                }
+              />
+              <Label htmlFor="microblog-crosspost">Also send posts to Bluesky</Label>
+            </div>
+            <div>
+              <Label>Posts (separate each update with a blank line)</Label>
+              <Textarea
+                rows={6}
+                value={postsText}
+                onChange={(e) => {
+                  const chunks = e.target.value
+                    .split(/\n{2,}/)
+                    .map(chunk => chunk.trim())
+                    .filter(Boolean);
+                  const newPosts = chunks.map((content, index) => ({
+                    id: posts[index]?.id || `micro_${Date.now()}_${index}`,
+                    content,
+                    createdAt: posts[index]?.createdAt || new Date().toISOString(),
+                  }));
+                  setEditedWidget(prev => ({
+                    ...prev,
+                    config: { ...prev.config, posts: newPosts }
+                  }));
+                }}
+                placeholder={'Working on a new widget layout.\n\nShipped a fresh gallery update.\n\nWeekend plans: Solaris pop-up.'}
+              />
+              <p className="mt-2 text-xs text-muted-foreground">
+                Microblog posts are stored with AT Protocol when the widget is live.
+              </p>
+            </div>
+          </div>
+        );
+      }
+
       case 'newsletter':
         return (
           <div className="space-y-4">
@@ -4302,176 +4589,199 @@ const gameLoop = setInterval(() => {
           updateConfig({ fields: [...fields, newField] });
         };
 
+        const addTemplate = (template: 'contact' | 'feedback') => {
+          const templateFields =
+            template === 'contact'
+              ? [
+                  { type: 'short_text', label: 'Full Name', placeholder: 'Jane Doe', required: true },
+                  { type: 'email', label: 'Email Address', placeholder: 'you@domain.com', required: true },
+                  { type: 'long_text', label: 'Message', placeholder: 'How can we help?', required: true },
+                ]
+              : [
+                  { type: 'short_text', label: 'Subject', placeholder: 'Project inquiry', required: true },
+                  { type: 'select', label: 'How happy are you?', options: ['😍 Love it', '🙂 It’s good', '😐 It’s okay', '🙁 Needs work'], required: false },
+                  { type: 'long_text', label: 'Share your thoughts', placeholder: 'Drop any details here', required: false },
+                ];
+
+          const generated = templateFields.map((field) => ({
+            id: `field_${field.type}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+            ...field,
+          }));
+
+          updateConfig({ fields: [...fields, ...generated] });
+        };
+
+        const moveField = (fieldId: string, direction: -1 | 1) => {
+          const index = fields.findIndex((field: any) => field.id === fieldId);
+          if (index < 0) return;
+          const newIndex = index + direction;
+          if (newIndex < 0 || newIndex >= fields.length) return;
+          const reordered = [...fields];
+          const [field] = reordered.splice(index, 1);
+          reordered.splice(newIndex, 0, field);
+          updateConfig({ fields: reordered });
+        };
+
         return (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <section className="rounded-lg border bg-background p-4 space-y-4">
               <div>
-                <Label>Form Title</Label>
-                <Input
-                  value={editedWidget.config?.title || ''}
-                  onChange={(event) =>
-                    updateConfig({ title: event.target.value })
-                  }
-                  placeholder="Contact Form"
-                />
+                <h4 className="font-semibold">Form basics</h4>
+                <p className="text-xs text-muted-foreground">
+                  Give your form a friendly name and short description. This is what visitors see above the questions.
+                </p>
               </div>
-              <div>
-                <Label>Submit Button Label</Label>
-                <Input
-                  value={editedWidget.config?.submitButtonLabel || 'Submit'}
-                  onChange={(event) =>
-                    updateConfig({ submitButtonLabel: event.target.value })
-                  }
-                  placeholder="Send message"
-                />
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Form name</Label>
+                  <Input
+                    value={editedWidget.config?.title || ''}
+                    onChange={(event) => updateConfig({ title: event.target.value })}
+                    placeholder="Contact Basker team"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Form intro (optional)</Label>
+                  <Textarea
+                    value={editedWidget.config?.description || ''}
+                    onChange={(event) => updateConfig({ description: event.target.value })}
+                    rows={3}
+                    placeholder="Let people know why you’re collecting this info."
+                  />
+                </div>
               </div>
-              <div>
-                <Label>Success Message</Label>
-                <Input
-                  value={editedWidget.config?.successMessage || 'Thanks for your submission!'}
-                  onChange={(event) =>
-                    updateConfig({ successMessage: event.target.value })
-                  }
-                  placeholder="Thanks! We'll reply soon."
-                />
-              </div>
-              <div className="flex items-center gap-2 mt-2">
-                <Switch
-                  id="require-login"
-                  checked={editedWidget.config?.requireLogin !== false}
-                  onCheckedChange={(checked) =>
-                    updateConfig({ requireLogin: checked })
-                  }
-                />
+            </section>
+
+            <section className="rounded-lg border bg-background p-4 space-y-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <Label htmlFor="require-login" className="text-sm font-medium">
-                    Require Bluesky login
-                  </Label>
+                  <h4 className="font-semibold">Questions</h4>
                   <p className="text-xs text-muted-foreground">
-                    Visitors must sign in before submitting the form.
+                    Add the prompts you want visitors to answer. Drag buttons below to drop new questions just like Jotform.
                   </p>
                 </div>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <Button size="sm" variant="outline" onClick={() => addTemplate('contact')}>
+                    Quick contact template
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => addTemplate('feedback')}>
+                    Quick feedback template
+                  </Button>
+                </div>
               </div>
-            </div>
 
-            <div>
-              <Label>Form Description</Label>
-              <Textarea
-                value={editedWidget.config?.description || ''}
-                onChange={(event) =>
-                  updateConfig({ description: event.target.value })
-                }
-                rows={3}
-                placeholder="Let visitors know how you’ll use their responses."
-              />
-            </div>
-
-            <div className="border rounded-lg p-4 space-y-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h4 className="font-medium text-foreground">Form Fields</h4>
-                  <p className="text-xs text-muted-foreground">
-                    Add and customize the responses you want to collect.
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Button size="sm" variant="outline" onClick={() => addField('short_text')}>
-                    Add Short Text
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => addField('long_text')}>
-                    Add Long Text
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => addField('email')}>
-                    Add Email
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => addField('select')}>
-                    Add Select
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => addField('checkbox')}>
-                    Add Checkbox
-                  </Button>
-                </div>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="secondary" onClick={() => addField('short_text')}>
+                  Short answer
+                </Button>
+                <Button size="sm" variant="secondary" onClick={() => addField('long_text')}>
+                  Long answer
+                </Button>
+                <Button size="sm" variant="secondary" onClick={() => addField('email')}>
+                  Email
+                </Button>
+                <Button size="sm" variant="secondary" onClick={() => addField('select')}>
+                  Dropdown
+                </Button>
+                <Button size="sm" variant="secondary" onClick={() => addField('checkbox')}>
+                  Toggle
+                </Button>
               </div>
 
               {fields.length === 0 && (
-                <div className="rounded-md border border-dashed p-6 text-sm text-muted-foreground text-center">
-                  No fields yet. Use the buttons above to add your first field.
+                <div className="rounded-md border border-dashed bg-muted/30 p-6 text-sm text-muted-foreground text-center">
+                  No questions yet. Add one using the buttons above or drop in a quick template.
                 </div>
               )}
 
               <div className="space-y-4">
                 {fields.map((field: any, index: number) => (
-                  <div key={field.id} className="border rounded-lg p-4 space-y-3 bg-muted/40">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                          Field {index + 1}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <Switch
-                            id={`required-${field.id}`}
-                            checked={field.required || false}
-                            onCheckedChange={(checked) =>
-                              updateField(field.id, { required: checked })
-                            }
-                          />
-                          <Label htmlFor={`required-${field.id}`} className="text-xs">
-                            Required
-                          </Label>
-                        </div>
+                  <div key={field.id} className="rounded-lg border bg-muted/30 p-4 space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <span className="text-xs font-semibold uppercase text-muted-foreground">
+                        Question {index + 1}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => moveField(field.id, -1)}
+                          disabled={index === 0}
+                          title="Move up"
+                        >
+                          ↑
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => moveField(field.id, 1)}
+                          disabled={index === fields.length - 1}
+                          title="Move down"
+                        >
+                          ↓
+                        </Button>
+                        <Switch
+                          id={`required-${field.id}`}
+                          checked={field.required || false}
+                          onCheckedChange={(checked) => updateField(field.id, { required: checked })}
+                        />
+                        <Label htmlFor={`required-${field.id}`} className="text-xs">Required</Label>
+                        <Button variant="ghost" size="sm" onClick={() => removeField(field.id)}>
+                          Remove
+                        </Button>
                       </div>
-                      <Button variant="ghost" size="sm" onClick={() => removeField(field.id)}>
-                        Remove
-                      </Button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div>
-                        <Label>Field Label</Label>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label>Question text</Label>
                         <Input
                           value={field.label || ''}
-                          onChange={(event) =>
-                            updateField(field.id, { label: event.target.value })
-                          }
-                          placeholder="Name"
+                          onChange={(event) => updateField(field.id, { label: event.target.value })}
+                          placeholder="Your full name"
                         />
                       </div>
-                      <div>
-                        <Label>Field Type</Label>
+                      <div className="space-y-2">
+                        <Label>Answer type</Label>
                         <Select
                           value={field.type || 'short_text'}
-                          onValueChange={(value) => updateField(field.id, { type: value, options: value === 'select' ? (field.options || ['Option 1', 'Option 2']) : undefined })}
+                          onValueChange={(value) =>
+                            updateField(field.id, {
+                              type: value,
+                              options: value === 'select' ? (field.options || ['Option 1', 'Option 2']) : undefined,
+                            })
+                          }
                         >
                           <SelectTrigger>
-                            <SelectValue />
+                            <SelectValue placeholder="Choose answer type" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="short_text">Short Text</SelectItem>
-                            <SelectItem value="long_text">Long Text</SelectItem>
+                            <SelectItem value="short_text">Short answer</SelectItem>
+                            <SelectItem value="long_text">Long answer</SelectItem>
                             <SelectItem value="email">Email</SelectItem>
-                            <SelectItem value="select">Select</SelectItem>
-                            <SelectItem value="checkbox">Checkbox</SelectItem>
+                            <SelectItem value="select">Dropdown</SelectItem>
+                            <SelectItem value="checkbox">Toggle</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
 
                     {field.type !== 'checkbox' && (
-                      <div>
-                        <Label>Placeholder</Label>
+                      <div className="space-y-2">
+                        <Label>Helper text (optional)</Label>
                         <Input
                           value={field.placeholder || ''}
                           onChange={(event) =>
                             updateField(field.id, { placeholder: event.target.value })
                           }
-                          placeholder="Enter your response"
+                          placeholder="Example: Let us know how to reach you back."
                         />
                       </div>
                     )}
 
                     {field.type === 'select' && (
-                      <div>
-                        <Label>Select Options (one per line)</Label>
+                      <div className="space-y-2">
+                        <Label>Dropdown options</Label>
                         <Textarea
                           value={(field.options || []).join('\n')}
                           onChange={(event) =>
@@ -4485,12 +4795,76 @@ const gameLoop = setInterval(() => {
                           rows={3}
                           placeholder={'Option 1\nOption 2\nOption 3'}
                         />
+                        <p className="text-xs text-muted-foreground">
+                          Put one choice per line. Press Enter to add another option.
+                        </p>
                       </div>
                     )}
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
+
+            <section className="rounded-lg border bg-background p-4 space-y-4">
+              <div>
+                <h4 className="font-semibold">After someone submits</h4>
+                <p className="text-xs text-muted-foreground">
+                  Customize the thank-you state and optional follow-up link, just like Jotform.
+                </p>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Submit button text</Label>
+                  <Input
+                    value={editedWidget.config?.submitButtonLabel || 'Submit'}
+                    onChange={(event) => updateConfig({ submitButtonLabel: event.target.value })}
+                    placeholder="Send message"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Success message</Label>
+                  <Input
+                    value={editedWidget.config?.successMessage || 'Thanks for your submission!'}
+                    onChange={(event) => updateConfig({ successMessage: event.target.value })}
+                    placeholder="Thanks! We’ll reply soon."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Success button label (optional)</Label>
+                  <Input
+                    value={editedWidget.config?.successLinkLabel || ''}
+                    onChange={(event) => updateConfig({ successLinkLabel: event.target.value })}
+                    placeholder="View our FAQ"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Success button URL</Label>
+                  <Input
+                    value={editedWidget.config?.successLinkUrl || ''}
+                    onChange={(event) => updateConfig({ successLinkUrl: event.target.value })}
+                    placeholder="https://"
+                  />
+                </div>
+              </div>
+            </section>
+
+            <section className="rounded-lg border bg-background p-4 space-y-3">
+              <div className="flex items-start gap-3">
+                <Switch
+                  id="require-login"
+                  checked={editedWidget.config?.requireLogin !== false}
+                  onCheckedChange={(checked) => updateConfig({ requireLogin: checked })}
+                />
+                <div>
+                  <Label htmlFor="require-login" className="font-medium">
+                    Require Bluesky login to submit
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    Keep this on if you want every response tied to a verified Bluesky handle.
+                  </p>
+                </div>
+              </div>
+            </section>
           </div>
         );
       }

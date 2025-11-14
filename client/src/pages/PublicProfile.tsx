@@ -25,9 +25,12 @@ import { SpinningWheelWidget } from '../components/widgets/SpinningWheelWidget';
 import { BeforeAfterSliderWidget } from '../components/widgets/BeforeAfterSliderWidget';
 import { MiniGameWidget } from '../components/widgets/MiniGameWidget';
 import { FormBuilderWidget } from '../components/widgets/FormBuilderWidget';
+import { PublicSocialFeedWidget } from '../components/widgets/SocialFeedWidget';
+import { PublicStatusWidget } from '../components/widgets/StatusWidget';
+import { PublicMicroblogWidget } from '../components/widgets/MicroblogWidget';
 import { useToast } from '@/hooks/use-toast';
 import { usePublicWidgets } from '../hooks/use-atprotocol';
-import { Footer } from '../components/Footer';
+import { ProfileFooter } from '../components/ProfileFooter';
 
 export default function PublicProfile() {
   const [, params] = useRoute('/:handle');
@@ -321,7 +324,7 @@ export default function PublicProfile() {
         </div>
 
         {/* Footer */}
-        <Footer />
+        <ProfileFooter />
       </main>
 
       <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
@@ -518,6 +521,12 @@ function PublicWidgets({ did }: { did: string }) {
               return <WorkHistoryWidget key={widget.id} isPublic={true} targetDid={did} />;
             case 'product_showcase':
               return <ProductShowcaseWidget key={widget.id} config={widget.config} isEditMode={false} />;
+            case 'social_feed':
+              return <PublicSocialFeedWidget key={widget.id} config={widget.config} />;
+            case 'status':
+              return <PublicStatusWidget key={widget.id} config={widget.config} />;
+            case 'microblog':
+              return <PublicMicroblogWidget key={widget.id} config={widget.config} />;
             case 'social_badge':
               return <SocialBadgeWidget key={widget.id} config={widget.config} />;
             case 'weather':

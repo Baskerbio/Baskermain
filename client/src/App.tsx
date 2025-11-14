@@ -29,6 +29,10 @@ import Analytics from "@/pages/Analytics";
 import Import from "@/pages/Import";
 import Solaris from "@/pages/Tap";
 import SubmitWidget from "@/pages/SubmitWidget";
+import Platform from "@/pages/Platform";
+import Newsletter from "@/pages/Newsletter";
+import Forms from "@/pages/Forms";
+import PlatformGuidelines from "@/pages/PlatformGuidelines";
 
 function Router() {
   return (
@@ -54,6 +58,10 @@ function Router() {
       <Route path="/starter-packs/:packId" component={StarterPackDetail} />
       <Route path="/moderation" component={ModerationPanel} />
       <Route path="/submit-widget" component={SubmitWidget} />
+      <Route path="/platform" component={Platform} />
+      <Route path="/newsletter" component={Newsletter} />
+      <Route path="/forms" component={Forms} />
+      <Route path="/platform-guidelines" component={PlatformGuidelines} />
       <Route path="/:handle" component={PublicProfilePage} />
       <Route component={NotFound} />
     </Switch>

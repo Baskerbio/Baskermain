@@ -32,6 +32,8 @@ interface FormBuilderConfig {
   requireLogin?: boolean;
   submitButtonLabel?: string;
   successMessage?: string;
+  successLinkLabel?: string;
+  successLinkUrl?: string;
   fields: FormField[];
 }
 
@@ -225,8 +227,18 @@ export function FormBuilderWidget({ config, widgetId, isEditMode = false }: Form
 
         {hasSubmitted && !isEditMode && (
           <Alert>
-            <AlertDescription>
-              {config?.successMessage || 'Thanks for your submission!'}
+            <AlertDescription className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <span>{config?.successMessage || 'Thanks for your submission!'}</span>
+              {config?.successLinkUrl && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(config.successLinkUrl, '_blank', 'noopener')}
+                >
+                  {config.successLinkLabel?.trim() || 'View more'}
+                </Button>
+              )}
             </AlertDescription>
           </Alert>
         )}

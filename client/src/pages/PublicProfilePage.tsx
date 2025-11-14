@@ -31,7 +31,10 @@ import { SpinningWheelWidget } from '../components/widgets/SpinningWheelWidget';
 import { BeforeAfterSliderWidget } from '../components/widgets/BeforeAfterSliderWidget';
 import { MiniGameWidget } from '../components/widgets/MiniGameWidget';
 import { FormBuilderWidget } from '../components/widgets/FormBuilderWidget';
-import { Footer } from '../components/Footer';
+import { PublicSocialFeedWidget } from '../components/widgets/SocialFeedWidget';
+import { PublicStatusWidget } from '../components/widgets/StatusWidget';
+import { PublicMicroblogWidget } from '../components/widgets/MicroblogWidget';
+import { ProfileFooter } from '../components/ProfileFooter';
 
 const PROFILE_CONTAINER_DEFAULT = {
   enabled: false,
@@ -229,7 +232,7 @@ export default function PublicProfilePage() {
         })()}
 
         {/* Footer */}
-        <Footer />
+        <ProfileFooter />
       </>
     );
   };
@@ -1101,6 +1104,12 @@ function PublicWidgets({ did }: { did: string }) {
         return <PublicTestimonialWidget config={config} />;
       case 'pricing_table':
         return <PublicPricingTableWidget config={config} />;
+      case 'social_feed':
+        return <PublicSocialFeedWidget config={config} />;
+      case 'status':
+        return <PublicStatusWidget config={config} />;
+      case 'microblog':
+        return <PublicMicroblogWidget config={config} />;
       case 'newsletter':
         return <PublicNewsletterWidget config={config} />;
       case 'recent_posts':
