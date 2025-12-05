@@ -33,6 +33,7 @@ import Platform from "@/pages/Platform";
 import Newsletter from "@/pages/Newsletter";
 import Forms from "@/pages/Forms";
 import PlatformGuidelines from "@/pages/PlatformGuidelines";
+import { DiscontinuationNotice } from "@/components/DiscontinuationNotice";
 
 function Router() {
   return (
@@ -76,6 +77,7 @@ function App() {
           <EditModeProvider>
             <TooltipProvider>
               <Toaster />
+              <DiscontinuationNotice />
               <Router />
             </TooltipProvider>
           </EditModeProvider>
